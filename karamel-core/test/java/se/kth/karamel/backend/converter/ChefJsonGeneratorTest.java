@@ -58,6 +58,7 @@ public class ChefJsonGeneratorTest {
     Assert.assertNotNull(chefJsons.get("mgmnodes1ndb::purge"));
     JsonObject jsonObject = chefJsons.get("mgmnodes1ndb::purge");
     String st = jsonObject.toString();
+    System.out.println(st);
     Assert.assertTrue(st.contains("\"DataMemory\":\"111\""));
   }
 

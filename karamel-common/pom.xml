@@ -4,13 +4,13 @@
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <groupId>se.kth.karamel</groupId>
-    <artifactId>karamel-parent</artifactId>
+    <artifactId>karamel</artifactId>
     <version>0.5</version>
   </parent>
-  <groupId>se.kth.karamel</groupId>
+
   <artifactId>karamel-common</artifactId>
   <name>karamel-common</name>
-  <url>http://maven.apache.org</url>
+
   <dependencies>
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>

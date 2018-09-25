@@ -5,11 +5,10 @@
 
   <parent>
     <groupId>se.kth.karamel</groupId>
-    <artifactId>karamel-parent</artifactId>
+    <artifactId>karamel</artifactId>
     <version>0.5</version>
   </parent>
 
-  <groupId>se.kth.karamel</groupId>
   <artifactId>karamel-ui</artifactId>
   <packaging>jar</packaging>
   <name>karamel-ui</name>
@@ -88,6 +87,7 @@
         </plugins>
                 
       </build>
+
       <dependencies> 
         <dependency>
           <groupId>se.kth.karamel</groupId>
@@ -328,32 +328,6 @@
           </execution>
         </executions>
       </plugin>
-
     </plugins>
   </build>
-
-
-  <repositories>
-    <repository>
-      <id>sics-release</id>
-      <name>SICS Release Repository</name>
-      <url>http://kompics.sics.se/maven/repository</url>
-      <releases>
-      </releases>
-      <snapshots>
-        <enabled>false</enabled>
-      </snapshots>
-    </repository>
-    <repository>
-      <id>sics-snapshot</id>
-      <name>SICS Snapshot Repository</name>
-      <url>http://kompics.sics.se/maven/snapshotrepository</url>
-      <releases>
-        <enabled>false</enabled>
-      </releases>
-      <snapshots>
-      </snapshots>
-    </repository>
-  </repositories>
-
 </project>

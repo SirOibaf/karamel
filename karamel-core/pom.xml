@@ -4,23 +4,14 @@
 
   <parent>
     <groupId>se.kth.karamel</groupId>
-    <artifactId>karamel-parent</artifactId>
+    <artifactId>karamel</artifactId>
     <version>0.5</version>
   </parent>
 
-  <groupId>se.kth.karamel</groupId>
   <artifactId>karamel-core</artifactId>
   <packaging>jar</packaging>
-
   <name>karamel-core</name>
-  <url>http://maven.apache.org</url>
 
-  <repositories>
-    <repository>
-      <id>d-maven</id>
-      <url>http://d-maven.googlecode.com/svn/trunk/repo</url>
-    </repository>
-  </repositories>
   <dependencies>
     <dependency>
       <groupId>org.eclipse.jgit</groupId>
@@ -96,6 +87,7 @@
     <dependency>
       <groupId>se.kth.karamel</groupId>
       <artifactId>karamel-common</artifactId>
+      <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>org.kohsuke</groupId>

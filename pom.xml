@@ -1,12 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>se.kth.karamel</groupId>
-  <artifactId>karamel-parent</artifactId>
+  <artifactId>karamel</artifactId>
   <packaging>pom</packaging>
   <version>0.5</version>
-  <name>karamel-parent</name>
+  <name>karamel</name>
   <url>http://maven.apache.org</url>
 
   <!-- Modules in the Project.-->
@@ -38,70 +40,6 @@
     </dependency>
   </dependencies>
 
-  <developers>
-    <developer>
-      <id>jdowling</id>
-      <name>Jim Dowling</name>
-      <email>jdowling&gt;sics.se</email>
-      <url>http://www.sics.se/node/1405</url>
-      <organization>Swedish Institute of Computer Science (SICS)</organization>
-      <organizationUrl>http://www.sics.se/</organizationUrl>
-      <roles>
-        <role>architect</role>
-        <role>developer</role>
-      </roles>
-      <timezone>+1</timezone>
-    </developer>
-    <developer>
-      <id>kamal</id>
-      <name>Kamal Hakimzadeh</name>
-      <email>kamal2&gt;kth.se</email>
-      <organization>KTH</organization>
-      <organizationUrl>http://www.kth.se/</organizationUrl>
-      <roles>
-        <role>architect</role>
-        <role>developer</role>
-      </roles>
-      <timezone>+1</timezone>
-    </developer>
-    <developer>
-      <id>abhi</id>
-      <name>Abhimanyu Babbar</name>
-      <email>babbar&gt;kth.se</email>
-      <organization>KTH</organization>
-      <organizationUrl>http://www.kth.se/</organizationUrl>
-      <roles>
-        <role>developer</role>
-      </roles>
-      <timezone>+1</timezone>
-    </developer>
-    <developer>
-      <id>alorlea</id>
-      <name>Alberto Lorente Leal</name>
-      <email>a.lorenteleal&gt;gmail.com</email>
-      <organization>Free contributor</organization>
-      <organizationUrl>http://alorlea.github.io/</organizationUrl>
-      <roles>
-        <role>developer</role>
-      </roles>
-      <timezone>+1</timezone>
-    </developer>
-  </developers>
-
-  <dependencyManagement>
-    <dependencies>
-      <dependency>
-        <groupId>se.kth.karamel</groupId>
-        <artifactId>karamel-common</artifactId>
-        <version>${project.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>se.kth</groupId>
-        <artifactId>karamel-core</artifactId>
-        <version>${project.version}</version>
-      </dependency>
-    </dependencies>
-  </dependencyManagement>
   <distributionManagement>
     <repository>
       <id>sics-release-repository</id>
@@ -191,6 +129,10 @@
       </releases>
       <snapshots>
       </snapshots>
+    </repository>
+    <repository>
+      <id>d-maven</id>
+      <url>http://d-maven.googlecode.com/svn/trunk/repo</url>
     </repository>
   </repositories>
 </project>
