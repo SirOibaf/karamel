@@ -33,7 +33,7 @@ public class KaramelApiTest {
 
   @Test
   public void commitPushTest() throws KaramelException {
-    Experiment exp = new Experiment();
+    Experiment exp = new Experment();
 
     exp.setBerksfile("ark\njava");
     exp.setClusterDefinition("");
@@ -52,9 +52,6 @@ public class KaramelApiTest {
     exp.setGroup("testG");
     exp.setLocalDependencies("hops::install");
     exp.setUser("testU");
-//    ChefExperimentExtractor.parseAttributesAddToGit("karamelchef", "test", exp);
-//    ChefExperimentExtractor.parseRecipesAddToGit("karamelchef", "test", exp);
-//    KaramelizedCookbook kc = new KaramelizedCookbook("https://github.com/karamelchef/test", true);
   }
 
 //  @Test

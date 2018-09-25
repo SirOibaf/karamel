@@ -27,7 +27,6 @@ import org.yaml.snakeyaml.representer.Representer;
 import se.kth.karamel.backend.ClusterDefinitionService;
 import se.kth.karamel.backend.Experiment;
 import se.kth.karamel.backend.github.util.CookbookGenerator;
-import se.kth.karamel.client.api.KaramelApi;
 import se.kth.karamel.client.api.KaramelApiImpl;
 import se.kth.karamel.common.clusterdef.json.JsonCluster;
 import se.kth.karamel.common.clusterdef.json.JsonCookbook;

@@ -31,7 +31,7 @@ import se.kth.karamel.common.util.SshKeyService;
  *
  * @author kamal
  */
-public class ClusterService {
+public class ClusterService
 
   private static final Logger logger = Logger.getLogger(ClusterService.class);
 
@@ -98,13 +98,6 @@ public class ClusterService {
       throw new KaramelException("Could not find private key: " + sshKeyPair.getPrivateKeyPath());
     }
     sshKeyPair.setNeedsPassword(SshKeyService.checkIfPasswordNeeded(sshKeyPair));
-//    boolean needsPassword = SshKeyService.checkIfPasswordNeeded(sshKeyPair);
-//    if (needsPassword) {
-//      if (sshKeyPair.getPassphrase() == null || sshKeyPair.getPassphrase().isEmpty()) {
-//        throw new KaramelException("The passphrase needs to be entered for the OpenSshKey.");
-//      }
-//      sshKeyPair.setNeedsPassword(true);
-//    }
 
     commonContext.setSshKeyPair(sshKeyPair);
   }

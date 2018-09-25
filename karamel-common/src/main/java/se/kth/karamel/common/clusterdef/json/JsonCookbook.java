@@ -14,10 +14,6 @@ import se.kth.karamel.common.exception.KaramelException;
 import se.kth.karamel.common.cookbookmeta.KaramelizedCookbook;
 import se.kth.karamel.common.cookbookmeta.CookbookUrls;
 
-/**
- *
- * @author kamal
- */
 public class JsonCookbook {
 
   String id;

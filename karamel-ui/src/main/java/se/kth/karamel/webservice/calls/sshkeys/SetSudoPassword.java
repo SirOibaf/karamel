@@ -11,6 +11,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+
 import se.kth.karamel.client.api.KaramelApi;
 import se.kth.karamel.common.exception.KaramelException;
 import se.kth.karamel.webservice.calls.AbstractCall;
@@ -32,15 +33,9 @@ public class SetSudoPassword extends AbstractCall {
 
   @PUT
   public Response sudoPassword(SudoPasswordJSON sudoPwd) {
-    Response response = null;
     logger.debug(" Received request to set sudo password....");
-    try {
-      karamelApi.registerSudoPassword(sudoPwd.getPassword());
-      response = Response.status(Response.Status.OK).
-          entity(new StatusResponseJSON(StatusResponseJSON.SUCCESS_STRING, "success")).build();
-    } catch (KaramelException e) {
-      response = buildExceptionResponse(e);
-    }
-    return response;
+    karamelApi.registerSudoPassword(sudoPwd.getPassword());
+    return Response.status(Response.Status.OK).
+        entity(new StatusResponseJSON(StatusResponseJSON.SUCCESS_STRING, "success")).build();
   }
 }
