@@ -46,8 +46,6 @@ import se.kth.karamel.common.util.SshKeyPair;
 import se.kth.karamel.common.util.SshKeyService;
 import se.kth.karamel.common.util.settings.NovaSetting;
 
-import se.kth.karamel.common.cookbookmeta.CookbookCache;
-
 /**
  * Implementation of the Karamel Api for UI
  *

@@ -36,9 +36,8 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import se.kth.karamel.client.api.CookbookCacheIml;
-import se.kth.karamel.common.clusterdef.json.JsonScope;
 import se.kth.karamel.common.cookbookmeta.CookbookCache;
+import se.kth.karamel.common.clusterdef.json.JsonScope;
 
 /**
  * Stores/reads cluster definitions from Karamel home folder, does conversions between yaml and json definitions.
@@ -47,7 +46,7 @@ import se.kth.karamel.common.cookbookmeta.CookbookCache;
  */
 public class ClusterDefinitionService {
 
-  public static final CookbookCache CACHE = new CookbookCacheIml();
+  public static final CookbookCache CACHE = new CookbookCache();
 
   static {
     JsonScope.CACHE = CACHE;

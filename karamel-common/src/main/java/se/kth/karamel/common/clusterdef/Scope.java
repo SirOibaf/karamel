@@ -1,17 +1,10 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package se.kth.karamel.common.clusterdef;
 
 import se.kth.karamel.common.exception.ValidationException;
 
-/**
- *
- * @author kamal
- */
-public abstract class Scope {
+import java.util.Map;
+
+public class Scope {
 
   private Ec2 ec2;
   private Vagrant vagrant;
@@ -19,6 +12,8 @@ public abstract class Scope {
   private Gce gce;
   private Nova nova;
   private Occi occi;
+
+  protected Map<String, Object> attributes;
 
   public Scope() {
   }
@@ -31,8 +26,6 @@ public abstract class Scope {
     this.nova = scope.getNova();
     this.occi = scope.getOcci();
   }
-
-  public abstract Object getAttr(String key);
 
   public Provider getProvider() {
     if (ec2 != null) {
@@ -116,5 +109,12 @@ public abstract class Scope {
       occi.validate();
     }
   }
-;
+
+  public Map<String, Object> getAttributes() {
+    return attributes;
+  }
+
+  public void setAttributes(Map<String, Object> attributes) {
+    this.attributes = attributes;
+  }
 }

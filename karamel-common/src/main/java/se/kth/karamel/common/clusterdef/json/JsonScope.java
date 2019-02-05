@@ -5,7 +5,6 @@ import se.kth.karamel.common.clusterdef.Scope;
 import se.kth.karamel.common.cookbookmeta.KaramelizedCookbook;
 import se.kth.karamel.common.clusterdef.yaml.YamlScope;
 import se.kth.karamel.common.exception.ValidationException;
-import se.kth.karamel.common.cookbookmeta.CookbookCache;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,9 +14,7 @@ public class JsonScope extends Scope {
 
   protected final List<KaramelizedCookbook> cookbooks = new ArrayList<>();
 
-  public Map<String, Object> attributes;
-
-  public static CookbookCache CACHE;
+  public static CookbooCache CACHE;
 
   public JsonScope() {
   }
@@ -32,11 +29,6 @@ public class JsonScope extends Scope {
 
   public void setCookbooks(List<KaramelizedCookbook> cookbooks) {
     this.cookbooks.addAll(cookbooks);
-  }
-
-  @Override
-  public Object getAttr(String key) {
-    return null;
   }
 
   public Map<String, Object> getAttributes() {

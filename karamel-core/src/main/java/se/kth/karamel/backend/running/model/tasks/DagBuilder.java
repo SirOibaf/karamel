@@ -24,7 +24,6 @@ import se.kth.karamel.common.clusterdef.Ec2;
 import se.kth.karamel.common.clusterdef.Provider;
 import se.kth.karamel.common.clusterdef.json.JsonCluster;
 import se.kth.karamel.common.clusterdef.json.JsonGroup;
-import se.kth.karamel.common.cookbookmeta.CookbookCache;
 import se.kth.karamel.common.util.Settings;
 import se.kth.karamel.common.exception.DagConstructionException;
 import se.kth.karamel.common.exception.KaramelException;

@@ -1,6 +1,8 @@
 package se.kth.karamel.common.clusterdef.json;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import se.kth.karamel.common.clusterdef.Cookbook;
+import se.kth.karamel.common.clusterdef.Scope;
 import se.kth.karamel.common.clusterdef.yaml.YamlCluster;
 import se.kth.karamel.common.clusterdef.yaml.YamlGroup;
 import java.util.ArrayList;
@@ -11,14 +13,18 @@ import java.util.Map;
 import java.util.Set;
 
 import se.kth.karamel.common.cookbookmeta.Attribute;
+import se.kth.karamel.common.cookbookmeta.CookbookCache;
 import se.kth.karamel.common.cookbookmeta.KaramelizedCookbook;
 import se.kth.karamel.common.exception.KaramelException;
 
-public class JsonCluster extends JsonScope {
+public class JsonCluster extends Scope {
 
   private String name;
   private Map<String, Cookbook> rootCookbooks = new HashMap<>();
   private List<JsonGroup> groups = new ArrayList<>();
+
+  @JsonIgnore
+  private List<KaramelizedCookbook> cookbooks = new ArrayList<>();
 
   public JsonCluster() {
   }
@@ -30,9 +36,9 @@ public class JsonCluster extends JsonScope {
     attributes = cluster.flattenAttrs();
     Set<Attribute> validAttrs = new HashSet<>();
 
-    cookbooks.addAll(CACHE.loadAllKaramelizedCookbooks(cluster));
+    cookbooks.addAll(CookbookCache.getInstance().loadAllKaramelizedCookbooks(cluster));
 
-    //filtering invalid(not defined in metadata.rb) attributes from yaml model
+    // Filtering invalid(not defined in metadata.rb) attributes from yaml model
     // Get all the valid attributes, also for transient dependency
     for (KaramelizedCookbook kcb : cookbooks) {
       validAttrs.addAll(kcb.getMetadataRb().getAttributes());

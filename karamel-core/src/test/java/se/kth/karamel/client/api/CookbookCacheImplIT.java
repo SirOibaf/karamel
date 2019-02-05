@@ -12,6 +12,7 @@ import java.util.List;
 import org.junit.Ignore;
 import se.kth.karamel.backend.ClusterDefinitionService;
 import se.kth.karamel.common.clusterdef.yaml.YamlCluster;
+import se.kth.karamel.common.cookbookmeta.CookbookCache;
 import se.kth.karamel.common.cookbookmeta.KaramelizedCookbook;
 import se.kth.karamel.common.exception.KaramelException;
 
@@ -23,7 +24,7 @@ public class CookbookCacheImplIT {
   
   @Ignore
   public void testLoadCookbooks() throws IOException, KaramelException {
-    CookbookCacheIml cache = new CookbookCacheIml();
+    CookbookCache cache = new CookbookCache();
     String ymlString = Resources.toString(Resources.getResource("se/kth/karamel/client/model/test-definitions/hopsworks_compact.yml"), Charsets.UTF_8);
     YamlCluster cluster = ClusterDefinitionService.yamlToYamlObject(ymlString);
     List<KaramelizedCookbook> all = cache.loadAllKaramelizedCookbooks(cluster);
