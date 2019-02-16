@@ -282,14 +282,6 @@ public class SshMachine implements MachineInterface, Runnable {
             } else {
               try {
                 task.collectResults(this);
-                if (task instanceof RunRecipeTask) {
-                  // If this task is an experiment, try and download the experiment results
-                  // In contrast with 'collectResults' - the results will not necessarly be json objects,
-                  // they could be anything - but will be stored in a single file in /tmp/cookbook_recipe.out .
-                  if (cmd.getCmdStr().contains("experiment") && cmd.getCmdStr().contains("json")) {
-                    task.downloadExperimentResults(this);
-                  }
-                }
               } catch (KaramelException ex) {
                 logger.error(String.format("%s: Error in collecting/downloading the results", machineEntity.getId()),
                     ex);

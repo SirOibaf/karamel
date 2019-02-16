@@ -12,12 +12,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
-import java.util.regex.Pattern;
 
-/**
- *
- * @author kamal
- */
 public class Settings {
 
   // ---- Added by Fabio
@@ -171,11 +166,6 @@ public class Settings {
   public static final String OCCI_USER_CERTIFICATE_PATH = "/tmp/x509up_u1000";
   public static final String OCCI_CERTIFICATE_DIR = "/etc/grid-security/certificates/";
 
-  //------------------------------------Cookbooks on Github-------------------------------------------------------------
-  public static final String CB_METADATARB_REL_URL = "/metadata.rb";
-  public static final String CB_KARAMELFILE_REL_URL = "/Karamelfile";
-  public static final String CB_BERKSFILE_REL_URL = "/Berksfile";
-
   // ---------------------------------Cookbooks Scaffolding on Karamel Machine------------------------------------------
   public static final String CB_TEMPLATE_PATH_ROOT = "se" + File.separator + "kth" + File.separator + "karamel"
       + File.separator + "backend" + File.separator + "templates" + File.separator;
@@ -204,26 +194,6 @@ public class Settings {
   public static final String KANDY_REST_STATS_UPDATE(String id) {
     return String.format("%s/stats/update/%s", KANDY_REST_ROOT, id);
   }
-
-  //-----------------------------------------Github---------------------------------------------------------------------
-  public static final String GITHUB_USER_KEY = "github.email";
-  public static final String GITHUB_PASSWORD_KEY = "github.password";
-  public static final String GITHUB_DOMAIN = "github.com";
-  public static final String GITHUB_DEFAULT_BRANCH = "master";
-  public static final String GITHUB_RAW_DOMAIN = "raw.githubusercontent.com";
-  public static final String GITHUB_BASE_URL = HTTPS_PREFIX + GITHUB_DOMAIN;
-  public static final String GITHUB_RAW_URL = HTTPS_PREFIX + GITHUB_RAW_DOMAIN;
-  public static final String GITHUB_BASE_URL_PATTERN = "http(?:s)?:\\/\\/github.com";
-  public static final Pattern REPO_WITH_SUBCOOKBOOK_PATTERN
-      = Pattern.compile("([^\\/]*)\\/([^\\/]*)\\/tree\\/([^\\/]*)\\/(.*)");
-  public static final Pattern REPO_WITH_BRANCH_PATTERN = Pattern.compile("([^\\/]*)\\/([^\\/]*)\\/tree\\/([^\\/]*)");
-  public static final Pattern REPO_NO_BRANCH_PATTERN = Pattern.compile("([^\\/]*)\\/([^\\/]*)");
-  public static final Pattern GITHUB_REPO_WITH_SUBCOOKBOOK_PATTERN = Pattern.compile(
-      CARET + GITHUB_BASE_URL_PATTERN + "\\/" + REPO_WITH_SUBCOOKBOOK_PATTERN.pattern() + DOLLAR);
-  public static final Pattern GITHUB_REPO_WITH_BRANCH_PATTERN = Pattern.compile(
-      CARET + GITHUB_BASE_URL_PATTERN + SLASH + REPO_WITH_BRANCH_PATTERN.pattern() + DOLLAR);
-  public static final Pattern GITHUB_REPO_NO_BRANCH_PATTERN = Pattern.compile(
-      CARET + GITHUB_BASE_URL_PATTERN + SLASH + REPO_NO_BRANCH_PATTERN.pattern() + DOLLAR);
 
   //-----------------------------------------Machine General------------------------------------------------------------
   public static final String TMP_FOLDER_NAME = "tmp";

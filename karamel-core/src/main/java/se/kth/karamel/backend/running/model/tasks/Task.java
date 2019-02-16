@@ -221,10 +221,6 @@ public abstract class Task implements DagTask, TaskCallback {
     return false;
   }
 
-  public void downloadExperimentResults(MachineInterface sshMachine) throws KaramelException {
-    //override it in the subclasses if needed
-  }
-
   public String getSudoCommand() {
     String password = ClusterService.getInstance().getCommonContext().getSudoAccountPassword();
     return (password == null || password.isEmpty()) ? "sudo" : "echo \"%password_hidden%\" | sudo -S ";

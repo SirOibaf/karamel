@@ -1,5 +1,6 @@
 package se.kth.karamel.common.clusterdef.json;
 
+import se.kth.karamel.common.cookbookmeta.CookbookCache;
 import se.kth.karamel.common.exception.KaramelException;
 import se.kth.karamel.common.clusterdef.Scope;
 import se.kth.karamel.common.cookbookmeta.KaramelizedCookbook;
@@ -14,7 +15,7 @@ public class JsonScope extends Scope {
 
   protected final List<KaramelizedCookbook> cookbooks = new ArrayList<>();
 
-  public static CookbooCache CACHE;
+  public static CookbookCache CACHE;
 
   public JsonScope() {
   }

@@ -6,6 +6,7 @@ import java.util.Map;
 import se.kth.karamel.common.clusterdef.Cookbook;
 import se.kth.karamel.common.clusterdef.json.JsonCluster;
 import se.kth.karamel.common.clusterdef.json.JsonGroup;
+import se.kth.karamel.common.cookbookmeta.CookbookCache;
 import se.kth.karamel.common.exception.KaramelException;
 import se.kth.karamel.common.exception.ValidationException;
 
@@ -28,7 +29,7 @@ public class YamlCluster extends YamlScope {
       groups.put(jsonGroup.getName(), yamlGroup);
     }
 
-    attrs.putAll(jsonCluster.getAttributes());
+    attributes.putAll(jsonCluster.getAttributes());
     cookbooks.putAll(jsonCluster.getRootCookbooks());
   }
 

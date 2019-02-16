@@ -6,6 +6,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import se.kth.karamel.common.clusterdef.Baremetal;
+import se.kth.karamel.common.clusterdef.Scope;
 import se.kth.karamel.common.cookbookmeta.Attribute;
 import se.kth.karamel.common.cookbookmeta.KaramelizedCookbook;
 import se.kth.karamel.common.util.Settings;
@@ -14,7 +15,7 @@ import se.kth.karamel.common.exception.RecipeNotfoundException;
 import se.kth.karamel.common.clusterdef.yaml.YamlGroup;
 import se.kth.karamel.common.exception.ValidationException;
 
-public class JsonGroup extends JsonScope {
+public class JsonGroup extends Scope {
 
   private String name;
   private int size;

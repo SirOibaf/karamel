@@ -201,18 +201,4 @@ public class RunRecipeTask extends Task {
           getRecipeCanonicalName(), getMachine().getPublicIp()), ex);
     }
   }
-
-  @Override
-  public void downloadExperimentResults(MachineInterface sshMachine) throws KaramelException {
-    String remoteFile = Settings.EXPERIMENT_RESULT_REMOTE_PATH(getRecipeCanonicalName()) + ".out";
-    String localResultsFile = Settings.EXPERIMENT_RESULT_LOCAL_PATH(getRecipeCanonicalName(),
-        getMachine().getGroup().getCluster().getName(), getMachine().getPublicIp());
-    try {
-      sshMachine.downloadRemoteFile(remoteFile, localResultsFile, true);
-    } catch (IOException ex) {
-      logger.debug(String.format("Cannot find experiment results for download for %s on %s", getRecipeCanonicalName(),
-          getMachine().getPublicIp()));
-      return;
-    }
-  }
 }

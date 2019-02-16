@@ -6,7 +6,6 @@ import java.util.stream.Collectors;
 import se.kth.karamel.common.clusterdef.Baremetal;
 import se.kth.karamel.common.clusterdef.json.JsonGroup;
 import se.kth.karamel.common.clusterdef.json.JsonRecipe;
-import se.kth.karamel.common.exception.MetadataParseException;
 import se.kth.karamel.common.exception.ValidationException;
 
 public class YamlGroup extends YamlScope {
@@ -17,10 +16,10 @@ public class YamlGroup extends YamlScope {
   public YamlGroup() {
   }
 
-  YamlGroup(JsonGroup jsonGroup) throws MetadataParseException {
+  YamlGroup(JsonGroup jsonGroup) {
     super(jsonGroup);
     this.size = jsonGroup.getSize();
-    attrs.putAll(jsonGroup.getAttributes());
+    attributes.putAll(jsonGroup.getAttributes());
     recipes = jsonGroup.getRecipes().stream().map(JsonRecipe::getCanonicalName).collect(Collectors.toList());
   }
 

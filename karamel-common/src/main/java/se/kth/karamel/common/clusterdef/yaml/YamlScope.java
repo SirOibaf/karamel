@@ -1,39 +1,23 @@
 package se.kth.karamel.common.clusterdef.yaml;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import se.kth.karamel.common.clusterdef.Scope;
-import se.kth.karamel.common.cookbookmeta.KaramelizedCookbook;
 import se.kth.karamel.common.util.Settings;
 import se.kth.karamel.common.clusterdef.json.JsonScope;
 import se.kth.karamel.common.util.CollectionsUtil;
 import se.kth.karamel.common.exception.MetadataParseException;
 import se.kth.karamel.common.exception.ValidationException;
 
-/**
- *
- * @author kamal
- */
 public abstract class YamlScope extends Scope {
-
-  protected Map<String, Object> attrs = new HashMap<>();
 
   public YamlScope() {
   }
 
-  public YamlScope(JsonScope scope) throws MetadataParseException {
+  public YamlScope(JsonScope scope) {
     super(scope);
-    List<KaramelizedCookbook> cookbooks = scope.getCookbooks();
-    for (KaramelizedCookbook cb : cookbooks) {
-      // TODO(Fabio) this is probably wrong.
-      Set<Map.Entry<String, Object>> entries = new HashSet<>();
-      for (Map.Entry<String, Object> entry : entries) {
-        foldOutAttr(entry.getKey(), entry.getValue(), attrs);
-      }
-    }
   }
 
   public void foldOutAttr(String key, Object value, Map<String, Object> map) throws MetadataParseException {
@@ -62,44 +46,8 @@ public abstract class YamlScope extends Scope {
     }
   }
 
-  @Override
-  public Object getAttr(String key) {
-    String[] comps = key.split(Settings.ATTR_DELIMITER);
-    Map<String, Object> parent = attrs;
-    for (int i = 0; i < comps.length; i++) {
-      String comp = comps[i];
-      Object child = parent.get(comp);
-      if (child == null) {
-        return null;
-      } else if (child instanceof Map) {
-        parent = (Map<String, Object>) child;
-      } else {
-        if (i == comps.length - 1) {
-          if (child instanceof List) {
-            List<Object> list = (List<Object>) child;
-            return CollectionsUtil.asStringList(list);
-          } else {
-            return child.toString();
-          }
-        } else {
-          return null;
-        }
-
-      }
-    }
-    return null;
-  }
-
-  public Map<String, Object> getAttrs() {
-    return attrs;
-  }
-
-  public void setAttrs(Map<String, Object> attrs) {
-    this.attrs = attrs;
-  }
-
   public Map<String, Object> flattenAttrs() throws ValidationException {
-    return flattenAttrs(attrs, "");
+    return flattenAttrs(attributes, "");
   }
 
   public Map<String, Object> flattenAttrs(Map<String, Object> map, String partialName) throws ValidationException {
