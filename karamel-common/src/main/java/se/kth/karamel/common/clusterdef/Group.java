@@ -5,13 +5,13 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import se.kth.karamel.common.cookbookmeta.Attribute;
 import se.kth.karamel.common.cookbookmeta.KaramelizedCookbook;
 import se.kth.karamel.common.util.Settings;
 import se.kth.karamel.common.exception.KaramelException;
 import se.kth.karamel.common.exception.RecipeNotfoundException;
-import se.kth.karamel.common.clusterdef.yaml.YamlGroup;
 import se.kth.karamel.common.exception.ValidationException;
 
 public class Group extends Scope {
@@ -89,14 +89,21 @@ public class Group extends Scope {
   }
 
   @Override
-  public void validate() throws ValidationException {
+  public void validate() throws ValidationException, KaramelException {
     super.validate();
-    Baremetal baremetal = getBaremetal();
-    if (baremetal != null) {
-      int s1 = baremetal.retriveAllIps().size();
-      if (s1 != size) {
+
+    // Validate duplicated recipes in the cluster definition
+    if (recipes.stream().map(Recipe::getCanonicalName).collect(Collectors.toSet()).size() !=
+        recipes.size()) {
+      throw new ValidationException("Duplicated recipes found in group: " + name);
+    }
+
+    // Validate number of IPs in the Baremetal case
+    if (getProvider() instanceof Baremetal) {
+      int ipSize = getBaremetal().getIps().size();
+      if (ipSize != size) {
         throw new ValidationException(
-            String.format("Number of ip addresses is not equal to the group size %d != %d", s1, size));
+            String.format("Number of ip addresses is not equal to the group size %d != %d", ipSize, size));
       }
     }
   }

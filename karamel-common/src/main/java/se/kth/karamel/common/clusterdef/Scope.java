@@ -1,5 +1,6 @@
 package se.kth.karamel.common.clusterdef;
 
+import se.kth.karamel.common.exception.KaramelException;
 import se.kth.karamel.common.exception.ValidationException;
 
 import java.util.Map;
@@ -89,7 +90,7 @@ public class Scope {
     this.nova = nova;
   }
 
-  public void validate() throws ValidationException {
+  public void validate() throws ValidationException, KaramelException {
     if (ec2 != null) {
       ec2.validate();
     }

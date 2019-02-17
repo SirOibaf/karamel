@@ -4,7 +4,6 @@ package se.kth.karamel.common.cookbookmeta;
 import com.google.common.base.Charsets;
 import org.apache.log4j.Logger;
 import se.kth.karamel.common.clusterdef.Cookbook;
-import se.kth.karamel.common.clusterdef.yaml.YamlCluster;
 import se.kth.karamel.common.exception.KaramelException;
 import se.kth.karamel.common.exception.MetadataParseException;
 import se.kth.karamel.common.exception.NoKaramelizedCookbookException;
@@ -62,13 +61,14 @@ public class CookbookCache {
     return cb;
   }
 
-  public List<KaramelizedCookbook> loadAllKaramelizedCookbooks(YamlCluster cluster) throws KaramelException {
+  public List<KaramelizedCookbook> loadAllKaramelizedCookbooks(Map<String, Cookbook> rootCookbooks)
+      throws KaramelException {
     if (!cookbooks.isEmpty()) {
       return new ArrayList<>(cookbooks.values());
     }
 
     if (!Settings.USE_CLONED_REPO_FILES) {
-      cloneAndVendorCookbooks(cluster.getCookbooks());
+      cloneAndVendorCookbooks(rootCookbooks);
     }
 
     buildCookbookObjects();

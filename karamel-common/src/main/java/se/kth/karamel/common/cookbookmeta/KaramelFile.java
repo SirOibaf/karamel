@@ -1,23 +1,16 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package se.kth.karamel.common.cookbookmeta;
 
 import java.util.ArrayList;
+import java.util.List;
+
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.Constructor;
 import org.yaml.snakeyaml.error.YAMLException;
 import se.kth.karamel.common.exception.MetadataParseException;
 
-/**
- *
- * @author kamal
- */
 public final class KaramelFile {
 
-  private ArrayList<KaramelFileYamlDeps> dependencies;
+  private List<KaramelFileYamlDeps> dependencies;
 
   public KaramelFile(String fileContent) throws MetadataParseException {
     Yaml yaml = new Yaml(new Constructor(KaramelFileYamlRep.class));
@@ -41,11 +34,11 @@ public final class KaramelFile {
     return null;
   }
 
-  public ArrayList<KaramelFileYamlDeps> getDependencies() {
+  public List<KaramelFileYamlDeps> getDependencies() {
     return dependencies;
   }
 
-  public void setDependencies(ArrayList<KaramelFileYamlDeps> dependencies) {
+  public void setDependencies(List<KaramelFileYamlDeps> dependencies) {
     this.dependencies = dependencies;
   }
 

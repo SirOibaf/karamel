@@ -1,11 +1,14 @@
 package se.kth.karamel.common.clusterdef;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import se.kth.karamel.common.cookbookmeta.KaramelizedCookbook;
 import se.kth.karamel.common.util.Settings;
 
 public class Recipe implements Comparable<Recipe>{
 
+  @JsonIgnore
   private KaramelizedCookbook cookbook;
+
   private String name;
 
   public Recipe(KaramelizedCookbook cookbook, String name) {
@@ -29,6 +32,7 @@ public class Recipe implements Comparable<Recipe>{
     this.cookbook = cookbook;
   }
 
+  @JsonIgnore
   public String getCanonicalName() {
     return cookbook.getCookbookName() + Settings.COOKBOOK_DELIMITER + name;
   }

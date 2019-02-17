@@ -129,7 +129,7 @@ public class ClusterService {
   public synchronized void startCluster(String json) throws KaramelException {
     Gson gson = new Gson();
     Cluster jsonCluster = gson.fromJson(json, Cluster.class);
-    ClusterDefinitionValidator.validate(jsonCluster);
+    jsonCluster.validate();
     String yml = ClusterDefinitionService.jsonToYaml(jsonCluster);
     // TODO(Fabio): This is total BS - The result of writing spaghetti code.
     //We have to do it again otherwise the global scope attributes get lost
