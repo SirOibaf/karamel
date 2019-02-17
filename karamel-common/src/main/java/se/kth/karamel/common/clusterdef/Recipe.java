@@ -1,14 +1,14 @@
-package se.kth.karamel.common.clusterdef.json;
+package se.kth.karamel.common.clusterdef;
 
 import se.kth.karamel.common.cookbookmeta.KaramelizedCookbook;
 import se.kth.karamel.common.util.Settings;
 
-public class JsonRecipe implements Comparable<JsonRecipe>{
+public class Recipe implements Comparable<Recipe>{
 
   private KaramelizedCookbook cookbook;
   private String name;
 
-  public JsonRecipe(KaramelizedCookbook cookbook, String name) {
+  public Recipe(KaramelizedCookbook cookbook, String name) {
     this.cookbook = cookbook;
     this.name = name;
   }
@@ -34,7 +34,7 @@ public class JsonRecipe implements Comparable<JsonRecipe>{
   }
 
   @Override
-  public int compareTo(JsonRecipe o) {
+  public int compareTo(Recipe o) {
     return name.compareTo(o.name);
   }
 

@@ -1,12 +1,11 @@
-package se.kth.karamel.common.clusterdef.json;
+package se.kth.karamel.common.clusterdef;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import se.kth.karamel.common.clusterdef.Baremetal;
-import se.kth.karamel.common.clusterdef.Scope;
+
 import se.kth.karamel.common.cookbookmeta.Attribute;
 import se.kth.karamel.common.cookbookmeta.KaramelizedCookbook;
 import se.kth.karamel.common.util.Settings;
@@ -15,23 +14,23 @@ import se.kth.karamel.common.exception.RecipeNotfoundException;
 import se.kth.karamel.common.clusterdef.yaml.YamlGroup;
 import se.kth.karamel.common.exception.ValidationException;
 
-public class JsonGroup extends Scope {
+public class Group extends Scope {
 
   private String name;
   private int size;
 
-  private List<JsonRecipe> recipes = new ArrayList<>();
+  private List<Recipe> recipes = new ArrayList<>();
 
-  public JsonGroup() {
+  public Group() {
   }
 
-  public JsonGroup(YamlGroup group, String name, List<KaramelizedCookbook> allCookbooks) throws KaramelException {
+  public Group(YamlGroup group, String name, List<KaramelizedCookbook> allCookbooks) throws KaramelException {
     super(group);
     setName(name);
-    this.size = group.getSize();
+    size = group.getSize();
+    Set<Attribute> allValidAttrs = new HashSet<>();
 
-    List<String> clusterDefRecipes = group.getRecipes();
-    for (String rec : clusterDefRecipes) {
+    for (String rec : group.getRecipes()) {
       String[] comp = rec.split(Settings.COOKBOOK_DELIMITER);
       KaramelizedCookbook cookbook = null;
       for (KaramelizedCookbook cb : allCookbooks) {
@@ -40,24 +39,20 @@ public class JsonGroup extends Scope {
           break;
         }
       }
+
       if (cookbook == null) {
-        throw new RecipeNotfoundException(String.format("Opps!! Import cookbook for '%s'", rec));
+        throw new RecipeNotfoundException("Could not find cookbook for recipe " + rec);
       } else {
-        recipes.add(new JsonRecipe(cookbook, comp.length == 2 ? comp[1] : "default"));
-        cookbooks.add(cookbook);
+        recipes.add(new Recipe(cookbook, comp.length == 2 ? comp[1] : "default"));
+        allValidAttrs.addAll(cookbook.getMetadataRb().getAttributes());
       }
     }
 
     attributes = new HashMap<>(group.flattenAttrs());
-    Set<Attribute> allValidAttrs = new HashSet<>();
-    for (KaramelizedCookbook kcb : cookbooks) {
-      allValidAttrs.addAll(kcb.getMetadataRb().getAttributes());
-    }
 
     // I think that this map should be <String, Attribute>. But I don't want to see
     // what happen if I change it.
     Set<String> invalidAttrs = new HashSet<>();
-
     for (String usedAttr: attributes.keySet()) {
       if (!allValidAttrs.contains(new Attribute(usedAttr))) {
         invalidAttrs.add(usedAttr);
@@ -89,7 +84,7 @@ public class JsonGroup extends Scope {
     this.size = size;
   }
 
-  public List<JsonRecipe> getRecipes() {
+  public List<Recipe> getRecipes() {
     return recipes;
   }
 

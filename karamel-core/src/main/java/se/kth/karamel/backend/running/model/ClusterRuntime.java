@@ -9,8 +9,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import se.kth.karamel.common.clusterdef.json.JsonCluster;
-import se.kth.karamel.common.clusterdef.json.JsonGroup;
+import se.kth.karamel.common.clusterdef.Cluster;
+import se.kth.karamel.common.clusterdef.Group;
 
 /**
  *
@@ -37,10 +37,10 @@ public class ClusterRuntime {
     this.name = name;
   }
 
-  public ClusterRuntime(JsonCluster definition) {
+  public ClusterRuntime(Cluster definition) {
     this.name = definition.getName();
-    List<JsonGroup> definedGroups = definition.getGroups();
-    for (JsonGroup jg : definedGroups) {
+    List<Group> definedGroups = definition.getGroups();
+    for (Group jg : definedGroups) {
       GroupRuntime group = new GroupRuntime(this, jg);
       groups.add(group);
     }

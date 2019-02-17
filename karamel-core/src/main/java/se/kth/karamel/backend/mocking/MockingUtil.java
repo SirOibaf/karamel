@@ -12,11 +12,11 @@ import se.kth.karamel.backend.running.model.ClusterRuntime;
 import se.kth.karamel.backend.running.model.GroupRuntime;
 import se.kth.karamel.backend.running.model.MachineRuntime;
 import se.kth.karamel.common.clusterdef.Baremetal;
+import se.kth.karamel.common.clusterdef.Cluster;
 import se.kth.karamel.common.clusterdef.Ec2;
 import se.kth.karamel.common.clusterdef.Gce;
+import se.kth.karamel.common.clusterdef.Group;
 import se.kth.karamel.common.clusterdef.Provider;
-import se.kth.karamel.common.clusterdef.json.JsonCluster;
-import se.kth.karamel.common.clusterdef.json.JsonGroup;
 
 /**
  *
@@ -24,7 +24,7 @@ import se.kth.karamel.common.clusterdef.json.JsonGroup;
  */
 public class MockingUtil {
 
-  public static ClusterRuntime dummyRuntime(JsonCluster definition) {
+  public static ClusterRuntime dummyRuntime(Cluster definition) {
     ClusterRuntime clusterRuntime = new ClusterRuntime(definition);
     for (GroupRuntime group : clusterRuntime.getGroups()) {
       Provider provider = UserClusterDataExtractor.getGroupProvider(definition, group.getName());
@@ -41,7 +41,7 @@ public class MockingUtil {
         machineType = "gce/" + gce.getZone() + "/" + gce.getType() + "/" + gce.getImage();
       }
 
-      JsonGroup definedGroup = UserClusterDataExtractor.findGroup(definition, group.getName());
+      Group definedGroup = UserClusterDataExtractor.findGroup(definition, group.getName());
       List<MachineRuntime> mcs = new ArrayList<>();
 //      String ippref = "192.168.0.";
       String ippref = group.getName();

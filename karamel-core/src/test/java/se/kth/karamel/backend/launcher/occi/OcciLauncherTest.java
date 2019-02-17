@@ -4,16 +4,13 @@ import cz.cesnet.cloud.occi.api.Client;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
-import org.junit.After;
-import org.junit.AfterClass;
+
 import org.junit.Assert;
-import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import static org.junit.Assert.*;
 import se.kth.karamel.backend.running.model.ClusterRuntime;
 import se.kth.karamel.backend.running.model.MachineRuntime;
-import se.kth.karamel.common.clusterdef.json.JsonCluster;
+import se.kth.karamel.common.clusterdef.Cluster;
 import se.kth.karamel.common.util.Confs;
 import se.kth.karamel.common.util.OcciCredentials;
 
@@ -66,7 +63,7 @@ public class OcciLauncherTest {
 //    @Test
     public void testCleanup() throws Exception {
         System.out.println("cleanup");
-        JsonCluster definition = null;
+        Cluster definition = null;
         ClusterRuntime runtime = null;
         OcciLauncher instance = null;
         instance.cleanup(definition, runtime);
@@ -115,7 +112,7 @@ public class OcciLauncherTest {
 //    @Test
     public void testForkGroup() throws Exception {
         System.out.println("forkGroup");
-        JsonCluster definition = null;
+        Cluster definition = null;
         ClusterRuntime runtime = null;
         String groupName = "";
         OcciLauncher instance = null;
@@ -132,7 +129,7 @@ public class OcciLauncherTest {
 //    @Test
     public void testForkMachines() throws Exception {
         System.out.println("forkMachines");
-        JsonCluster definition = null;
+        Cluster definition = null;
         ClusterRuntime runtime = null;
         String groupName = "";
         OcciLauncher instance = null;

@@ -1,8 +1,6 @@
-package se.kth.karamel.common.clusterdef.json;
+package se.kth.karamel.common.clusterdef;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import se.kth.karamel.common.clusterdef.Cookbook;
-import se.kth.karamel.common.clusterdef.Scope;
 import se.kth.karamel.common.clusterdef.yaml.YamlCluster;
 import se.kth.karamel.common.clusterdef.yaml.YamlGroup;
 import java.util.ArrayList;
@@ -17,19 +15,19 @@ import se.kth.karamel.common.cookbookmeta.CookbookCache;
 import se.kth.karamel.common.cookbookmeta.KaramelizedCookbook;
 import se.kth.karamel.common.exception.KaramelException;
 
-public class JsonCluster extends Scope {
+public class Cluster extends Scope {
 
   private String name;
   private Map<String, Cookbook> rootCookbooks = new HashMap<>();
-  private List<JsonGroup> groups = new ArrayList<>();
+  private List<Group> groups = new ArrayList<>();
 
   @JsonIgnore
   private List<KaramelizedCookbook> cookbooks = new ArrayList<>();
 
-  public JsonCluster() {
+  public Cluster() {
   }
 
-  public JsonCluster(YamlCluster cluster) throws KaramelException {
+  public Cluster(YamlCluster cluster) throws KaramelException {
     super(cluster);
     name = cluster.getName();
     rootCookbooks = cluster.getCookbooks();
@@ -61,7 +59,7 @@ public class JsonCluster extends Scope {
 
     Set<Map.Entry<String, YamlGroup>> entrySet = cluster.getGroups().entrySet();
     for (Map.Entry<String, YamlGroup> entry : entrySet) {
-      groups.add(new JsonGroup(entry.getValue(), entry.getKey(), cookbooks));
+      groups.add(new Group(entry.getValue(), entry.getKey(), cookbooks));
     }
 
   }
@@ -74,11 +72,11 @@ public class JsonCluster extends Scope {
     this.name = name;
   }
 
-  public List<JsonGroup> getGroups() {
+  public List<Group> getGroups() {
     return groups;
   }
 
-  public void setGroups(List<JsonGroup> groups) {
+  public void setGroups(List<Group> groups) {
     this.groups = groups;
   }
 

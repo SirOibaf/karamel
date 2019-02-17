@@ -16,7 +16,7 @@ import se.kth.karamel.backend.ClusterDefinitionService;
 import se.kth.karamel.backend.mocking.MockingUtil;
 import se.kth.karamel.backend.running.model.ClusterRuntime;
 import se.kth.karamel.backend.running.model.MachineRuntime;
-import se.kth.karamel.common.clusterdef.json.JsonCluster;
+import se.kth.karamel.common.clusterdef.Cluster;
 import se.kth.karamel.common.exception.KaramelException;
 
 /**
@@ -29,7 +29,7 @@ public class TextTableTest {
   public void testMakeTable() throws IOException, KaramelException {
     Settings.CB_CLASSPATH_MODE = true;
     String ymlString = Resources.toString(Resources.getResource("se/kth/karamel/client/model/test-definitions/hopsworks.yml"), Charsets.UTF_8);
-    JsonCluster definition = ClusterDefinitionService.yamlToJsonObject(ymlString);
+    Cluster definition = ClusterDefinitionService.yamlToJsonObject(ymlString);
     ClusterRuntime dummyRuntime = MockingUtil.dummyRuntime(definition);
     List<MachineRuntime> machines = dummyRuntime.getGroups().get(1).getMachines();
     String[] columnNames = {"Machine", "Public IP", "Private IP", "SSH Port", "SSH User", "Life Status", "Task Status"};

@@ -12,7 +12,7 @@ import org.junit.Test;
 import se.kth.karamel.backend.ClusterDefinitionService;
 import se.kth.karamel.backend.mocking.MockingUtil;
 import se.kth.karamel.backend.running.model.ClusterRuntime;
-import se.kth.karamel.common.clusterdef.json.JsonCluster;
+import se.kth.karamel.common.clusterdef.Cluster;
 import se.kth.karamel.common.exception.KaramelException;
 import se.kth.karamel.common.util.Settings;
 
@@ -28,7 +28,7 @@ public class UserClusterDataExtractorTest {
   public void clusterLinksTest() throws IOException, KaramelException {
     Settings.CB_CLASSPATH_MODE = true;
     String ymlString = Resources.toString(Resources.getResource("se/kth/karamel/client/model/test-definitions/hopsworks.yml"), Charsets.UTF_8);
-    JsonCluster definition = ClusterDefinitionService.yamlToJsonObject(ymlString);
+    Cluster definition = ClusterDefinitionService.yamlToJsonObject(ymlString);
     String links = UserClusterDataExtractor.clusterLinks(definition, null);
     String expected = "Visit <a target='_blank' href='http://www.hops.io/'>Hop's Website</a> or <a target='_blank' "
         + "href='http://www.karamel.io/'>Karamel's Website</a>";

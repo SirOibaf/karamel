@@ -13,7 +13,8 @@ import se.kth.karamel.backend.converter.ChefJsonGenerator;
 import se.kth.karamel.backend.converter.UserClusterDataExtractor;
 import se.kth.karamel.backend.dag.Dag;
 import se.kth.karamel.common.clusterdef.Cookbook;
-import se.kth.karamel.common.clusterdef.json.JsonRecipe;
+import se.kth.karamel.common.clusterdef.Group;
+import se.kth.karamel.common.clusterdef.Recipe;
 import se.kth.karamel.common.launcher.amazon.InstanceType;
 import se.kth.karamel.backend.machines.TaskSubmitter;
 import se.kth.karamel.backend.running.model.ClusterRuntime;
@@ -22,8 +23,7 @@ import se.kth.karamel.backend.running.model.MachineRuntime;
 import se.kth.karamel.common.stats.ClusterStats;
 import se.kth.karamel.common.clusterdef.Ec2;
 import se.kth.karamel.common.clusterdef.Provider;
-import se.kth.karamel.common.clusterdef.json.JsonCluster;
-import se.kth.karamel.common.clusterdef.json.JsonGroup;
+import se.kth.karamel.common.clusterdef.Cluster;
 import se.kth.karamel.common.util.Settings;
 import se.kth.karamel.common.exception.DagConstructionException;
 import se.kth.karamel.common.exception.KaramelException;
@@ -51,8 +51,8 @@ public class DagBuilder {
    * @return
    * @throws KaramelException
    */
-  public static Dag getPurgingDag(JsonCluster cluster, ClusterRuntime clusterEntity, ClusterStats clusterStats,
-      TaskSubmitter submitter, Map<String, JsonObject> chefJsons) throws KaramelException {
+  public static Dag getPurgingDag(Cluster cluster, ClusterRuntime clusterEntity, ClusterStats clusterStats,
+                                  TaskSubmitter submitter, Map<String, JsonObject> chefJsons) throws KaramelException {
     Dag dag = new Dag();
     Map<String, RunRecipeTask> allRecipeTasks = new HashMap<>();
     machineLevelTasks(cluster, clusterEntity, clusterStats, submitter, dag);
@@ -73,8 +73,8 @@ public class DagBuilder {
    * @return
    * @throws KaramelException
    */
-  public static Dag getInstallationDag(JsonCluster cluster, ClusterRuntime clusterEntity, ClusterStats clusterStats,
-      TaskSubmitter submitter, Map<String, JsonObject> chefJsons) throws KaramelException {
+  public static Dag getInstallationDag(Cluster cluster, ClusterRuntime clusterEntity, ClusterStats clusterStats,
+                                       TaskSubmitter submitter, Map<String, JsonObject> chefJsons) throws KaramelException {
     Dag dag = new Dag();
     Map<String, RunRecipeTask> allRecipeTasks = new HashMap<>();
     machineLevelTasks(cluster, clusterEntity, clusterStats, submitter, dag);
@@ -132,14 +132,14 @@ public class DagBuilder {
    * @return
    * @throws KaramelException
    */
-  public static Map<String, Map<String, Task>> recipeLevelTasks(JsonCluster cluster, ClusterRuntime clusterEntity,
-      ClusterStats clusterStats, Map<String, JsonObject> chefJsons, TaskSubmitter submitter,
-      Map<String, RunRecipeTask> allRecipeTasks, Dag dag) throws KaramelException {
+  public static Map<String, Map<String, Task>> recipeLevelTasks(Cluster cluster, ClusterRuntime clusterEntity,
+                                                                ClusterStats clusterStats, Map<String, JsonObject> chefJsons, TaskSubmitter submitter,
+                                                                Map<String, RunRecipeTask> allRecipeTasks, Dag dag) throws KaramelException {
     Map<String, Map<String, Task>> map = new HashMap<>();
     for (GroupRuntime ge : clusterEntity.getGroups()) {
-      JsonGroup jg = UserClusterDataExtractor.findGroup(cluster, ge.getName());
+      Group jg = UserClusterDataExtractor.findGroup(cluster, ge.getName());
       for (MachineRuntime me : ge.getMachines()) {
-        for (JsonRecipe rec : jg.getRecipes()) {
+        for (Recipe rec : jg.getRecipes()) {
           JsonObject json1 = chefJsons.get(me.getId() + rec.getCanonicalName());
           addRecipeTaskForMachineIntoRecipesMap(rec.getCanonicalName(), me, clusterStats, map, json1, submitter,
               rec.getCookbook().getCookbookName(), allRecipeTasks, dag, cluster.getRootCookbooks());
@@ -208,14 +208,14 @@ public class DagBuilder {
    * @return
    * @throws KaramelException
    */
-  public static Map<String, Map<String, Task>> cookbookLevelPurgingTasks(JsonCluster cluster,
-      ClusterRuntime clusterEntity, ClusterStats clusterStats, Map<String, JsonObject> chefJsons,
-      TaskSubmitter submitter, Map<String, RunRecipeTask> allRecipeTasks, Dag dag)
+  public static Map<String, Map<String, Task>> cookbookLevelPurgingTasks(Cluster cluster,
+                                                                         ClusterRuntime clusterEntity, ClusterStats clusterStats, Map<String, JsonObject> chefJsons,
+                                                                         TaskSubmitter submitter, Map<String, RunRecipeTask> allRecipeTasks, Dag dag)
       throws KaramelException {
 
     Map<String, Map<String, Task>> map = new HashMap<>();
     for (GroupRuntime ge : clusterEntity.getGroups()) {
-      JsonGroup jg = UserClusterDataExtractor.findGroup(cluster, ge.getName());
+      Group jg = UserClusterDataExtractor.findGroup(cluster, ge.getName());
       for (MachineRuntime me : ge.getMachines()) {
         Map<String, Task> map1 = new HashMap<>();
 
@@ -260,13 +260,13 @@ public class DagBuilder {
    * @return
    * @throws KaramelException
    */
-  private static Map<String, Map<String, Task>> cookbookLevelInstallationTasks(JsonCluster cluster,
-      ClusterRuntime clusterEntity, ClusterStats clusterStats, Map<String, JsonObject> chefJsons,
-      TaskSubmitter submitter, Map<String, RunRecipeTask> allRecipeTasks, Dag dag)
+  private static Map<String, Map<String, Task>> cookbookLevelInstallationTasks(Cluster cluster,
+                                                                               ClusterRuntime clusterEntity, ClusterStats clusterStats, Map<String, JsonObject> chefJsons,
+                                                                               TaskSubmitter submitter, Map<String, RunRecipeTask> allRecipeTasks, Dag dag)
       throws KaramelException {
     Map<String, Map<String, Task>> map = new HashMap<>();
     for (GroupRuntime ge : clusterEntity.getGroups()) {
-      JsonGroup jg = UserClusterDataExtractor.findGroup(cluster, ge.getName());
+      Group jg = UserClusterDataExtractor.findGroup(cluster, ge.getName());
       for (MachineRuntime me : ge.getMachines()) {
         Map<String, Task> map1 = new HashMap<>();
 
@@ -308,8 +308,8 @@ public class DagBuilder {
    * @param rootCookbooks
    * @throws KaramelException
    */
-  public static void machineLevelTasks(JsonCluster cluster, ClusterRuntime clusterEntity, ClusterStats clusterStats,
-      TaskSubmitter submitter, Dag dag) throws KaramelException {
+  public static void machineLevelTasks(Cluster cluster, ClusterRuntime clusterEntity, ClusterStats clusterStats,
+                                       TaskSubmitter submitter, Dag dag) throws KaramelException {
     Confs confs = Confs.loadKaramelConfs();
     String prepStoragesConf = confs.getProperty(Settings.PREPARE_STORAGES_KEY);
     for (GroupRuntime ge : clusterEntity.getGroups()) {

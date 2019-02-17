@@ -33,6 +33,7 @@ import se.kth.karamel.backend.running.model.tasks.MakeSoloRbTask;
 import se.kth.karamel.backend.running.model.tasks.RunRecipeTask;
 import se.kth.karamel.backend.running.model.tasks.ShellCommand;
 import se.kth.karamel.backend.running.model.tasks.VendorCookbookTask;
+import se.kth.karamel.common.cookbookmeta.CookbookCache;
 import se.kth.karamel.common.cookbookmeta.KaramelizedCookbook;
 import se.kth.karamel.common.exception.InvalidNovaCredentialsException;
 import se.kth.karamel.common.exception.InvalidOcciCredentialsException;
@@ -217,8 +218,7 @@ public class KaramelApiImpl implements KaramelApi {
         registerTypeAdapter(InstallChefdkTask.class, new DefaultTaskSerializer()).
         setPrettyPrinting().
         create();
-    String json = gson.toJson(clusterManager);
-    return json;
+    return gson.toJson(clusterManager);
   }
 
   @Override
@@ -250,8 +250,7 @@ public class KaramelApiImpl implements KaramelApi {
   @Override
   public SshKeyPair loadSshKeysIfExist() throws KaramelException {
     Confs confs = Confs.loadKaramelConfs();
-    SshKeyPair sshKeys = SshKeyService.loadSshKeys(confs);
-    return sshKeys;
+    return SshKeyService.loadSshKeys(confs);
   }
 
   @Override

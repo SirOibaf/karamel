@@ -17,7 +17,8 @@ public class Settings {
 
   // ---- Added by Fabio
   public static final String WORKING_DIR = "/tmp/karamel";
-  public static boolean USE_CLONED_REPO_FILES = true;
+  public static final boolean USE_CLONED_REPO_FILES = true;
+  public static final String GITHUB_BASE_URL = "https://github.com";
 
   private static final Logger logger = Logger.getLogger(Settings.class);
 

@@ -42,8 +42,8 @@ import se.kth.karamel.backend.running.model.GroupRuntime;
 import se.kth.karamel.backend.running.model.MachineRuntime;
 import se.kth.karamel.common.clusterdef.Gce;
 import se.kth.karamel.common.clusterdef.Provider;
-import se.kth.karamel.common.clusterdef.json.JsonCluster;
-import se.kth.karamel.common.clusterdef.json.JsonGroup;
+import se.kth.karamel.common.clusterdef.Cluster;
+import se.kth.karamel.common.clusterdef.Group;
 import se.kth.karamel.common.util.GceSettings;
 import se.kth.karamel.common.util.Settings;
 import se.kth.karamel.common.util.SshKeyPair;
@@ -107,8 +107,8 @@ public class GceLauncher extends Launcher {
   }
 
   @Override
-  public String forkGroup(JsonCluster definition, ClusterRuntime runtime, String groupName) throws KaramelException {
-    //JsonGroup jg = UserClusterDataExtractor.findGroup(definition, groupName);
+  public String forkGroup(Cluster definition, ClusterRuntime runtime, String groupName) throws KaramelException {
+    //Group jg = UserClusterDataExtractor.findGroup(definition, groupName);
     //Set<String> ports = new HashSet<>();
     //ports.addAll(Settings.AWS_VM_PORTS_DEFAULT);
     // TODO: assign arbitrary ip range.
@@ -174,10 +174,10 @@ public class GceLauncher extends Launcher {
   }
 
   @Override
-  public List<MachineRuntime> forkMachines(JsonCluster definition, ClusterRuntime runtime, String groupName)
+  public List<MachineRuntime> forkMachines(Cluster definition, ClusterRuntime runtime, String groupName)
       throws KaramelException {
     Gce gce = (Gce) UserClusterDataExtractor.getGroupProvider(definition, groupName);
-    JsonGroup definedGroup = UserClusterDataExtractor.findGroup(definition, groupName);
+    Group definedGroup = UserClusterDataExtractor.findGroup(definition, groupName);
     GroupRuntime group = UserClusterDataExtractor.findGroup(runtime, groupName);
 
     return forkMachines(group, definedGroup.getSize(), gce);
@@ -257,7 +257,7 @@ public class GceLauncher extends Launcher {
   }
 
   @Override
-  public void cleanup(JsonCluster definition, ClusterRuntime runtime) throws KaramelException {
+  public void cleanup(Cluster definition, ClusterRuntime runtime) throws KaramelException {
     runtime.resolveFailures();
     List<GroupRuntime> groups = runtime.getGroups();
     Map<String, List<String>> vmZone = new HashMap<>();

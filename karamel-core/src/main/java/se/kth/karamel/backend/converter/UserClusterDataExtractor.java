@@ -10,16 +10,15 @@ import se.kth.karamel.backend.running.model.ClusterRuntime;
 import se.kth.karamel.backend.running.model.GroupRuntime;
 import se.kth.karamel.backend.running.model.MachineRuntime;
 import se.kth.karamel.common.clusterdef.Cookbook;
-import se.kth.karamel.common.clusterdef.json.JsonRecipe;
+import se.kth.karamel.common.clusterdef.Group;
+import se.kth.karamel.common.clusterdef.Recipe;
 import se.kth.karamel.common.util.Settings;
 import se.kth.karamel.common.clusterdef.Ec2;
 import se.kth.karamel.common.clusterdef.Provider;
-import se.kth.karamel.common.clusterdef.json.JsonCluster;
-import se.kth.karamel.common.clusterdef.json.JsonGroup;
+import se.kth.karamel.common.clusterdef.Cluster;
 import se.kth.karamel.common.exception.KaramelException;
 import se.kth.karamel.common.cookbookmeta.KaramelizedCookbook;
 import se.kth.karamel.common.cookbookmeta.MetadataRb;
-import se.kth.karamel.common.cookbookmeta.Recipe;
 
 public class UserClusterDataExtractor {
 
@@ -27,16 +26,16 @@ public class UserClusterDataExtractor {
 
   private static final CookbookCache cookbookCache = ClusterDefinitionService.CACHE;
 
-  public static String clusterLinks(JsonCluster cluster, ClusterRuntime clusterEntity) throws KaramelException {
+  public static String clusterLinks(Cluster cluster, ClusterRuntime clusterEntity) throws KaramelException {
     StringBuilder builder = new StringBuilder();
-    for (JsonGroup jg : cluster.getGroups()) {
+    for (Group jg : cluster.getGroups()) {
 
-      for (JsonRecipe rec : jg.getRecipes()) {
+      for (Recipe rec : jg.getRecipes()) {
         String cbid = rec.getCookbook().getCookbookName();
         KaramelizedCookbook cb = cookbookCache.get(cbid);
         MetadataRb metadataRb = cb.getMetadataRb();
-        List<Recipe> recipes = metadataRb.getRecipes();
-        for (Recipe recipe : recipes) {
+        List<se.kth.karamel.common.cookbookmeta.Recipe> recipes = metadataRb.getRecipes();
+        for (se.kth.karamel.common.cookbookmeta.Recipe recipe : recipes) {
           if (recipe.getCanonicalName().equalsIgnoreCase(rec.getCanonicalName())) {
             Set<String> links = recipe.getLinks();
             for (String link : links) {
@@ -66,16 +65,16 @@ public class UserClusterDataExtractor {
     return builder.toString();
   }
 
-  public static int totalMachines(JsonCluster cluster) {
+  public static int totalMachines(Cluster cluster) {
     int total = 0;
-    for (JsonGroup g : cluster.getGroups()) {
+    for (Group g : cluster.getGroups()) {
       total += g.getSize();
     }
     return total;
   }
 
-  public static JsonGroup findGroup(JsonCluster cluster, String groupName) {
-    for (JsonGroup g : cluster.getGroups()) {
+  public static Group findGroup(Cluster cluster, String groupName) {
+    for (Group g : cluster.getGroups()) {
       if (g.getName().equals(groupName)) {
         return g;
       }
@@ -92,8 +91,8 @@ public class UserClusterDataExtractor {
     return null;
   }
 
-  public static Provider getGroupProvider(JsonCluster cluster, String groupName) {
-    JsonGroup group = findGroup(cluster, groupName);
+  public static Provider getGroupProvider(Cluster cluster, String groupName) {
+    Group group = findGroup(cluster, groupName);
     Provider groupScopeProvider = group.getProvider();
     Provider clusterScopeProvider = cluster.getProvider();
     Provider provider = null;

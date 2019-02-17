@@ -27,13 +27,13 @@ import se.kth.karamel.backend.running.model.MachineRuntime;
 import se.kth.karamel.backend.running.model.tasks.DagBuilder;
 import se.kth.karamel.backend.stats.ClusterStatistics;
 import se.kth.karamel.common.clusterdef.Baremetal;
+import se.kth.karamel.common.clusterdef.Cluster;
 import se.kth.karamel.common.clusterdef.Ec2;
 import se.kth.karamel.common.clusterdef.Gce;
+import se.kth.karamel.common.clusterdef.Group;
 import se.kth.karamel.common.clusterdef.Nova;
 import se.kth.karamel.common.clusterdef.Occi;
 import se.kth.karamel.common.clusterdef.Provider;
-import se.kth.karamel.common.clusterdef.json.JsonCluster;
-import se.kth.karamel.common.clusterdef.json.JsonGroup;
 import se.kth.karamel.common.exception.KaramelException;
 import se.kth.karamel.common.stats.ClusterStats;
 import se.kth.karamel.common.stats.PhaseStat;
@@ -66,7 +66,7 @@ public class ClusterManager implements Runnable {
 
   public static boolean EXIT_ON_COMPLETION = false;
   private static final Logger logger = Logger.getLogger(ClusterManager.class);
-  private final JsonCluster definition;
+  private final Cluster definition;
   private final ClusterRuntime runtime;
   private final MachinesMonitor machinesMonitor;
   private final ClusterStatusMonitor clusterStatusMonitor;
@@ -81,7 +81,7 @@ public class ClusterManager implements Runnable {
   private boolean stopping = false;
   private final ClusterStats stats = new ClusterStats();
 
-  public ClusterManager(JsonCluster definition, ClusterContext clusterContext) throws KaramelException {
+  public ClusterManager(Cluster definition, ClusterContext clusterContext) throws KaramelException {
     this.clusterContext = clusterContext;
     this.definition = definition;
     this.runtime = new ClusterRuntime(definition);
@@ -107,7 +107,7 @@ public class ClusterManager implements Runnable {
     return machinesMonitor;
   }
 
-  public JsonCluster getDefinition() {
+  public Cluster getDefinition() {
     return definition;
   }
 
@@ -217,7 +217,7 @@ public class ClusterManager implements Runnable {
   }
 
   private void initLaunchers() throws KaramelException {
-    for (JsonGroup group : definition.getGroups()) {
+    for (Group group : definition.getGroups()) {
       Provider provider = UserClusterDataExtractor.getGroupProvider(definition, group.getName());
       Launcher launcher = launchers.get(provider.getClass());
       if (launcher == null) {

@@ -9,8 +9,8 @@ import org.apache.log4j.Logger;
 import se.kth.karamel.backend.kandy.KandyRestClient;
 import se.kth.karamel.backend.machines.MachinesMonitor;
 import se.kth.karamel.backend.running.model.ClusterRuntime;
+import se.kth.karamel.common.clusterdef.Cluster;
 import se.kth.karamel.common.stats.ClusterStats;
-import se.kth.karamel.common.clusterdef.json.JsonCluster;
 import se.kth.karamel.common.util.Settings;
 
 /**
@@ -21,15 +21,15 @@ import se.kth.karamel.common.util.Settings;
 public class ClusterStatusMonitor implements Runnable {
 
   private static final Logger logger = Logger.getLogger(ClusterStatusMonitor.class);
-  private final JsonCluster definition;
+  private final Cluster definition;
   private final MachinesMonitor machinesMonitor;
   private final ClusterRuntime clusterEntity;
   private final ClusterStats stats;
   private boolean stopping = false;
   private long lastStatsReport = 0;
 
-  public ClusterStatusMonitor(MachinesMonitor machinesMonitor, JsonCluster definition, ClusterRuntime runtime,
-      ClusterStats stats) {
+  public ClusterStatusMonitor(MachinesMonitor machinesMonitor, Cluster definition, ClusterRuntime runtime,
+                              ClusterStats stats) {
     this.definition = definition;
     this.machinesMonitor = machinesMonitor;
     this.clusterEntity = runtime;

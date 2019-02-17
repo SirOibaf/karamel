@@ -11,13 +11,13 @@ import se.kth.karamel.backend.launcher.google.GceContext;
 import se.kth.karamel.backend.launcher.nova.NovaContext;
 import se.kth.karamel.backend.launcher.novav3.NovaV3Context;
 import se.kth.karamel.backend.launcher.occi.OcciContext;
+import se.kth.karamel.common.clusterdef.Cluster;
 import se.kth.karamel.common.clusterdef.Ec2;
 import se.kth.karamel.common.clusterdef.Gce;
 import se.kth.karamel.common.clusterdef.Nova;
 import se.kth.karamel.common.clusterdef.Occi;
 import se.kth.karamel.common.clusterdef.Provider;
-import se.kth.karamel.common.clusterdef.json.JsonCluster;
-import se.kth.karamel.common.clusterdef.json.JsonGroup;
+import se.kth.karamel.common.clusterdef.Group;
 import se.kth.karamel.common.exception.KaramelException;
 import se.kth.karamel.common.util.SshKeyPair;
 
@@ -83,14 +83,14 @@ public class ClusterContext {
     }
   }
 
-  public static ClusterContext validateContext(JsonCluster definition,
-      ClusterContext context, ClusterContext commonContext) throws KaramelException {
+  public static ClusterContext validateContext(Cluster definition,
+                                               ClusterContext context, ClusterContext commonContext) throws KaramelException {
     if (context == null) {
       context = new ClusterContext();
     }
     context.mergeContext(commonContext);
 
-    for (JsonGroup group : definition.getGroups()) {
+    for (Group group : definition.getGroups()) {
       Provider provider = UserClusterDataExtractor.getGroupProvider(definition, group.getName());
       if (provider instanceof Ec2 && context.getEc2Context() == null) {
         throw new KaramelException("No valid Ec2 credentials registered :-|");

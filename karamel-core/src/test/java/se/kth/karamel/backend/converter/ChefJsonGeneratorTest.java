@@ -12,7 +12,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import se.kth.karamel.backend.ClusterDefinitionService;
 import se.kth.karamel.backend.running.model.ClusterRuntime;
-import se.kth.karamel.common.clusterdef.json.JsonCluster;
+import se.kth.karamel.common.clusterdef.Cluster;
 import se.kth.karamel.common.exception.KaramelException;
 import se.kth.karamel.backend.mocking.MockingUtil;
 import se.kth.karamel.common.util.Settings;
@@ -40,8 +40,8 @@ public class ChefJsonGeneratorTest {
         + "null,\"vpc\":null,\"subnet\":null}}";
     //Workaround for https://github.com/karamelchef/karamel/issues/28
     String yaml = ClusterDefinitionService.jsonToYaml(jsonString);
-    JsonCluster definition = ClusterDefinitionService.yamlToJsonObject(yaml);
-//    JsonCluster definition = ClusterDefinitionService.jsonToJsonObject(jsonString);
+    Cluster definition = ClusterDefinitionService.yamlToJsonObject(yaml);
+//    Cluster definition = ClusterDefinitionService.jsonToJsonObject(jsonString);
     List<JsonCookbook> cookbooks = definition.getCookbooks();
     JsonCookbook ndb = null;
     for (JsonCookbook jc : cookbooks) {
@@ -77,8 +77,8 @@ public class ChefJsonGeneratorTest {
         + "null,\"vpc\":null,\"subnet\":null}}";
     //Workaround for https://github.com/karamelchef/karamel/issues/28
     String yaml = ClusterDefinitionService.jsonToYaml(jsonString);
-    JsonCluster definition = ClusterDefinitionService.yamlToJsonObject(yaml);
-//    JsonCluster definition = ClusterDefinitionService.jsonToJsonObject(jsonString);
+    Cluster definition = ClusterDefinitionService.yamlToJsonObject(yaml);
+//    Cluster definition = ClusterDefinitionService.jsonToJsonObject(jsonString);
     List<JsonCookbook> cookbooks = definition.getCookbooks();
     JsonCookbook ndb = null;
     for (JsonCookbook jc : cookbooks) {
@@ -111,7 +111,7 @@ public class ChefJsonGeneratorTest {
         + "null,\"vpc\":null,\"subnet\":null}}";
 
     String yaml = ClusterDefinitionService.jsonToYaml(jsonString);
-    JsonCluster definition = ClusterDefinitionService.yamlToJsonObject(yaml);
+    Cluster definition = ClusterDefinitionService.yamlToJsonObject(yaml);
     List<JsonCookbook> cookbooks = definition.getCookbooks();
     JsonCookbook ndb = null;
     for (JsonCookbook jc : cookbooks) {
@@ -143,7 +143,7 @@ public class ChefJsonGeneratorTest {
         + "1,\"provider\":null}],\"ec2\":{\"type\":\"m3.medium\",\"ami\":null,\"region\":\"eu-west-1\",\"price\":"
         + "null,\"vpc\":null,\"subnet\":null}}";
     String yaml = ClusterDefinitionService.jsonToYaml(jsonString);
-    JsonCluster definition = ClusterDefinitionService.yamlToJsonObject(yaml);
+    Cluster definition = ClusterDefinitionService.yamlToJsonObject(yaml);
     ClusterRuntime clusterRuntime = MockingUtil.dummyRuntime(definition);
     Map<String, JsonObject> chefJsons = ChefJsonGenerator.generateClusterChefJsonsForInstallation(definition, clusterRuntime);
     JsonObject jsonObject = chefJsons.get("mgmnodes1ndb::mgmd");

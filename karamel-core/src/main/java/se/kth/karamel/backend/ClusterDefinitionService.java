@@ -15,12 +15,12 @@ import org.yaml.snakeyaml.constructor.Constructor;
 import org.yaml.snakeyaml.nodes.Tag;
 import org.yaml.snakeyaml.scanner.ScannerException;
 import se.kth.karamel.common.clusterdef.Baremetal;
+import se.kth.karamel.common.clusterdef.Cluster;
 import se.kth.karamel.common.clusterdef.Cookbook;
 import se.kth.karamel.common.clusterdef.Ec2;
 import se.kth.karamel.common.clusterdef.Gce;
 import se.kth.karamel.common.clusterdef.Nova;
 import se.kth.karamel.common.clusterdef.Occi;
-import se.kth.karamel.common.clusterdef.json.JsonCluster;
 import se.kth.karamel.common.clusterdef.yaml.YamlCluster;
 import se.kth.karamel.common.clusterdef.yaml.YamlGroup;
 import se.kth.karamel.common.clusterdef.yaml.YamlPropertyRepresenter;
@@ -37,7 +37,6 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import se.kth.karamel.common.cookbookmeta.CookbookCache;
-import se.kth.karamel.common.clusterdef.json.JsonScope;
 
 /**
  * Stores/reads cluster definitions from Karamel home folder, does conversions between yaml and json definitions.
@@ -53,8 +52,8 @@ public class ClusterDefinitionService {
     YamlCluster.CACHE = CACHE;
   }
 
-  public static String jsonToYaml(JsonCluster jsonCluster) throws KaramelException {
-    YamlCluster yamlCluster = new YamlCluster(jsonCluster);
+  public static String jsonToYaml(Cluster cluster) throws KaramelException {
+    YamlCluster yamlCluster = new YamlCluster(cluster);
     DumperOptions options = new DumperOptions();
     options.setIndent(2);
     options.setWidth(120);
@@ -139,18 +138,18 @@ public class ClusterDefinitionService {
 
   public static String jsonToYaml(String json) throws KaramelException {
     Gson gson = new Gson();
-    JsonCluster jsonCluster = gson.fromJson(json, JsonCluster.class);
-    return jsonToYaml(jsonCluster);
+    Cluster cluster = gson.fromJson(json, Cluster.class);
+    return jsonToYaml(cluster);
   }
 
-  public static JsonCluster jsonToJsonObject(String json) {
+  public static Cluster jsonToJsonObject(String json) {
     Gson gson = new Gson();
-    return gson.fromJson(json, JsonCluster.class);
+    return gson.fromJson(json, Cluster.class);
   }
 
-  public static JsonCluster yamlToJsonObject(String yaml) throws KaramelException {
+  public static Cluster yamlToJsonObject(String yaml) throws KaramelException {
     YamlCluster cluster = yamlToYamlObject(yaml);
-    JsonCluster jsonCluster = new JsonCluster(cluster);
+    Cluster jsonCluster = new Cluster(cluster);
     ClusterDefinitionValidator.validate(jsonCluster);
     return jsonCluster;
   }
@@ -166,14 +165,14 @@ public class ClusterDefinitionService {
   }
 
   public static String yamlToJson(String yaml) throws KaramelException {
-    JsonCluster jsonObj = yamlToJsonObject(yaml);
+    Cluster jsonObj = yamlToJsonObject(yaml);
     return serializeJson(jsonObj);
   }
 
-  public static String serializeJson(JsonCluster jsonCluster) {
+  public static String serializeJson(Cluster cluster) {
     GsonBuilder builder = new GsonBuilder();
     builder.disableHtmlEscaping();
     Gson gson = builder.setPrettyPrinting().create();
-    return gson.toJson(jsonCluster);
+    return gson.toJson(cluster);
   }
 }

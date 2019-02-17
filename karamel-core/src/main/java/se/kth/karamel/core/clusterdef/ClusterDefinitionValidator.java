@@ -3,10 +3,10 @@ package se.kth.karamel.core.clusterdef;
 import com.google.common.collect.Lists;
 import se.kth.karamel.backend.converter.UserClusterDataExtractor;
 import se.kth.karamel.common.clusterdef.Baremetal;
+import se.kth.karamel.common.clusterdef.Group;
 import se.kth.karamel.common.clusterdef.Provider;
-import se.kth.karamel.common.clusterdef.json.JsonCluster;
-import se.kth.karamel.common.clusterdef.json.JsonGroup;
-import se.kth.karamel.common.clusterdef.json.JsonRecipe;
+import se.kth.karamel.common.clusterdef.Cluster;
+import se.kth.karamel.common.clusterdef.Recipe;
 import se.kth.karamel.common.exception.ValidationException;
 
 import java.util.ArrayList;
@@ -17,10 +17,10 @@ import java.util.ArrayList;
  */
 public class ClusterDefinitionValidator {
 
-  public static void validate(JsonCluster cluster) throws ValidationException {
+  public static void validate(Cluster cluster) throws ValidationException {
     cluster.validate();
 
-    for (JsonGroup group : cluster.getGroups()) {
+    for (Group group : cluster.getGroups()) {
       Provider provider = UserClusterDataExtractor.getGroupProvider(cluster, group.getName());
       if (provider instanceof Baremetal) {
         Baremetal baremetal = (Baremetal) provider;
@@ -31,7 +31,7 @@ public class ClusterDefinitionValidator {
         }
       }
 
-      ArrayList<JsonRecipe> recs = Lists.newArrayList(group.getRecipes());
+      ArrayList<Recipe> recs = Lists.newArrayList(group.getRecipes());
       for (int i = 0; i < recs.size(); i++) {
         for (int j = i + 1; j < recs.size(); j++) {
           if (recs.get(i).getCanonicalName().equals(recs.get(j).getCanonicalName()))

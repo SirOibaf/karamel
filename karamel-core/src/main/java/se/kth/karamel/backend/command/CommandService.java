@@ -40,7 +40,7 @@ import se.kth.karamel.backend.running.model.MachineRuntime;
 import se.kth.karamel.backend.running.model.tasks.DagBuilder;
 import se.kth.karamel.backend.running.model.tasks.Task;
 import se.kth.karamel.common.TextTable;
-import se.kth.karamel.common.clusterdef.json.JsonCluster;
+import se.kth.karamel.common.clusterdef.Cluster;
 import se.kth.karamel.common.exception.KaramelException;
 import se.kth.karamel.common.stats.ClusterStats;
 import se.kth.karamel.common.stats.PhaseStat;
@@ -104,7 +104,7 @@ public class CommandService {
         hyperLinks = UserClusterDataExtractor.clusterLinks(cluster.getDefinition(), cluster.getRuntime());
       } else {
         String yml = ClusterDefinitionService.loadYaml(context);
-        JsonCluster json = ClusterDefinitionService.yamlToJsonObject(yml);
+        Cluster json = ClusterDefinitionService.yamlToJsonObject(yml);
         hyperLinks = UserClusterDataExtractor.clusterLinks(json, null);
       }
       result = result.replace(HYPERLINKS_PLH, hyperLinks);
@@ -247,7 +247,7 @@ public class CommandService {
         found = true;
         addActiveClusterMenus(response);
         ClusterManager cluster = cluster(clusterNameInUserInput);
-        JsonCluster json = cluster.getDefinition();
+        Cluster json = cluster.getDefinition();
         result = ClusterDefinitionService.serializeJson(json);
         nextCmd = "detail " + clusterNameInUserInput;
       }
@@ -447,7 +447,7 @@ public class CommandService {
             }
           };
           String yml = ClusterDefinitionService.loadYaml(clusterName);
-          JsonCluster json = ClusterDefinitionService.yamlToJsonObject(yml);
+          Cluster json = ClusterDefinitionService.yamlToJsonObject(yml);
           ClusterRuntime dummyRuntime = MockingUtil.dummyRuntime(json);
           Map<String, JsonObject> chefJsons = ChefJsonGenerator.
               generateClusterChefJsonsForInstallation(json, dummyRuntime);
@@ -500,7 +500,7 @@ public class CommandService {
             }
           };
           String yml = ClusterDefinitionService.loadYaml(clusterName);
-          JsonCluster json = ClusterDefinitionService.yamlToJsonObject(yml);
+          Cluster json = ClusterDefinitionService.yamlToJsonObject(yml);
           ClusterRuntime dummyRuntime = MockingUtil.dummyRuntime(json);
           Map<String, JsonObject> chefJsons = ChefJsonGenerator.
               generateClusterChefJsonsForInstallation(json, dummyRuntime);
@@ -532,7 +532,7 @@ public class CommandService {
           addActiveClusterMenus(response);
         } else {
           String yml = ClusterDefinitionService.loadYaml(clusterName);
-          JsonCluster json = ClusterDefinitionService.yamlToJsonObject(yml);
+          Cluster json = ClusterDefinitionService.yamlToJsonObject(yml);
           result = UserClusterDataExtractor.clusterLinks(json, null);
         }
 

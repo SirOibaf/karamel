@@ -23,7 +23,8 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 import se.kth.karamel.backend.launcher.Launcher;
 import se.kth.karamel.backend.running.model.ClusterRuntime;
-import se.kth.karamel.common.clusterdef.json.JsonCluster;
+import se.kth.karamel.common.clusterdef.Cluster;
+import se.kth.karamel.common.clusterdef.Group;
 import se.kth.karamel.common.exception.InvalidOcciCredentialsException;
 import se.kth.karamel.common.exception.KaramelException;
 import se.kth.karamel.common.util.Confs;
@@ -37,7 +38,6 @@ import se.kth.karamel.backend.running.model.GroupRuntime;
 import se.kth.karamel.backend.running.model.MachineRuntime;
 import se.kth.karamel.common.clusterdef.Occi;
 import se.kth.karamel.common.clusterdef.Provider;
-import se.kth.karamel.common.clusterdef.json.JsonGroup;
 import se.kth.karamel.common.util.Settings;
 
 
@@ -119,7 +119,7 @@ public final class OcciLauncher extends Launcher{
   }
   
   @Override
-  public void cleanup(JsonCluster definition, ClusterRuntime runtime) throws KaramelException {
+  public void cleanup(Cluster definition, ClusterRuntime runtime) throws KaramelException {
     List<GroupRuntime> groups = runtime.getGroups();
 
     for (GroupRuntime group : groups) {
@@ -252,16 +252,16 @@ public final class OcciLauncher extends Launcher{
   }
     
   @Override
-  public String forkGroup(JsonCluster definition, ClusterRuntime runtime, String groupName) throws KaramelException {
+  public String forkGroup(Cluster definition, ClusterRuntime runtime, String groupName) throws KaramelException {
     return groupName;
   }  
   
   @Override
-  public List<MachineRuntime> forkMachines(JsonCluster definition, ClusterRuntime runtime, String groupName)
+  public List<MachineRuntime> forkMachines(Cluster definition, ClusterRuntime runtime, String groupName)
           throws KaramelException {
 
     Occi occi = (Occi) UserClusterDataExtractor.getGroupProvider(definition, groupName);
-    JsonGroup definedGroup = UserClusterDataExtractor.findGroup(definition, groupName);
+    Group definedGroup = UserClusterDataExtractor.findGroup(definition, groupName);
     GroupRuntime group = UserClusterDataExtractor.findGroup(runtime, groupName);
     
     //log details

@@ -14,7 +14,7 @@ import se.kth.karamel.backend.running.model.ClusterRuntime;
 import se.kth.karamel.backend.running.model.GroupRuntime;
 import se.kth.karamel.backend.running.model.MachineRuntime;
 import se.kth.karamel.common.clusterdef.Baremetal;
-import se.kth.karamel.common.clusterdef.json.JsonCluster;
+import se.kth.karamel.common.clusterdef.Cluster;
 import se.kth.karamel.common.util.Settings;
 import se.kth.karamel.common.util.SshKeyPair;
 import se.kth.karamel.common.exception.KaramelException;
@@ -36,18 +36,18 @@ public class BaremetalLauncher extends Launcher {
   }
 
   @Override
-  public void cleanup(JsonCluster definition, ClusterRuntime runtime) throws KaramelException {
+  public void cleanup(Cluster definition, ClusterRuntime runtime) throws KaramelException {
     logger.debug("It is baremetal, cleanup is skipped.");
   }
 
   @Override
-  public String forkGroup(JsonCluster definition, ClusterRuntime runtime, String groupName) throws KaramelException {
+  public String forkGroup(Cluster definition, ClusterRuntime runtime, String groupName) throws KaramelException {
     logger.debug(String.format("Provider of %s is baremetal, fork-group is skipped.", groupName));
     return groupName;
   }
 
   @Override
-  public List<MachineRuntime> forkMachines(JsonCluster definition, ClusterRuntime runtime, String groupName) 
+  public List<MachineRuntime> forkMachines(Cluster definition, ClusterRuntime runtime, String groupName)
       throws KaramelException {
     logger.debug(String.format("Provider of %s is baremetal, available machines expected.", groupName));
     GroupRuntime gr = UserClusterDataExtractor.findGroup(runtime, groupName);

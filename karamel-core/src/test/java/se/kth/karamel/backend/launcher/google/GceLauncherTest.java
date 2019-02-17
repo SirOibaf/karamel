@@ -13,7 +13,7 @@ import se.kth.karamel.backend.running.model.ClusterRuntime;
 import se.kth.karamel.backend.running.model.GroupRuntime;
 import se.kth.karamel.backend.running.model.MachineRuntime;
 import se.kth.karamel.common.clusterdef.Gce;
-import se.kth.karamel.common.clusterdef.json.JsonGroup;
+import se.kth.karamel.common.clusterdef.Group;
 import se.kth.karamel.common.exception.InvalidCredentialsException;
 import se.kth.karamel.common.exception.KaramelException;
 import se.kth.karamel.common.exception.ValidationException;
@@ -148,7 +148,7 @@ public class GceLauncherTest {
     gce.setPreemptible(false);
     GceLauncher launcher = new GceLauncher(context, keypair);
     ClusterRuntime cluster = new ClusterRuntime(clusterName);
-    JsonGroup jsonGroup = new JsonGroup();
+    Group jsonGroup = new Group();
     jsonGroup.setName(groupName);
     GroupRuntime group = new GroupRuntime(cluster, jsonGroup);
 

@@ -4,6 +4,8 @@
  */
 package se.kth.karamel.backend.launcher.amazon;
 
+import se.kth.karamel.common.clusterdef.Cluster;
+import se.kth.karamel.common.clusterdef.Group;
 import se.kth.karamel.common.launcher.amazon.InstanceType;
 import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
@@ -41,8 +43,6 @@ import se.kth.karamel.common.util.Settings;
 import se.kth.karamel.common.exception.KaramelException;
 import se.kth.karamel.common.clusterdef.Ec2;
 import se.kth.karamel.common.clusterdef.Provider;
-import se.kth.karamel.common.clusterdef.json.JsonCluster;
-import se.kth.karamel.common.clusterdef.json.JsonGroup;
 import se.kth.karamel.common.util.Confs;
 import se.kth.karamel.common.util.Ec2Credentials;
 import se.kth.karamel.common.util.SshKeyPair;
@@ -102,8 +102,8 @@ public final class Ec2Launcher extends Launcher {
   }
 
   @Override
-  public String forkGroup(JsonCluster definition, ClusterRuntime runtime, String groupName) throws KaramelException {
-    JsonGroup jg = UserClusterDataExtractor.findGroup(definition, groupName);
+  public String forkGroup(Cluster definition, ClusterRuntime runtime, String groupName) throws KaramelException {
+    Group jg = UserClusterDataExtractor.findGroup(definition, groupName);
     Provider provider = UserClusterDataExtractor.getGroupProvider(definition, groupName);
     Ec2 ec2 = (Ec2) provider;
     Set<String> ports = new HashSet<>();
@@ -195,10 +195,10 @@ public final class Ec2Launcher extends Launcher {
   }
 
   @Override
-  public List<MachineRuntime> forkMachines(JsonCluster definition, ClusterRuntime runtime, String groupName)
+  public List<MachineRuntime> forkMachines(Cluster definition, ClusterRuntime runtime, String groupName)
       throws KaramelException {
     Ec2 ec2 = (Ec2) UserClusterDataExtractor.getGroupProvider(definition, groupName);
-    JsonGroup definedGroup = UserClusterDataExtractor.findGroup(definition, groupName);
+    Group definedGroup = UserClusterDataExtractor.findGroup(definition, groupName);
     GroupRuntime group = UserClusterDataExtractor.findGroup(runtime, groupName);
     HashSet<String> gids = new HashSet<>();
     gids.add(group.getId());
@@ -454,7 +454,7 @@ public final class Ec2Launcher extends Launcher {
   }
 
   @Override
-  public void cleanup(JsonCluster definition, ClusterRuntime runtime) throws KaramelException {
+  public void cleanup(Cluster definition, ClusterRuntime runtime) throws KaramelException {
     runtime.resolveFailures();
     List<GroupRuntime> groups = runtime.getGroups();
     Set<String> allEc2Vms = new HashSet<>();
@@ -469,7 +469,7 @@ public final class Ec2Launcher extends Launcher {
             allEc2VmsIds.add(machine.getVmId());
           }
         }
-        JsonGroup jg = UserClusterDataExtractor.findGroup(definition, group.getName());
+        Group jg = UserClusterDataExtractor.findGroup(definition, group.getName());
         List<String> vmNames = Settings.AWS_UNIQUE_VM_NAMES(group.getCluster().getName(), group.getName(),
             1, jg.getSize());
         allEc2Vms.addAll(vmNames);

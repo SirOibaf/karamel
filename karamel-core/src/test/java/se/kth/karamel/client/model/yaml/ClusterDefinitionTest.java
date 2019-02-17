@@ -10,11 +10,11 @@ import org.junit.Test;
 import org.yaml.snakeyaml.Yaml;
 import se.kth.karamel.backend.ClusterDefinitionService;
 import se.kth.karamel.common.clusterdef.Baremetal;
+import se.kth.karamel.common.clusterdef.Cluster;
 import se.kth.karamel.common.clusterdef.Cookbook;
 import se.kth.karamel.common.clusterdef.Ec2;
 import se.kth.karamel.common.clusterdef.Gce;
 import se.kth.karamel.common.clusterdef.Nova;
-import se.kth.karamel.common.clusterdef.json.JsonCluster;
 import se.kth.karamel.common.clusterdef.yaml.YamlCluster;
 import se.kth.karamel.common.clusterdef.yaml.YamlGroup;
 import se.kth.karamel.common.clusterdef.yaml.YamlScope;
@@ -239,11 +239,11 @@ public class ClusterDefinitionTest {
         + "\"gce\":null,"
         + "\"openstack\":null,"
         + "\"baremetal\":{\"username\":\"vagrant\",\"ips\":[]}}";
-    JsonCluster jsonCluster = ClusterDefinitionService.jsonToJsonObject(json);
-    ClusterDefinitionValidator.validate(jsonCluster);
-    String yml = ClusterDefinitionService.jsonToYaml(jsonCluster);
-    jsonCluster = ClusterDefinitionService.yamlToJsonObject(yml);
-    List<JsonCookbook> cookbooks = jsonCluster.getCookbooks();
+    Cluster cluster = ClusterDefinitionService.jsonToJsonObject(json);
+    ClusterDefinitionValidator.validate(cluster);
+    String yml = ClusterDefinitionService.jsonToYaml(cluster);
+    cluster = ClusterDefinitionService.yamlToJsonObject(yml);
+    List<JsonCookbook> cookbooks = cluster.getCookbooks();
     assertEquals(2, cookbooks.size());
 //    assertEquals("flink", cookbooks.get(1).getName());
   }

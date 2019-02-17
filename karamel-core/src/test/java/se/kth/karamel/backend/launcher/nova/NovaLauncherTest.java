@@ -30,9 +30,9 @@ import org.mockito.Matchers;
 import se.kth.karamel.backend.running.model.ClusterRuntime;
 import se.kth.karamel.backend.running.model.GroupRuntime;
 import se.kth.karamel.backend.running.model.MachineRuntime;
+import se.kth.karamel.common.clusterdef.Cluster;
+import se.kth.karamel.common.clusterdef.Group;
 import se.kth.karamel.common.clusterdef.Nova;
-import se.kth.karamel.common.clusterdef.json.JsonCluster;
-import se.kth.karamel.common.clusterdef.json.JsonGroup;
 import se.kth.karamel.common.exception.InvalidNovaCredentialsException;
 import se.kth.karamel.common.exception.KaramelException;
 import se.kth.karamel.common.util.Confs;
@@ -307,10 +307,10 @@ public class NovaLauncherTest {
     NovaLauncher novaLauncher = new NovaLauncher(novaContext, sshKeyPair);
     //String groupId = novaLauncher.createSecurityGroup(clusterName, groupName, nova, ports);
 
-    JsonCluster cluster = mock(JsonCluster.class);
+    Cluster cluster = mock(Cluster.class);
     ClusterRuntime clusterRuntime = mock(ClusterRuntime.class);
-    List<JsonGroup> groups = new ArrayList<>();
-    JsonGroup group = mock(JsonGroup.class);
+    List<Group> groups = new ArrayList<>();
+    Group group = mock(Group.class);
     groups.add(group);
     when(group.getName()).thenReturn(groupName);
     when(cluster.getGroups()).thenReturn(groups);
@@ -339,13 +339,13 @@ public class NovaLauncherTest {
     when(keyPairApi.createWithPublicKey(keypairName, sshKeyPair.getPublicKey())).thenReturn(pair);
 
     //mocking
-    JsonCluster cluster = mock(JsonCluster.class);
+    Cluster cluster = mock(Cluster.class);
     ClusterRuntime clusterRuntime = mock(ClusterRuntime.class);
     when(clusterRuntime.getName()).thenReturn(clusterName);
-    List<JsonGroup> groups = new ArrayList<>();
+    List<Group> groups = new ArrayList<>();
 
     //mocking json group
-    JsonGroup group = mock(JsonGroup.class);
+    Group group = mock(Group.class);
     groups.add(group);
     when(group.getName()).thenReturn(groupName);
     when(group.getProvider()).thenReturn(nova);
@@ -414,12 +414,12 @@ public class NovaLauncherTest {
     String uniqueGroup = NovaSetting.NOVA_UNIQUE_GROUP_NAME(clusterName, groupName);
 
     //mocking
-    JsonCluster cluster = mock(JsonCluster.class);
+    Cluster cluster = mock(Cluster.class);
     ClusterRuntime clusterRuntime = mock(ClusterRuntime.class);
     when(clusterRuntime.getName()).thenReturn(clusterName);
 
-    List<JsonGroup> groups = new ArrayList<>();
-    JsonGroup group = mock(JsonGroup.class);
+    List<Group> groups = new ArrayList<>();
+    Group group = mock(Group.class);
     groups.add(group);
     when(cluster.getGroups()).thenReturn(groups);
     when(cluster.getProvider()).thenReturn(nova);

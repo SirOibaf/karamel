@@ -7,7 +7,8 @@ package se.kth.karamel.backend.running.model;
 
 import java.util.ArrayList;
 import java.util.List;
-import se.kth.karamel.common.clusterdef.json.JsonGroup;
+
+import se.kth.karamel.common.clusterdef.Group;
 
 /**
  *
@@ -31,7 +32,7 @@ public class GroupRuntime {
     this.cluster = cluster;
   }
 
-  public GroupRuntime(ClusterRuntime cluster, JsonGroup definition) {
+  public GroupRuntime(ClusterRuntime cluster, Group definition) {
     this.cluster = cluster;
     this.name = definition.getName();
   }

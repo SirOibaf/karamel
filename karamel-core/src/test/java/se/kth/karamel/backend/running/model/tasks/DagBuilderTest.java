@@ -17,7 +17,7 @@ import se.kth.karamel.backend.converter.ChefJsonGenerator;
 import se.kth.karamel.backend.dag.Dag;
 import se.kth.karamel.backend.machines.TaskSubmitter;
 import se.kth.karamel.backend.running.model.ClusterRuntime;
-import se.kth.karamel.common.clusterdef.json.JsonCluster;
+import se.kth.karamel.common.clusterdef.Cluster;
 import se.kth.karamel.common.util.Settings;
 import se.kth.karamel.common.exception.KaramelException;
 import se.kth.karamel.backend.mocking.MockingUtil;
@@ -63,7 +63,7 @@ public class DagBuilderTest {
 
     Settings.CB_CLASSPATH_MODE = true;
     String ymlString = Resources.toString(Resources.getResource("se/kth/karamel/client/model/test-definitions/hopsworks.yml"), Charsets.UTF_8);
-    JsonCluster definition = ClusterDefinitionService.yamlToJsonObject(ymlString);
+    Cluster definition = ClusterDefinitionService.yamlToJsonObject(ymlString);
     ClusterRuntime dummyRuntime = MockingUtil.dummyRuntime(definition);
     Map<String, JsonObject> chefJsons = ChefJsonGenerator.generateClusterChefJsonsForInstallation(definition, dummyRuntime);
     ClusterStats clusterStats = new ClusterStats();
@@ -106,7 +106,7 @@ public class DagBuilderTest {
 
     Settings.CB_CLASSPATH_MODE = true;
     String ymlString = Resources.toString(Resources.getResource("se/kth/karamel/client/model/test-definitions/hopsworks.yml"), Charsets.UTF_8);
-    JsonCluster definition = ClusterDefinitionService.yamlToJsonObject(ymlString);
+    Cluster definition = ClusterDefinitionService.yamlToJsonObject(ymlString);
     ClusterRuntime dummyRuntime = MockingUtil.dummyRuntime(definition);
     Map<String, JsonObject> chefJsons = ChefJsonGenerator.generateClusterChefJsonsForPurge(definition, dummyRuntime);
     ClusterStats clusterStats = new ClusterStats();
@@ -153,7 +153,7 @@ public class DagBuilderTest {
     Confs.setMemConfs(confs);
 
     String ymlString = Resources.toString(Resources.getResource("se/kth/karamel/client/model/test-definitions/flink.yml"), Charsets.UTF_8);
-    JsonCluster definition = ClusterDefinitionService.yamlToJsonObject(ymlString);
+    Cluster definition = ClusterDefinitionService.yamlToJsonObject(ymlString);
     ClusterRuntime dummyRuntime = MockingUtil.dummyRuntime(definition);
     Map<String, JsonObject> chefJsons = ChefJsonGenerator.generateClusterChefJsonsForInstallation(definition, dummyRuntime);
     ClusterStats clusterStats = new ClusterStats();
@@ -227,7 +227,7 @@ public class DagBuilderTest {
     Confs.setMemConfs(confs);
 
     String ymlString = Resources.toString(Resources.getResource("se/kth/karamel/client/model/test-definitions/flink.yml"), Charsets.UTF_8);
-    JsonCluster definition = ClusterDefinitionService.yamlToJsonObject(ymlString);
+    Cluster definition = ClusterDefinitionService.yamlToJsonObject(ymlString);
     ClusterRuntime dummyRuntime = MockingUtil.dummyRuntime(definition);
     Map<String, JsonObject> chefJsons = ChefJsonGenerator.generateClusterChefJsonsForInstallation(definition, dummyRuntime);
     ClusterStats clusterStats = new ClusterStats();

@@ -20,7 +20,7 @@ import se.kth.karamel.backend.launcher.occi.OcciContext;
 import se.kth.karamel.backend.running.model.ClusterRuntime;
 import se.kth.karamel.core.clusterdef.ClusterDefinitionValidator;
 import se.kth.karamel.common.exception.KaramelException;
-import se.kth.karamel.common.clusterdef.json.JsonCluster;
+import se.kth.karamel.common.clusterdef.Cluster;
 import se.kth.karamel.common.util.SshKeyPair;
 import se.kth.karamel.common.util.SshKeyService;
 
@@ -128,7 +128,7 @@ public class ClusterService {
 
   public synchronized void startCluster(String json) throws KaramelException {
     Gson gson = new Gson();
-    JsonCluster jsonCluster = gson.fromJson(json, JsonCluster.class);
+    Cluster jsonCluster = gson.fromJson(json, Cluster.class);
     ClusterDefinitionValidator.validate(jsonCluster);
     String yml = ClusterDefinitionService.jsonToYaml(jsonCluster);
     // TODO(Fabio): This is total BS - The result of writing spaghetti code.
@@ -229,7 +229,7 @@ public class ClusterService {
     t.start();
   }
 
-  private ClusterContext checkContext(JsonCluster definition) throws KaramelException {
+  private ClusterContext checkContext(Cluster definition) throws KaramelException {
     String name = definition.getName().toLowerCase();
     ClusterContext context = clusterContexts.get(name);
     ClusterContext validatedContext = ClusterContext.validateContext(definition, context, commonContext);
