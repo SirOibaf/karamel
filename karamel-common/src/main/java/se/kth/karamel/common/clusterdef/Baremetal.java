@@ -10,7 +10,6 @@ import se.kth.karamel.common.exception.ValidationException;
 public class Baremetal extends Provider {
 
   private final List<String> ips = new ArrayList<>();
-  
   private String sudoPassword="";
 
   public void setSudoPassword(String sudoPassword) {
@@ -26,9 +25,7 @@ public class Baremetal extends Provider {
   }
 
   public void setIps(List<String> ips) {
-    for (String ip : ips) {
-      this.ips.add(ip);
-    }
+    this.ips.addAll(ips);
   }
 
   public void setIp(String ip) {
@@ -47,11 +44,6 @@ public class Baremetal extends Provider {
       }
     }
     return indivIps;
-  }
-
-  public static Baremetal makeDefault() {
-    Baremetal baremetal = new Baremetal();
-    return baremetal.applyDefaults();
   }
 
   @Override

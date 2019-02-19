@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package se.kth.karamel.backend;
 
 import com.google.common.base.Charsets;
@@ -21,13 +16,8 @@ import se.kth.karamel.common.clusterdef.Ec2;
 import se.kth.karamel.common.clusterdef.Gce;
 import se.kth.karamel.common.clusterdef.Nova;
 import se.kth.karamel.common.clusterdef.Occi;
-import se.kth.karamel.common.clusterdef.yaml.YamlCluster;
-import se.kth.karamel.common.clusterdef.yaml.YamlGroup;
-import se.kth.karamel.common.clusterdef.yaml.YamlPropertyRepresenter;
 import se.kth.karamel.common.exception.KaramelException;
-import se.kth.karamel.common.util.FilesystemUtil;
 import se.kth.karamel.common.util.Settings;
-import se.kth.karamel.core.clusterdef.ClusterDefinitionValidator;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -40,8 +30,6 @@ import se.kth.karamel.common.cookbookmeta.CookbookCache;
 
 /**
  * Stores/reads cluster definitions from Karamel home folder, does conversions between yaml and json definitions.
- *
- * @author kamal
  */
 public class ClusterDefinitionService {
 

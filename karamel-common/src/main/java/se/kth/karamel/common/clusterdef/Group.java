@@ -1,17 +1,12 @@
 package se.kth.karamel.common.clusterdef;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
-import se.kth.karamel.common.cookbookmeta.Attribute;
-import se.kth.karamel.common.cookbookmeta.KaramelizedCookbook;
+import se.kth.karamel.common.util.AttributesValidator;
 import se.kth.karamel.common.util.Settings;
 import se.kth.karamel.common.exception.KaramelException;
-import se.kth.karamel.common.exception.RecipeNotfoundException;
 import se.kth.karamel.common.exception.ValidationException;
 
 public class Group extends Scope {
@@ -22,46 +17,6 @@ public class Group extends Scope {
   private List<Recipe> recipes = new ArrayList<>();
 
   public Group() {
-  }
-
-  public Group(YamlGroup group, String name, List<KaramelizedCookbook> allCookbooks) throws KaramelException {
-    super(group);
-    setName(name);
-    size = group.getSize();
-    Set<Attribute> allValidAttrs = new HashSet<>();
-
-    for (String rec : group.getRecipes()) {
-      String[] comp = rec.split(Settings.COOKBOOK_DELIMITER);
-      KaramelizedCookbook cookbook = null;
-      for (KaramelizedCookbook cb : allCookbooks) {
-        if (cb.getCookbookName().equals(comp[0])) {
-          cookbook = cb;
-          break;
-        }
-      }
-
-      if (cookbook == null) {
-        throw new RecipeNotfoundException("Could not find cookbook for recipe " + rec);
-      } else {
-        recipes.add(new Recipe(cookbook, comp.length == 2 ? comp[1] : "default"));
-        allValidAttrs.addAll(cookbook.getMetadataRb().getAttributes());
-      }
-    }
-
-    attributes = new HashMap<>(group.flattenAttrs());
-
-    // I think that this map should be <String, Attribute>. But I don't want to see
-    // what happen if I change it.
-    Set<String> invalidAttrs = new HashSet<>();
-    for (String usedAttr: attributes.keySet()) {
-      if (!allValidAttrs.contains(new Attribute(usedAttr))) {
-        invalidAttrs.add(usedAttr);
-      }
-    }
-
-    if (!invalidAttrs.isEmpty()) {
-      throw new KaramelException(String.format("Undefined attributes: %s", invalidAttrs.toString()));
-    }
   }
 
   public String getName() {
@@ -89,7 +44,7 @@ public class Group extends Scope {
   }
 
   @Override
-  public void validate() throws ValidationException, KaramelException {
+  public void validate() throws KaramelException {
     super.validate();
 
     // Validate duplicated recipes in the cluster definition
@@ -106,6 +61,9 @@ public class Group extends Scope {
             String.format("Number of ip addresses is not equal to the group size %d != %d", ipSize, size));
       }
     }
+
+    // Validate Group attributes
+    (new AttributesValidator()).validateAttributes(attributes);
   }
 
 }

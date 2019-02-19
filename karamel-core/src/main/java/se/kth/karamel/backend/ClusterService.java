@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package se.kth.karamel.backend;
 
 import com.google.gson.Gson;
@@ -18,7 +13,6 @@ import se.kth.karamel.backend.launcher.nova.NovaContext;
 import se.kth.karamel.backend.launcher.novav3.NovaV3Context;
 import se.kth.karamel.backend.launcher.occi.OcciContext;
 import se.kth.karamel.backend.running.model.ClusterRuntime;
-import se.kth.karamel.core.clusterdef.ClusterDefinitionValidator;
 import se.kth.karamel.common.exception.KaramelException;
 import se.kth.karamel.common.clusterdef.Cluster;
 import se.kth.karamel.common.util.SshKeyPair;
@@ -28,8 +22,6 @@ import se.kth.karamel.common.util.SshKeyService;
  * Keeps repository of running clusters with a unique name for each. Privacy sensitive data such as credentials is
  * stored inside a context. There is a common context with shared values between clusters and each cluster has its own
  * context inside which values can be overwritten.
- *
- * @author kamal
  */
 public class ClusterService {
 

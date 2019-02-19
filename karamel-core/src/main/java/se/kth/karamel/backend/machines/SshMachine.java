@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package se.kth.karamel.backend.machines;
 
 import java.io.File;
@@ -41,13 +36,8 @@ import se.kth.karamel.backend.LogService;
 import se.kth.karamel.backend.running.model.ClusterRuntime;
 import se.kth.karamel.backend.running.model.Failure;
 import se.kth.karamel.backend.running.model.tasks.KillSessionTask;
-import se.kth.karamel.backend.running.model.tasks.RunRecipeTask;
 import se.kth.karamel.common.util.Confs;
 
-/**
- *
- * @author kamal
- */
 public class SshMachine implements MachineInterface, Runnable {
 
   static {

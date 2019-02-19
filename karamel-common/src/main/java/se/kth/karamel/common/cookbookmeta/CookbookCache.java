@@ -1,6 +1,7 @@
 package se.kth.karamel.common.cookbookmeta;
 
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Charsets;
 import org.apache.log4j.Logger;
 import se.kth.karamel.common.clusterdef.Cookbook;
@@ -34,8 +35,8 @@ public class CookbookCache {
 
   private static final Logger logger = Logger.getLogger(CookbookCache.class);
 
-  public Map<String, KaramelizedCookbook> cookbooks = new HashMap<>();
-
+  private Map<String, KaramelizedCookbook> cookbooks = new HashMap<>();
+  private ObjectMapper objectMapper = new ObjectMapper();
   private ExecutorService es = Executors.newFixedThreadPool(2);
 
   //TODO(Fabio): This is a singleton. - Maybe it doesn't need to be.
@@ -59,6 +60,10 @@ public class CookbookCache {
           String.format("Cookbook could not be found '%s'", cookbookName));
     }
     return cb;
+  }
+
+  public List<KaramelizedCookbook> getKaramelizedCookbooksList() {
+    return new ArrayList<>(cookbooks.values());
   }
 
   public List<KaramelizedCookbook> loadAllKaramelizedCookbooks(Map<String, Cookbook> rootCookbooks)
@@ -124,8 +129,8 @@ public class CookbookCache {
             try {
               KaramelFile karamelFile = new KaramelFile(com.google.common.io.Files.toString(
                   rawKaramelFile, Charsets.UTF_8));
-              MetadataRb metadataRb = MetadataParser.parse(com.google.common.io.Files.toString(
-                  rawMetadataRb, Charsets.UTF_8));
+              MetadataRb metadataRb = objectMapper.readValue(com.google.common.io.Files.toString(
+                  rawMetadataRb, Charsets.UTF_8), MetadataRb.class);
               cookbooks.put(metadataRb.getName(), new KaramelizedCookbook(metadataRb, karamelFile));
             } catch (IOException | MetadataParseException e) {
               logger.error(e);

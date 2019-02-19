@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package se.kth.karamel.backend;
 
 import se.kth.karamel.backend.converter.UserClusterDataExtractor;
@@ -24,9 +19,6 @@ import se.kth.karamel.common.util.SshKeyPair;
 /**
  * Authenticated APIs and privacy-sensitive data, that must not be revealed by storing them in the file-system, is
  * stored here in memory. It is valid just until the system is running otherwise it will disappear.
- *
- *
- * @author kamal
  */
 public class ClusterContext {
 
@@ -84,7 +76,8 @@ public class ClusterContext {
   }
 
   public static ClusterContext validateContext(Cluster definition,
-                                               ClusterContext context, ClusterContext commonContext) throws KaramelException {
+                                               ClusterContext context, ClusterContext commonContext)
+      throws KaramelException {
     if (context == null) {
       context = new ClusterContext();
     }

@@ -2,15 +2,16 @@
 <project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <modelVersion>4.0.0</modelVersion>
+
   <parent>
     <groupId>se.kth.karamel</groupId>
     <artifactId>karamel-parent</artifactId>
     <version>0.5</version>
   </parent>
-  <groupId>se.kth.karamel</groupId>
+
   <artifactId>karamel-common</artifactId>
   <name>karamel-common</name>
-  <url>http://maven.apache.org</url>
+
   <dependencies>
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
@@ -73,5 +74,10 @@
         </exclusion>
       </exclusions>
     </dependency>
+      <dependency>
+          <groupId>com.fasterxml.jackson.core</groupId>
+          <artifactId>jackson-databind</artifactId>
+          <version>2.9.5</version>
+      </dependency>
   </dependencies>
 </project>
