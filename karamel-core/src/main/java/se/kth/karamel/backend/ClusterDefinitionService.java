@@ -1,111 +1,79 @@
 package se.kth.karamel.backend;
 
-import com.google.common.base.Charsets;
-import com.google.common.io.Files;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
+import org.apache.commons.io.FileUtils;
 import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.Constructor;
-import org.yaml.snakeyaml.nodes.Tag;
-import org.yaml.snakeyaml.scanner.ScannerException;
-import se.kth.karamel.common.clusterdef.Baremetal;
 import se.kth.karamel.common.clusterdef.Cluster;
-import se.kth.karamel.common.clusterdef.Cookbook;
-import se.kth.karamel.common.clusterdef.Ec2;
-import se.kth.karamel.common.clusterdef.Gce;
-import se.kth.karamel.common.clusterdef.Nova;
-import se.kth.karamel.common.clusterdef.Occi;
 import se.kth.karamel.common.exception.KaramelException;
 import se.kth.karamel.common.util.Settings;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import se.kth.karamel.common.cookbookmeta.CookbookCache;
 
 /**
  * Stores/reads cluster definitions from Karamel home folder, does conversions between yaml and json definitions.
  */
 public class ClusterDefinitionService {
 
-  public static final CookbookCache CACHE = new CookbookCache();
-
-  static {
-    JsonScope.CACHE = CACHE;
-    YamlCluster.CACHE = CACHE;
-  }
-
-  public static String jsonToYaml(Cluster cluster) throws KaramelException {
-    YamlCluster yamlCluster = new YamlCluster(cluster);
-    DumperOptions options = new DumperOptions();
-    options.setIndent(2);
-    options.setWidth(120);
-    options.setExplicitEnd(false);
-    options.setDefaultFlowStyle(DumperOptions.FlowStyle.BLOCK);
-    options.setPrettyFlow(true);
-    options.setDefaultScalarStyle(DumperOptions.ScalarStyle.PLAIN);
-    YamlPropertyRepresenter yamlPropertyRepresenter = new YamlPropertyRepresenter();
-    yamlPropertyRepresenter.addClassTag(YamlCluster.class, Tag.MAP);
-    yamlPropertyRepresenter.addClassTag(Ec2.class, Tag.MAP);
-    yamlPropertyRepresenter.addClassTag(Baremetal.class, Tag.MAP);
-    yamlPropertyRepresenter.addClassTag(Gce.class, Tag.MAP);
-    yamlPropertyRepresenter.addClassTag(Nova.class, Tag.MAP);
-    yamlPropertyRepresenter.addClassTag(Occi.class, Tag.MAP);
-    yamlPropertyRepresenter.addClassTag(Cookbook.class, Tag.MAP);
-    yamlPropertyRepresenter.addClassTag(YamlGroup.class, Tag.MAP);
-    yamlPropertyRepresenter.addClassTag(HashSet.class, Tag.MAP);
-    Yaml yaml = new Yaml(yamlPropertyRepresenter, options);
-    return yaml.dump(yamlCluster);
-  }
-
-  public static void saveYaml(String yaml) throws KaramelException {
+  public void saveAsYaml(Cluster cluster) throws KaramelException {
     try {
-      YamlCluster cluster = yamlToYamlObject(yaml);
       String name = cluster.getName().toLowerCase();
       File folder = new File(Settings.CLUSTER_ROOT_PATH(name));
       if (!folder.exists()) {
         folder.mkdirs();
       }
+
+      DumperOptions options = new DumperOptions();
+      options.setIndent(2);
+      options.setWidth(120);
+      options.setExplicitEnd(false);
+      options.setDefaultFlowStyle(DumperOptions.FlowStyle.BLOCK);
+      options.setPrettyFlow(true);
+      options.setDefaultScalarStyle(DumperOptions.ScalarStyle.PLAIN);
+      Yaml yaml = new Yaml(options);
+
       File file = new File(Settings.CLUSTER_YAML_PATH(name));
-      Files.write(yaml, file, Charset.forName("UTF-8"));
+      FileUtils.writeStringToFile(file, yaml.dump(cluster));
     } catch (IOException ex) {
       throw new KaramelException("Could not convert yaml to java ", ex);
     }
   }
 
-  public static String loadYaml(String clusterName) throws KaramelException {
+  public Cluster loadYaml(String clusterName) throws KaramelException {
     try {
       String name = clusterName.toLowerCase();
       File folder = new File(Settings.CLUSTER_ROOT_PATH(name));
       if (!folder.exists()) {
         throw new KaramelException(String.format("cluster '%s' is not available", name));
       }
+
       String yamlPath = Settings.CLUSTER_YAML_PATH(name);
       File file = new File(yamlPath);
       if (!file.exists()) {
         throw new KaramelException(String.format("yaml '%s' is not available", yamlPath));
       }
-      return Files.toString(file, Charsets.UTF_8);
+
+      Yaml yaml = new Yaml(new Constructor(Cluster.class));
+      Object document = yaml.load(FileUtils.readFileToString(file));
+      return ((Cluster) document);
     } catch (IOException ex) {
-      throw new KaramelException("Could not save the yaml ", ex);
+      throw new KaramelException("Could not load the yaml ", ex);
     }
   }
 
-  public static void removeDefinition(String clusterName) throws KaramelException {
+  public void removeDefinition(String clusterName) throws KaramelException {
     String name = clusterName.toLowerCase();
     try {
-      FilesystemUtil.deleteRecursive(Settings.CLUSTER_ROOT_PATH(name));
-    } catch (FileNotFoundException ex) {
+      FileUtils.deleteDirectory(new File(Settings.CLUSTER_ROOT_PATH(name)));
+    } catch (IOException ex) {
       throw new KaramelException(ex);
     }
   }
 
-  public static List<String> listClusters() {
+  public List<String> listClusters() {
     List<String> clusters = new ArrayList<>();
     File folder = new File(Settings.KARAMEL_ROOT_PATH);
     if (folder.exists()) {
@@ -122,45 +90,5 @@ public class ClusterDefinitionService {
       }
     }
     return clusters;
-  }
-
-  public static String jsonToYaml(String json) throws KaramelException {
-    Gson gson = new Gson();
-    Cluster cluster = gson.fromJson(json, Cluster.class);
-    return jsonToYaml(cluster);
-  }
-
-  public static Cluster jsonToJsonObject(String json) {
-    Gson gson = new Gson();
-    return gson.fromJson(json, Cluster.class);
-  }
-
-  public static Cluster yamlToJsonObject(String yaml) throws KaramelException {
-    YamlCluster cluster = yamlToYamlObject(yaml);
-    Cluster jsonCluster = new Cluster(cluster);
-    jsonCluster.validate();
-    return jsonCluster;
-  }
-
-  public static YamlCluster yamlToYamlObject(String ymlString) throws KaramelException {
-    try {
-      Yaml yaml = new Yaml(new Constructor(YamlCluster.class));
-      Object document = yaml.load(ymlString);
-      return ((YamlCluster) document);
-    } catch (ScannerException ex) {
-      throw new KaramelException("Syntax error in the yaml!!", ex);
-    }
-  }
-
-  public static String yamlToJson(String yaml) throws KaramelException {
-    Cluster jsonObj = yamlToJsonObject(yaml);
-    return serializeJson(jsonObj);
-  }
-
-  public static String serializeJson(Cluster cluster) {
-    GsonBuilder builder = new GsonBuilder();
-    builder.disableHtmlEscaping();
-    Gson gson = builder.setPrettyPrinting().create();
-    return gson.toJson(cluster);
   }
 }

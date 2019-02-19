@@ -1,12 +1,6 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package se.kth.karamel.backend;
 
 import org.apache.log4j.Logger;
-import se.kth.karamel.backend.kandy.KandyRestClient;
 import se.kth.karamel.backend.machines.MachinesMonitor;
 import se.kth.karamel.backend.running.model.ClusterRuntime;
 import se.kth.karamel.common.clusterdef.Cluster;
@@ -15,8 +9,6 @@ import se.kth.karamel.common.util.Settings;
 
 /**
  * While cluster is running, it observes its status, should failure happen it pauses MachinesMonitor.
- *
- * @author kamal
  */
 public class ClusterStatusMonitor implements Runnable {
 
@@ -55,7 +47,6 @@ public class ClusterStatusMonitor implements Runnable {
         try {
           long lastReportInterval = System.currentTimeMillis() - lastStatsReport;
           if (lastReportInterval > Settings.CLUSTER_STAT_REPORT_INTERVAL && stats.isUpdated()) {
-            KandyRestClient.pushClusterStats(definition.getName(), stats);
             lastStatsReport = System.currentTimeMillis();
           }
           Thread.sleep(Settings.CLUSTER_FAILURE_DETECTION_INTERVAL);

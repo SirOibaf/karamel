@@ -347,7 +347,7 @@ public class SshMachine implements MachineInterface, Runnable {
         Session.Command cmd = null;
         try {
           String cmdStr = shellCommand.getCmdStr();
-          String password = ClusterService.getInstance().getCommonContext().getSudoAccountPassword();
+          String password = ClusterService.getInstance().getSudoAccountPassword();
           if (password != null && !password.isEmpty()) {
             cmd = session.exec(cmdStr.replaceAll("%password_hidden%", password));
           } else {

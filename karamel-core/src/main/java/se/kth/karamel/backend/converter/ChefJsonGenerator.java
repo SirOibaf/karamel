@@ -16,6 +16,7 @@ import se.kth.karamel.backend.running.model.MachineRuntime;
 import se.kth.karamel.common.clusterdef.Cluster;
 import se.kth.karamel.common.clusterdef.Group;
 import se.kth.karamel.common.clusterdef.Recipe;
+import se.kth.karamel.common.clusterdef.Scope;
 import se.kth.karamel.common.cookbookmeta.KaramelizedCookbook;
 import se.kth.karamel.common.util.Settings;
 import se.kth.karamel.common.exception.KaramelException;
@@ -174,11 +175,11 @@ public class ChefJsonGenerator {
   /**
    * It adds those attributes related to one cookbook into the json object. 
    * For example [ndb/ports=[123, 134, 145], ndb/DataMemory=111]
-   * @param jsonScope
+   * @param scope
    * @param root 
    */
-  private static void addScopeAttributes(JsonScope jsonScope, JsonObject root) {
-    Set<Map.Entry<String, Object>> entrySet = jsonScope.getAttributes().entrySet();
+  private static void addScopeAttributes(Scope scope, JsonObject root) {
+    Set<Map.Entry<String, Object>> entrySet = scope.getAttributes().entrySet();
     for (Map.Entry<String, Object> entry : entrySet) {
       String[] keyComps = entry.getKey().split(Settings.ATTR_DELIMITER);
       Object value = entry.getValue();

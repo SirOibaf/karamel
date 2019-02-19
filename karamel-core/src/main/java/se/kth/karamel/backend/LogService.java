@@ -1,28 +1,20 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package se.kth.karamel.backend;
 
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+
+import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 import se.kth.karamel.backend.running.model.tasks.Task;
 import se.kth.karamel.common.util.Settings;
 import se.kth.karamel.common.exception.KaramelException;
 
-/**
- *
- * @author kamal
- */
 public class LogService {
 
   private static final Logger logger = Logger.getLogger(LogService.class);
@@ -31,8 +23,8 @@ public class LogService {
     logger.debug(String.format("Trashing old logs of '%s'", clusterName));
     String path = Settings.CLUSTER_LOG_FOLDER(clusterName);
     try {
-      FilesystemUtil.deleteRecursive(path);
-    } catch (FileNotFoundException ex) {
+      FileUtils.deleteDirectory(new File(path));
+    } catch (IOException jex) {
     }
   }
 

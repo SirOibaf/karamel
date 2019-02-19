@@ -1,7 +1,5 @@
 package se.kth.karamel.client.api;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import org.jclouds.ContextBuilder;
 import org.jclouds.domain.Credentials;
 import org.jclouds.openstack.nova.v2_0.NovaApiMetadata;
@@ -19,22 +17,7 @@ import se.kth.karamel.backend.launcher.novav3.NovaV3Context;
 import se.kth.karamel.backend.launcher.novav3.NovaV3Launcher;
 import se.kth.karamel.backend.launcher.occi.OcciContext;
 import se.kth.karamel.backend.launcher.occi.OcciLauncher;
-import se.kth.karamel.backend.running.model.ClusterRuntime;
-import se.kth.karamel.backend.running.model.GroupRuntime;
-import se.kth.karamel.backend.running.model.MachineRuntime;
-import se.kth.karamel.backend.running.model.serializers.ClusterEntitySerializer;
-import se.kth.karamel.backend.running.model.serializers.DefaultTaskSerializer;
-import se.kth.karamel.backend.running.model.serializers.GroupEntitySerializer;
-import se.kth.karamel.backend.running.model.serializers.MachineEntitySerializer;
-import se.kth.karamel.backend.running.model.serializers.ShellCommandSerializer;
-import se.kth.karamel.backend.running.model.tasks.AptGetEssentialsTask;
-import se.kth.karamel.backend.running.model.tasks.InstallChefdkTask;
-import se.kth.karamel.backend.running.model.tasks.MakeSoloRbTask;
-import se.kth.karamel.backend.running.model.tasks.RunRecipeTask;
-import se.kth.karamel.backend.running.model.tasks.ShellCommand;
-import se.kth.karamel.backend.running.model.tasks.VendorCookbookTask;
 import se.kth.karamel.common.cookbookmeta.CookbookCache;
-import se.kth.karamel.common.cookbookmeta.KaramelizedCookbook;
 import se.kth.karamel.common.exception.InvalidNovaCredentialsException;
 import se.kth.karamel.common.exception.InvalidOcciCredentialsException;
 import se.kth.karamel.common.exception.KaramelException;
@@ -49,8 +32,6 @@ import se.kth.karamel.common.util.settings.NovaSetting;
 
 /**
  * Implementation of the Karamel Api for UI
- *
- * @author kamal
  */
 public class KaramelApiImpl implements KaramelApi {
 
@@ -59,20 +40,13 @@ public class KaramelApiImpl implements KaramelApi {
   private static final ClusterService clusterService = ClusterService.getInstance();
 
   @Override
-  public String commandCheatSheet() throws KaramelException {
-    return CommandService.processCommand("help").getResult();
-  }
-
-  @Override
   public CommandResponse processCommand(String command, String... args) throws KaramelException {
     return CommandService.processCommand(command, args);
   }
 
   @Override
   public String getCookbookDetails(String cookbookName) throws KaramelException {
-    CookbookCache cache = ClusterDefinitionService.CACHE;
-    KaramelizedCookbook cb = cache.get(cookbookName);
-    return cb.getInfoJson();
+    return CookbookCache.getInstance().get(cookbookName).getInfoJson();
   }
 
   @Override
@@ -135,26 +109,6 @@ public class KaramelApiImpl implements KaramelApi {
   }
 
   @Override
-  public NovaCredentials loadNovaV3CredentialsIfExist() throws KaramelException {
-    Confs confs = Confs.loadKaramelConfs();
-    return NovaV3Launcher.readCredentials(confs);
-  }
-
-  @Override
-  public boolean updateNovaV3CredentialsIfValid(NovaCredentials credentials) throws InvalidNovaCredentialsException {
-    NovaV3Context context = NovaV3Launcher.validateCredentials(credentials);
-    Confs confs = Confs.loadKaramelConfs();
-    confs.put(NovaSetting.NOVA_ACCOUNT_ID_KEY.getParameter(), credentials.getAccountName());
-    confs.put(NovaSetting.NOVA_ACCESSKEY_KEY.getParameter(), credentials.getAccountPass());
-    confs.put(NovaSetting.NOVA_ACCOUNT_ENDPOINT.getParameter(), credentials.getEndpoint());
-    confs.put(NovaSetting.NOVA_REGION.getParameter(), credentials.getRegion());
-    confs.put(NovaSetting.NOVA_NETWORKID.getParameter(), credentials.getNetworkId());
-    confs.writeKaramelConfs();
-    clusterService.registerNovaV3Context(context);
-    return true;
-  }
-
-  @Override
   public NovaCredentials loadNovaCredentialsIfExist() throws KaramelException {
     Confs confs = Confs.loadKaramelConfs();
     return NovaLauncher.readCredentials(confs);
@@ -202,33 +156,13 @@ public class KaramelApiImpl implements KaramelApi {
   }
 
   @Override
-  public String getClusterStatus(String clusterName) throws KaramelException {
-    ClusterRuntime clusterManager = clusterService.clusterStatus(clusterName);
-    GsonBuilder builder = new GsonBuilder();
-    builder.disableHtmlEscaping();
-    Gson gson = builder.
-        registerTypeAdapter(ClusterRuntime.class, new ClusterEntitySerializer()).
-        registerTypeAdapter(MachineRuntime.class, new MachineEntitySerializer()).
-        registerTypeAdapter(GroupRuntime.class, new GroupEntitySerializer()).
-        registerTypeAdapter(ShellCommand.class, new ShellCommandSerializer()).
-        registerTypeAdapter(RunRecipeTask.class, new DefaultTaskSerializer()).
-        registerTypeAdapter(MakeSoloRbTask.class, new DefaultTaskSerializer()).
-        registerTypeAdapter(VendorCookbookTask.class, new DefaultTaskSerializer()).
-        registerTypeAdapter(AptGetEssentialsTask.class, new DefaultTaskSerializer()).
-        registerTypeAdapter(InstallChefdkTask.class, new DefaultTaskSerializer()).
-        setPrettyPrinting().
-        create();
-    return gson.toJson(clusterManager);
-  }
-
-  @Override
   public void pauseCluster(String clusterName) throws KaramelException {
-    clusterService.pauseDag(clusterName);
+    clusterService.pauseDag();
   }
 
   @Override
   public void resumeCluster(String clusterName) throws KaramelException {
-    clusterService.resumeDag(clusterName);
+    clusterService.resumeDag();
   }
 
   @Override
@@ -256,28 +190,7 @@ public class KaramelApiImpl implements KaramelApi {
   @Override
   public SshKeyPair loadSshKeysIfExist(String clusterName) throws KaramelException {
     Confs confs = Confs.loadAllConfsForCluster(clusterName);
-    SshKeyPair sshKeys = SshKeyService.loadSshKeys(confs);
-    return sshKeys;
-  }
-
-  @Override
-  public SshKeyPair generateSshKeysAndUpdateConf() throws KaramelException {
-    SshKeyPair sshkeys = SshKeyService.generateAndStoreSshKeys();
-    Confs confs = Confs.loadKaramelConfs();
-    confs.put(Settings.SSH_PRIVKEY_PATH_KEY, sshkeys.getPrivateKeyPath());
-    confs.put(Settings.SSH_PUBKEY_PATH_KEY, sshkeys.getPublicKeyPath());
-    confs.writeKaramelConfs();
-    return sshkeys;
-  }
-
-  @Override
-  public SshKeyPair generateSshKeysAndUpdateConf(String clusterName) throws KaramelException {
-    SshKeyPair sshkeys = SshKeyService.generateAndStoreSshKeys(clusterName);
-    Confs confs = Confs.loadJustClusterConfs(clusterName);
-    confs.put(Settings.SSH_PRIVKEY_PATH_KEY, sshkeys.getPrivateKeyPath());
-    confs.put(Settings.SSH_PUBKEY_PATH_KEY, sshkeys.getPublicKeyPath());
-    confs.writeClusterConfs(clusterName);
-    return sshkeys;
+    return SshKeyService.loadSshKeys(confs);
   }
 
   @Override
@@ -303,12 +216,12 @@ public class KaramelApiImpl implements KaramelApi {
     confs.writeClusterConfs(clusterName);
     keypair = SshKeyService.loadSshKeys(keypair.getPublicKeyPath(), keypair.getPrivateKeyPath(),
         keypair.getPassphrase());
-    clusterService.registerSshKeyPair(clusterName, keypair);
+    clusterService.registerSshKeyPair(keypair);
     return keypair;
   }
 
   @Override
   public void registerSudoPassword(String password) {
-    ClusterService.getInstance().getCommonContext().setSudoAccountPassword(password);
+    ClusterService.getInstance().registerSudoAccountPassword(password);
   }
 }

@@ -1,19 +1,8 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package se.kth.karamel.common.stats;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- *
- * @author kamal
- */
 public class ClusterStats {
 
   //Only for karamel-core usage
@@ -21,7 +10,6 @@ public class ClusterStats {
   long localId;
   String id;
   String userId;
-  String definition;
   long startTime;
   long endTime;
   List<PhaseStat> phases = new ArrayList<>();
@@ -57,15 +45,6 @@ public class ClusterStats {
 
   public synchronized void setId(String id) {
     this.id = id;
-    updated = true;
-  }
-
-  public String getDefinition() {
-    return definition;
-  }
-
-  public synchronized void setDefinition(String definition) {
-    this.definition = definition;
     updated = true;
   }
 
@@ -117,14 +96,4 @@ public class ClusterStats {
     setEndTime(System.currentTimeMillis());
     updated = true;
   }
-
-  public synchronized String toJsonAndMarkNotUpdated() {
-    GsonBuilder builder = new GsonBuilder();
-    builder.disableHtmlEscaping();
-    Gson gson = builder.setPrettyPrinting().create();
-    String json = gson.toJson(this);
-    updated = false;
-    return json;
-  }
-
 }

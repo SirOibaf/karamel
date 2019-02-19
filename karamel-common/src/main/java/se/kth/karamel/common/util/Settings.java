@@ -7,10 +7,8 @@ import org.jclouds.ec2.domain.InstanceType;
 import java.io.File;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 
 public class Settings {
@@ -187,15 +185,6 @@ public class Settings {
 
   public static final String METADATA_INCOMMENT_HOST_KEY = "%host%";
 
-  //-----------------------------------------KANDY----------------------------------------------------------------------
-  public static final String KANDY_REST_ROOT = "http://127.0.0.1:0/CloudServiceRecommender/api/cluster";
-  public static final String KANDY_REST_STATS_STORE = KANDY_REST_ROOT + "/stats/store";
-  public static final String KANDY_REST_CLUSTER_COST = KANDY_REST_ROOT + "/cost";
-
-  public static final String KANDY_REST_STATS_UPDATE(String id) {
-    return String.format("%s/stats/update/%s", KANDY_REST_ROOT, id);
-  }
-
   //-----------------------------------------Machine General------------------------------------------------------------
   public static final String TMP_FOLDER_NAME = "tmp";
   public static final String PID_FILE_NAME = "pid";
@@ -224,17 +213,6 @@ public class Settings {
 
     return Settings.SYSTEM_TMP_FOLDER_PATH + "/"
         + recName.replace(COOKBOOK_DELIMITER, REMOTE_CB_FS_PATH_DELIMITER) + RECIPE_RESULT_POSFIX;
-  }
-
-  public static String EXPERIMENT_RESULT_REMOTE_PATH(String recipeName) {
-    String recName;
-    if (!recipeName.contains(COOKBOOK_DELIMITER)) {
-      recName = recipeName + COOKBOOK_DELIMITER + "default";
-    } else {
-      recName = recipeName;
-    }
-
-    return Settings.SYSTEM_TMP_FOLDER_PATH + "/" + recName.replace(COOKBOOK_DELIMITER, "_");
   }
 
   public static String REMOTE_USER_HOME_PATH(String sshUserName) {
@@ -327,10 +305,6 @@ public class Settings {
     return CLUSTER_ROOT_PATH(clusterName) + File.separator + STATS_FOLDER_NAME;
   }
 
-  public static String CLUSTER_STATS_PATH(String clusterName, long statsName) {
-    return CLUSTER_STATS_FOLDER(clusterName) + File.separator + statsName;
-  }
-
   public static String RECIPE_CANONICAL_NAME(String recipeName) {
     if (!recipeName.contains(COOKBOOK_DELIMITER)) {
       return recipeName + COOKBOOK_DELIMITER + "default";
@@ -365,21 +339,4 @@ public class Settings {
     return MACHINE_TEMP_FOLDER(clusterName, machineIp) + File.separator
         + recName.replace(COOKBOOK_DELIMITER, REMOTE_CB_FS_PATH_DELIMITER) + RECIPE_RESULT_POSFIX;
   }
-
-  public static String EXPERIMENT_RESULT_LOCAL_PATH(String recipeName, String clusterName, String machineIp) {
-    String recName;
-    if (!recipeName.contains(COOKBOOK_DELIMITER)) {
-      recName = recipeName + COOKBOOK_DELIMITER + "default";
-    } else {
-      recName = recipeName;
-    }
-
-    SimpleDateFormat sdf = new SimpleDateFormat("yyMMddHHmmssZ");
-
-    return KARAMEL_ROOT_PATH + File.separator + "results" + File.separator + clusterName.toLowerCase()
-        + File.separator + recName.replace(COOKBOOK_DELIMITER, REMOTE_CB_FS_PATH_DELIMITER) + File.separator
-        + recName.replace(COOKBOOK_DELIMITER, REMOTE_CB_FS_PATH_DELIMITER) + "-"
-        + sdf.format(new Date(System.currentTimeMillis())) + ".out";
-  }
-
 }

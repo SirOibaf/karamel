@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package se.kth.karamel.backend.running.model.tasks;
 
 import java.io.IOException;
@@ -20,10 +15,6 @@ import se.kth.karamel.common.exception.KaramelException;
 import se.kth.karamel.common.stats.ClusterStats;
 import se.kth.karamel.common.stats.TaskStat;
 
-/**
- *
- * @author kamal
- */
 public abstract class Task implements DagTask, TaskCallback {
 
   private static final Logger logger = Logger.getLogger(Task.class);
@@ -222,7 +213,7 @@ public abstract class Task implements DagTask, TaskCallback {
   }
 
   public String getSudoCommand() {
-    String password = ClusterService.getInstance().getCommonContext().getSudoAccountPassword();
+    String password = ClusterService.getInstance().getSudoAccountPassword();
     return (password == null || password.isEmpty()) ? "sudo" : "echo \"%password_hidden%\" | sudo -S ";
   }
 

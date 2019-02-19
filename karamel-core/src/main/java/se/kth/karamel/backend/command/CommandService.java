@@ -25,7 +25,6 @@ import se.kth.karamel.backend.LogService;
 import se.kth.karamel.backend.converter.ChefJsonGenerator;
 import se.kth.karamel.backend.converter.UserClusterDataExtractor;
 import se.kth.karamel.backend.dag.Dag;
-import se.kth.karamel.backend.kandy.KandyRestClient;
 import se.kth.karamel.backend.launcher.OsType;
 import se.kth.karamel.backend.launcher.amazon.Ec2Context;
 import se.kth.karamel.backend.machines.MachinesMonitor;
@@ -176,7 +175,7 @@ public class CommandService {
       String clusterNameInUserInput = getClusterNameIfRunningAndMatchesForCommand(cmd, "install");
       if (!found && clusterNameInUserInput != null) {
         found = true;
-        clusterService.submitInstallationDag(clusterNameInUserInput);
+        clusterService.submitInstallationDag();
         successMessage = clusterNameInUserInput + " was scheduled for installing, "
             + "it might take some time please be patient!";
         nextCmd = "status " + clusterNameInUserInput;
@@ -185,7 +184,7 @@ public class CommandService {
       clusterNameInUserInput = getClusterNameIfRunningAndMatchesForCommand(cmd, "purge");
       if (!found && clusterNameInUserInput != null) {
         found = true;
-        clusterService.submitPurgeDag(clusterNameInUserInput);
+        clusterService.submitPurgeDag();
         successMessage = clusterNameInUserInput + " was scheduled for purging, "
             + "it might take some time please be patient!";
         nextCmd = "status " + clusterNameInUserInput;
@@ -194,7 +193,7 @@ public class CommandService {
       clusterNameInUserInput = getClusterNameIfRunningAndMatchesForCommand(cmd, "pause");
       if (!found && clusterNameInUserInput != null) {
         found = true;
-        clusterService.pauseDag(clusterNameInUserInput);
+        clusterService.pauseDag();
         successMessage = clusterNameInUserInput + " was scheduled for pausing, "
             + "it might take some time please be patient!";
         nextCmd = "status " + clusterNameInUserInput;
@@ -203,7 +202,7 @@ public class CommandService {
       clusterNameInUserInput = getClusterNameIfRunningAndMatchesForCommand(cmd, "resume");
       if (!found && clusterNameInUserInput != null) {
         found = true;
-        clusterService.resumeDag(clusterNameInUserInput);
+        clusterService.resumeDag();
         successMessage = clusterNameInUserInput + " was scheduled for resuming, "
             + "it might take some time please be patient!";
         nextCmd = "status " + clusterNameInUserInput;
@@ -212,7 +211,7 @@ public class CommandService {
       clusterNameInUserInput = getClusterNameIfRunningAndMatchesForCommand(cmd, "terminate");
       if (!found && clusterNameInUserInput != null) {
         found = true;
-        clusterService.terminateCluster(clusterNameInUserInput);
+        clusterService.terminateCluster();
         successMessage = clusterNameInUserInput + " was scheduled for terminating, "
             + "it might take some time please be patient!";
         nextCmd = "status " + clusterNameInUserInput;
@@ -548,29 +547,10 @@ public class CommandService {
           throw new KaramelException(String.format("%s is already running, terminate it first!!", clusterName));
         } else {
           String yaml = ClusterDefinitionService.loadYaml(clusterName);
-          String json = ClusterDefinitionService.yamlToJson(yaml);
           clusterService.startCluster(json);
           successMessage = String.format("cluster %s launched successfully..", clusterName);
           nextCmd = "status";
           addActiveClusterMenus(response);
-        }
-      }
-
-      p = Pattern.compile("cost\\s+(\\w+)");
-      matcher = p.matcher(cmd);
-      if (!found && matcher.matches()) {
-        found = true;
-        String clusterName = matcher.group(1);
-        String yaml = ClusterDefinitionService.loadYaml(clusterName);
-        if (yaml != null) {
-          result = KandyRestClient.estimateCost(yaml);
-          if (result != null) {
-            renderer = CommandResponse.Renderer.INFO;
-          } else {
-            throw new KaramelException("Kandy could not estimate the cost.");
-          }
-        } else {
-          throw new KaramelException("The cluster definition does not exist.");
         }
       }
 

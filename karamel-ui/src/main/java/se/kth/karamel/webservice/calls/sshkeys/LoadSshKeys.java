@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package se.kth.karamel.webservice.calls.sshkeys;
 
 import javax.ws.rs.Consumes;
@@ -16,10 +11,6 @@ import se.kth.karamel.common.util.SshKeyPair;
 import se.kth.karamel.common.exception.KaramelException;
 import se.kth.karamel.webservice.calls.AbstractCall;
 
-/**
- *
- * @author kamal
- */
 @Path("/ssh/loadKey")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
@@ -35,9 +26,6 @@ public class LoadSshKeys extends AbstractCall {
     logger.debug(" Received request to load ssh keys.");
     try {
       SshKeyPair sshKeypair = karamelApi.loadSshKeysIfExist();
-      if (sshKeypair == null) {
-        sshKeypair = karamelApi.generateSshKeysAndUpdateConf();
-      }
       karamelApi.registerSshKeys(sshKeypair);
       response = Response.status(Response.Status.OK).entity(sshKeypair).build();
     } catch (KaramelException ex) {

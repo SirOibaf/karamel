@@ -15,14 +15,6 @@ import se.kth.karamel.common.util.SshKeyPair;
 public interface KaramelApi {
 
   /**
-   * Demonstrates available commands and their usage
-   *
-   * @return
-   * @throws KaramelException
-   */
-  String commandCheatSheet() throws KaramelException;
-
-  /**
    * Parses the command, if valid fetches the result in string, result could have different formatting depends on the
    * command.
    *
@@ -76,23 +68,6 @@ public interface KaramelApi {
    * @throws KaramelException
    */
   SshKeyPair loadSshKeysIfExist(String clusterName) throws KaramelException;
-
-  /**
-   * Generates a common ssh keys in the karamel folder
-   *
-   * @return
-   * @throws KaramelException
-   */
-  SshKeyPair generateSshKeysAndUpdateConf() throws KaramelException;
-
-  /**
-   * Generates cluster specific ssh keys
-   *
-   * @param clusterName
-   * @return
-   * @throws KaramelException
-   */
-  SshKeyPair generateSshKeysAndUpdateConf(String clusterName) throws KaramelException;
 
   /**
    * Register ssh keys for the current runtime of karamel
@@ -166,15 +141,6 @@ public interface KaramelApi {
   void terminateCluster(String clusterName) throws KaramelException;
 
   /**
-   * Returns a json containing all groups, machines, their status, tasks/commands and their status.
-   *
-   * @param clusterName
-   * @return
-   * @throws KaramelException
-   */
-  String getClusterStatus(String clusterName) throws KaramelException;
-
-  /**
    * Returns installation flow DAG that each node is a task assigned to a certain machine with the current status of the
    * task.
    *
@@ -198,11 +164,7 @@ public interface KaramelApi {
 
   NovaCredentials loadNovaCredentialsIfExist() throws KaramelException;
 
-  NovaCredentials loadNovaV3CredentialsIfExist() throws KaramelException;
-
   boolean updateNovaCredentialsIfValid(NovaCredentials credentials) throws KaramelException;
-
-  boolean updateNovaV3CredentialsIfValid(NovaCredentials credentials) throws KaramelException;
 
   OcciCredentials loadOcciCredentialsIfExist() throws KaramelException;
 

@@ -1,11 +1,6 @@
 package se.kth.karamel.backend;
 
-import com.google.gson.Gson;
 import java.io.File;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import org.apache.log4j.Logger;
 import se.kth.karamel.backend.launcher.amazon.Ec2Context;
 import se.kth.karamel.backend.launcher.google.GceContext;
@@ -23,60 +18,38 @@ import se.kth.karamel.common.util.SshKeyService;
  * stored inside a context. There is a common context with shared values between clusters and each cluster has its own
  * context inside which values can be overwritten.
  */
+// TODO(Fabio) this class is total BS. We run 1 fucking cluster at the time
+// First you learn to walk then you run.
 public class ClusterService {
 
-  private static final Logger logger = Logger.getLogger(ClusterService.class);
+  private final Logger logger = Logger.getLogger(ClusterService.class);
+  private ClusterDefinitionService clusterDefinitionService = new ClusterDefinitionService();
 
-  private static final ClusterService instance = new ClusterService();
-  
-  public static ExecutorService SHARED_GLOBAL_TP = Executors.newFixedThreadPool(50);
+  private ClusterManager clusterManager = null;
+  private ClusterContext clusterContext = new ClusterContext();
 
-  private final ClusterContext commonContext = new ClusterContext();
-  private final Map<String, ClusterManager> repository = new HashMap<>();
-  private final Map<String, ClusterContext> clusterContexts = new HashMap<>();
-
+  private static ClusterService instance = null;
   public static ClusterService getInstance() {
+    if (instance == null) {
+      instance = new ClusterService();
+    }
     return instance;
   }
 
-  public ClusterContext getCommonContext() {
-    return commonContext;
-  }
-
-  public Map<String, ClusterManager> getRepository() {
-    return repository;
-  }
-
-  public Map<String, ClusterContext> getClusterContexts() {
-    return clusterContexts;
-  }
-
   public synchronized void registerSudoAccountPassword(String password) {
-    commonContext.setSudoAccountPassword(password);
+    clusterContext.setSudoAccountPassword(password);
+  }
+
+  public synchronized String getSudoAccountPassword() {
+    return clusterContext.getSudoAccountPassword();
   }
 
   public synchronized void registerEc2Context(Ec2Context ec2Context) throws KaramelException {
-    commonContext.setEc2Context(ec2Context);
-  }
-
-  public synchronized void registerEc2Context(String clusterName, Ec2Context ec2Context) throws KaramelException {
-    String name = clusterName.toLowerCase();
-    if (repository.containsKey(name)) {
-      logger.error(String.format("'%s' is already running, you cannot change the ec2 credentials now :-|",
-          clusterName));
-      throw new KaramelException(String.format("Cluster '%s' is already running", clusterName));
-    }
-
-    ClusterContext clusterContext = clusterContexts.get(name);
-    if (clusterContext == null) {
-      clusterContext = new ClusterContext();
-    }
     clusterContext.setEc2Context(ec2Context);
-    clusterContexts.put(name, clusterContext);
   }
 
   public synchronized void registerGceContext(GceContext gceContext) {
-    commonContext.setGceContext(gceContext);
+    clusterContext.setGceContext(gceContext);
   }
 
   public synchronized void registerSshKeyPair(SshKeyPair sshKeyPair) throws KaramelException {
@@ -91,127 +64,50 @@ public class ClusterService {
     }
     sshKeyPair.setNeedsPassword(SshKeyService.checkIfPasswordNeeded(sshKeyPair));
 
-    commonContext.setSshKeyPair(sshKeyPair);
-  }
-
-  public synchronized void registerSshKeyPair(String clusterName, SshKeyPair sshKeyPair) throws KaramelException {
-    String name = clusterName.toLowerCase();
-    if (repository.containsKey(name)) {
-      logger.error(String.format("'%s' is already running, you cannot change the ssh keypair now :-|", clusterName));
-      throw new KaramelException(String.format("Cluster '%s' is already running", clusterName));
-    }
-
-    ClusterContext clusterContext = clusterContexts.get(name);
-    if (clusterContext == null) {
-      clusterContext = new ClusterContext();
-    }
     clusterContext.setSshKeyPair(sshKeyPair);
-    clusterContexts.put(name, clusterContext);
   }
 
-  public synchronized ClusterRuntime clusterStatus(String clusterName) throws KaramelException {
-    String name = clusterName.toLowerCase();
-    if (!repository.containsKey(name)) {
-      throw new KaramelException(String.format("Repository doesn't contain a cluster name '%s'", clusterName));
-    }
-    ClusterManager cluster = repository.get(name);
-    return cluster.getRuntime();
+  public synchronized void startCluster(Cluster cluster) throws KaramelException {
+    clusterManager = new ClusterManager(cluster, clusterContext);
+    clusterManager.start();
+    clusterManager.enqueue(ClusterManager.Command.LAUNCH_CLUSTER);
+    clusterManager.enqueue(ClusterManager.Command.SUBMIT_INSTALL_DAG);
   }
 
-  public synchronized void startCluster(String json) throws KaramelException {
-    Gson gson = new Gson();
-    Cluster jsonCluster = gson.fromJson(json, Cluster.class);
-    jsonCluster.validate();
-    String yml = ClusterDefinitionService.jsonToYaml(jsonCluster);
-    // TODO(Fabio): This is total BS - The result of writing spaghetti code.
-    //We have to do it again otherwise the global scope attributes get lost
-    //for more info refer to https://github.com/karamelchef/karamel/issues/28
-    //jsonCluster = ClusterDefinitionService.yamlToJsonObject(yml);
-    ClusterDefinitionService.saveYaml(yml);
-    logger.debug(String.format("Let me see if I can start '%s' ...", jsonCluster.getName()));
-    String clusterName = jsonCluster.getName();
-    String name = clusterName.toLowerCase();
-    if (repository.containsKey(name)) {
-      logger.info(String.format("'%s' is already running :-|", jsonCluster.getName()));
-      throw new KaramelException(String.format("Cluster '%s' is already running", clusterName));
-    }
-    ClusterContext checkedContext = checkContext(jsonCluster);
-    ClusterManager cluster = new ClusterManager(jsonCluster, checkedContext);
-    repository.put(name, cluster);
-    cluster.start();
-    cluster.enqueue(ClusterManager.Command.LAUNCH_CLUSTER);
-    cluster.enqueue(ClusterManager.Command.SUBMIT_INSTALL_DAG);
+  public synchronized void submitInstallationDag() throws KaramelException {
+    clusterManager.enqueue(ClusterManager.Command.INTERRUPT_DAG);
+    clusterManager.enqueue(ClusterManager.Command.SUBMIT_INSTALL_DAG);
   }
 
-  public synchronized void submitInstallationDag(String clusterName) throws KaramelException {
-    String name = clusterName.toLowerCase();
-    logger.info(String.format("User asked to install '%s'", clusterName));
-    if (!repository.containsKey(name)) {
-      throw new KaramelException(String.format("Repository doesn't contain a cluster name '%s'", clusterName));
-    }
-    ClusterManager cluster = repository.get(name);
-    checkContext(cluster.getDefinition());
-    cluster.enqueue(ClusterManager.Command.INTERRUPT_DAG);
-    cluster.enqueue(ClusterManager.Command.SUBMIT_INSTALL_DAG);
+  public synchronized void submitPurgeDag() throws KaramelException {
+    clusterManager.enqueue(ClusterManager.Command.INTERRUPT_DAG);
+    clusterManager.enqueue(ClusterManager.Command.SUBMIT_PURGE_DAG);
   }
 
-  public synchronized void submitPurgeDag(String clusterName) throws KaramelException {
-    String name = clusterName.toLowerCase();
-    logger.info(String.format("User asked for purging '%s'", clusterName));
-    if (!repository.containsKey(name)) {
-      throw new KaramelException(String.format("Repository doesn't contain a cluster name '%s'", clusterName));
-    }
-    ClusterManager cluster = repository.get(name);
-    checkContext(cluster.getDefinition());
-    cluster.enqueue(ClusterManager.Command.INTERRUPT_DAG);
-    cluster.enqueue(ClusterManager.Command.SUBMIT_PURGE_DAG);
+  public synchronized void pauseDag() throws KaramelException {
+    clusterManager.enqueue(ClusterManager.Command.PAUSE_DAG);
   }
 
-  public synchronized void pauseDag(String clusterName) throws KaramelException {
-    String name = clusterName.toLowerCase();
-    logger.info(String.format("User asked for pausing the cluster '%s'", clusterName));
-    if (!repository.containsKey(name)) {
-      throw new KaramelException(String.format("Repository doesn't contain a cluster name '%s'", clusterName));
-    }
-    ClusterManager cluster = repository.get(name);
-    checkContext(cluster.getDefinition());
-    cluster.enqueue(ClusterManager.Command.PAUSE_DAG);
+  public synchronized void resumeDag() throws KaramelException {
+    clusterManager.enqueue(ClusterManager.Command.RESUME_DAG);
   }
 
-  public synchronized void resumeDag(String clusterName) throws KaramelException {
-    String name = clusterName.toLowerCase();
-    logger.info(String.format("User asked for resuming the cluster '%s'", clusterName));
-    if (!repository.containsKey(name)) {
-      throw new KaramelException(String.format("Repository doesn't contain a cluster name '%s'", clusterName));
-    }
-    ClusterManager cluster = repository.get(name);
-    checkContext(cluster.getDefinition());
-    cluster.enqueue(ClusterManager.Command.RESUME_DAG);
-
-  }
-
-  public synchronized void terminateCluster(String clusterName) throws KaramelException {
-    String name = clusterName.toLowerCase();
-    logger.info(String.format("User asked for terminating the cluster '%s'", clusterName));
-    if (!repository.containsKey(name)) {
-      throw new KaramelException(String.format("Repository doesn't contain a cluster name '%s'", clusterName));
-    }
-
-    final ClusterManager cluster = repository.get(name);
+  public synchronized void terminateCluster() throws KaramelException {
     Thread t = new Thread() {
       @Override
       public void run() {
         try {
-          ClusterRuntime runtime = cluster.getRuntime();
-          cluster.enqueue(ClusterManager.Command.INTERRUPT_CLUSTER);
-          cluster.enqueue(ClusterManager.Command.TERMINATE_CLUSTER);
+          ClusterRuntime runtime = clusterManager.getRuntime();
+          clusterManager.enqueue(ClusterManager.Command.INTERRUPT_CLUSTER);
+          clusterManager.enqueue(ClusterManager.Command.TERMINATE_CLUSTER);
           while (runtime.getPhase() != ClusterRuntime.ClusterPhases.NOT_STARTED) {
             Thread.sleep(100);
           }
           String name = runtime.getName().toLowerCase();
           logger.info(String.format("Cluster '%s' terminated, removing it from the list of running clusters",
               runtime.getName()));
-          repository.remove(name);
+          clusterManager = null;
+          clusterContext = new ClusterContext();
         } catch (InterruptedException ex) {
         } catch (KaramelException ex) {
           logger.error("", ex);
@@ -221,23 +117,15 @@ public class ClusterService {
     t.start();
   }
 
-  private ClusterContext checkContext(Cluster definition) throws KaramelException {
-    String name = definition.getName().toLowerCase();
-    ClusterContext context = clusterContexts.get(name);
-    ClusterContext validatedContext = ClusterContext.validateContext(definition, context, commonContext);
-    clusterContexts.put(name, validatedContext);
-    return validatedContext;
-  }
-
   public synchronized void registerNovaV3Context(NovaV3Context context) {
-    commonContext.setNovaV3Context(context);
+    clusterContext.setNovaV3Context(context);
   }
 
   public synchronized void registerNovaContext(NovaContext context) {
-    commonContext.setNovaContext(context);
+    clusterContext.setNovaContext(context);
   }
 
   public synchronized void registerOcciContext(OcciContext context) {
-    commonContext.setOcciContext(context);
+    clusterContext.setOcciContext(context);
   }
 }

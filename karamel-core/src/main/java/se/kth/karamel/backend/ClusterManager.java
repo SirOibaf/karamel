@@ -11,7 +11,6 @@ import org.apache.log4j.Logger;
 import se.kth.karamel.backend.converter.ChefJsonGenerator;
 import se.kth.karamel.backend.converter.UserClusterDataExtractor;
 import se.kth.karamel.backend.dag.Dag;
-import se.kth.karamel.backend.kandy.KandyRestClient;
 import se.kth.karamel.backend.launcher.Launcher;
 import se.kth.karamel.backend.launcher.amazon.Ec2Launcher;
 import se.kth.karamel.backend.launcher.baremetal.BaremetalLauncher;
@@ -87,8 +86,6 @@ public class ClusterManager implements Runnable {
     this.runtime = new ClusterRuntime(definition);
     int totalMachines = UserClusterDataExtractor.totalMachines(definition);
     machinesMonitor = new MachinesMonitor(definition.getName(), totalMachines, clusterContext.getSshKeyPair());
-    String yaml = ClusterDefinitionService.jsonToYaml(definition);
-    this.stats.setDefinition(yaml);
     this.stats.setUserId(Settings.USER_NAME);
     this.stats.setStartTime(System.currentTimeMillis());
     clusterStatusMonitor = new ClusterStatusMonitor(machinesMonitor, definition, runtime, stats);
@@ -391,7 +388,6 @@ public class ClusterManager implements Runnable {
     clean(true);
     stop();
     runtime.setPhase(ClusterRuntime.ClusterPhases.NOT_STARTED);
-    KandyRestClient.pushClusterStats(definition.getName(), stats);
     logger.info(String.format("\\o/\\o/\\o/\\o/\\o/'%s' TERMINATED \\o/\\o/\\o/\\o/\\o/", definition.getName()));
   }
 

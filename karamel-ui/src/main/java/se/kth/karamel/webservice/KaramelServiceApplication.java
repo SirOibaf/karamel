@@ -56,7 +56,6 @@ import se.kth.karamel.webservice.calls.nova.LoadNovaCredentials;
 import se.kth.karamel.webservice.calls.nova.ValidateNovaCredentials;
 import se.kth.karamel.webservice.calls.occi.LoadOcciCredentials;
 import se.kth.karamel.webservice.calls.occi.ValidateOcciCredentials;
-import se.kth.karamel.webservice.calls.sshkeys.GenerateSshKeys;
 import se.kth.karamel.webservice.calls.sshkeys.LoadSshKeys;
 import se.kth.karamel.webservice.calls.sshkeys.RegisterSshKeys;
 import se.kth.karamel.webservice.calls.sshkeys.SetSudoPassword;
@@ -305,7 +304,6 @@ public class KaramelServiceApplication extends Application<KaramelServiceConfigu
     //ssh
     environment.jersey().register(new LoadSshKeys(karamelApi));
     environment.jersey().register(new RegisterSshKeys(karamelApi));
-    environment.jersey().register(new GenerateSshKeys(karamelApi));
     environment.jersey().register(new SetSudoPassword(karamelApi));
 
     //ec2
