@@ -10,8 +10,6 @@ import se.kth.karamel.common.util.Settings;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Stores/reads cluster definitions from Karamel home folder, does conversions between yaml and json definitions.
@@ -62,33 +60,5 @@ public class ClusterDefinitionService {
     } catch (IOException ex) {
       throw new KaramelException("Could not load the yaml ", ex);
     }
-  }
-
-  public void removeDefinition(String clusterName) throws KaramelException {
-    String name = clusterName.toLowerCase();
-    try {
-      FileUtils.deleteDirectory(new File(Settings.CLUSTER_ROOT_PATH(name)));
-    } catch (IOException ex) {
-      throw new KaramelException(ex);
-    }
-  }
-
-  public List<String> listClusters() {
-    List<String> clusters = new ArrayList<>();
-    File folder = new File(Settings.KARAMEL_ROOT_PATH);
-    if (folder.exists()) {
-      File[] files = folder.listFiles();
-      for (File file : files) {
-        if (file.isDirectory()) {
-          File[] files2 = file.listFiles();
-          for (File file2 : files2) {
-            if (file2.isFile() && file2.getName().equals(Settings.YAML_FILE_NAME)) {
-              clusters.add(file.getName());
-            }
-          }
-        }
-      }
-    }
-    return clusters;
   }
 }

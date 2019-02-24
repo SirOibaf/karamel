@@ -28,12 +28,22 @@ public class ClusterService {
   private ClusterManager clusterManager = null;
   private ClusterContext clusterContext = new ClusterContext();
 
+  private Cluster currentCluster = null;
+
   private static ClusterService instance = null;
   public static ClusterService getInstance() {
     if (instance == null) {
       instance = new ClusterService();
     }
     return instance;
+  }
+
+  public synchronized void setCurrentCluster(Cluster currentCluster) {
+    this.currentCluster = currentCluster;
+  }
+
+  public synchronized Cluster getCurrentCluster() {
+    return this.currentCluster;
   }
 
   public synchronized void registerSudoAccountPassword(String password) {

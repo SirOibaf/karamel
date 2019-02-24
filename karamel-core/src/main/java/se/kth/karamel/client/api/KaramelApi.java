@@ -15,6 +15,19 @@ import se.kth.karamel.common.util.SshKeyPair;
 public interface KaramelApi {
 
   /**
+   * Load a cluster definition in YAML format, fetches and validates the cookbooks
+   *
+   * @param clusterDefinition
+   * @throws KaramelException
+   */
+  void loadClusterDefinition(String clusterDefinition) throws KaramelException;
+
+  /**
+   * Get current cluster definition
+   */
+  Cluster getCluster();
+
+  /**
    * Returns visible recipes and attributes of the cookbook with their detail as a json file
    *
    * @param cookbookUrl

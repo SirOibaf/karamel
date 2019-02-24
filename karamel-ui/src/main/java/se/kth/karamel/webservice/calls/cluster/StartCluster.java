@@ -18,7 +18,7 @@ import se.kth.karamel.webservicemodel.StatusResponseJSON;
 
 import java.io.IOException;
 
-@Path("/cluster/start")
+@Path("/cluster")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 public class StartCluster extends AbstractCall {

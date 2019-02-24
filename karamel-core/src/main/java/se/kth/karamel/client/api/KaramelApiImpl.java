@@ -1,8 +1,11 @@
 package se.kth.karamel.client.api;
 
+import org.apache.log4j.Logger;
 import org.jclouds.ContextBuilder;
 import org.jclouds.domain.Credentials;
 import org.jclouds.openstack.nova.v2_0.NovaApiMetadata;
+import org.yaml.snakeyaml.Yaml;
+import org.yaml.snakeyaml.constructor.Constructor;
 import se.kth.karamel.backend.ClusterService;
 import se.kth.karamel.backend.launcher.amazon.Ec2Context;
 import se.kth.karamel.backend.launcher.amazon.Ec2Launcher;
@@ -28,14 +31,27 @@ import se.kth.karamel.common.util.SshKeyPair;
 import se.kth.karamel.common.util.SshKeyService;
 import se.kth.karamel.common.util.settings.NovaSetting;
 
+
 /**
  * Implementation of the Karamel Api for UI
  */
 public class KaramelApiImpl implements KaramelApi {
 
-  private static final org.apache.log4j.Logger logger = org.apache.log4j.Logger.getLogger(KaramelApiImpl.class);
+  private static final Logger logger = Logger.getLogger(KaramelApiImpl.class);
 
-  private static final ClusterService clusterService = ClusterService.getInstance();
+  private ClusterService clusterService = ClusterService.getInstance();
+
+  @Override
+  public void loadClusterDefinition(String clusterDefinition) throws KaramelException {
+    Yaml yaml = new Yaml(new Constructor(Cluster.class));
+    Cluster cluster = (Cluster) yaml.load(clusterDefinition);
+    clusterService.setCurrentCluster(cluster);
+  }
+
+  @Override
+  public Cluster getCluster() {
+    return clusterService.getCurrentCluster();
+  }
 
   @Override
   public String getCookbookDetails(String cookbookName) throws KaramelException {

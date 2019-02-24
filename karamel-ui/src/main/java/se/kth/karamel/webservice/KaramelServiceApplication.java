@@ -2,17 +2,13 @@ package se.kth.karamel.webservice;
 
 import icons.TrayUI;
 import io.dropwizard.Application;
-import io.dropwizard.assets.AssetsBundle;
 import io.dropwizard.jetty.MutableServletContextHandler;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
 import java.awt.Desktop;
 import java.awt.Image;
 import java.awt.SystemTray;
-import java.io.BufferedReader;
-import java.io.File;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.URI;
@@ -38,13 +34,12 @@ import se.kth.karamel.backend.ClusterDefinitionService;
 import se.kth.karamel.backend.ClusterManager;
 import se.kth.karamel.client.api.KaramelApi;
 import se.kth.karamel.client.api.KaramelApiImpl;
-import se.kth.karamel.common.CookbookScaffolder;
-import static se.kth.karamel.common.CookbookScaffolder.deleteRecursive;
 
 import se.kth.karamel.common.clusterdef.Cluster;
 import se.kth.karamel.common.exception.KaramelException;
 import se.kth.karamel.common.util.SshKeyPair;
 import se.kth.karamel.webservice.calls.cluster.StartCluster;
+import se.kth.karamel.webservice.calls.cluster.Upload;
 import se.kth.karamel.webservice.calls.definition.FetchCookbook;
 import se.kth.karamel.webservice.calls.ec2.LoadEc2Credentials;
 import se.kth.karamel.webservice.calls.ec2.ValidateEc2Credentials;
@@ -111,37 +106,6 @@ public class KaramelServiceApplication extends Application<KaramelServiceConfigu
       .create("passwd"));
   }
 
-  public static void create() {
-    String name = "";
-    try {
-      BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-      System.out.print("Enter cookbook name: ");
-      name = br.readLine();
-      File cb = new File("cookbooks" + File.separator + name);
-      if (cb.exists()) {
-        boolean wiped = false;
-        while (!wiped) {
-          System.out.print("Do you wan  t to over-write the existing cookbook " + name + "? (y/n) ");
-          String overwrite = br.readLine();
-          if (overwrite.compareToIgnoreCase("n") == 0 || overwrite.compareToIgnoreCase("no") == 0) {
-            logger.info("Not over-writing. Exiting.");
-            System.exit(0);
-          }
-          if (overwrite.compareToIgnoreCase("y") == 0 || overwrite.compareToIgnoreCase("yes") == 0) {
-            deleteRecursive(cb);
-            wiped = true;
-          }
-        }
-      }
-      String pathToCb = CookbookScaffolder.create(name);
-      logger.info("New Cookbook is now located at: " + pathToCb);
-      System.exit(0);
-    } catch (IOException ex) {
-      logger.error("", ex);
-      System.exit(-1);
-    }
-  }
-
   /**
    * Usage instructions
    *
@@ -156,7 +120,6 @@ public class KaramelServiceApplication extends Application<KaramelServiceConfigu
   public static void main(String[] args) throws Exception {
 
     System.setProperty("java.net.preferIPv4Stack", "true");
-    String yamlTxt;
 
     // These args are sent to the Dropwizard app (thread)
     String[] modifiedArgs = new String[2];
@@ -172,9 +135,6 @@ public class KaramelServiceApplication extends Application<KaramelServiceConfigu
       }
       if (line.hasOption("help")) {
         usage(0);
-      }
-      if (line.hasOption("scaffold")) {
-        create();
       }
       if (line.hasOption("server")) {
         modifiedArgs[1] = line.getOptionValue("server");
@@ -195,40 +155,19 @@ public class KaramelServiceApplication extends Application<KaramelServiceConfigu
       if (cli) {
 
         ClusterManager.EXIT_ON_COMPLETION  = true;
-//        if (!noSudoPasswd) {
-//          Console c = null;
-//          c = System.console();
-//          if (c == null) {
-//            System.err.println("No console available.");
-//            System.exit(1);
-//          }
-//          sudoPasswd = c.readLine("Enter your sudo password (just press 'enter' if you don't have one):");
-//        }
         new KaramelServiceApplication().run(modifiedArgs);
-        Thread.currentThread().sleep(2000);
 
         // Try to open and read the yaml file. 
         // Print error msg if invalid file or invalid YAML.
-        yamlTxt = CookbookScaffolder.readFile(line.getOptionValue("launch"));
         Cluster cluster = (new ClusterDefinitionService()).loadYaml("fixme");
 
-        if (!noSudoPasswd && sudoPasswd.isEmpty() == false) {
+        if (!noSudoPasswd && !sudoPasswd.isEmpty()) {
           karamelApi.registerSudoPassword(sudoPasswd);
         }
 
         SshKeyPair pair = karamelApi.loadSshKeysIfExist();
-
         karamelApi.registerSshKeys(pair);
-
         karamelApi.startCluster(cluster);
-
-        long ms1 = System.currentTimeMillis();
-        while (ms1 + 60000000 > System.currentTimeMillis()) {
-//          String clusterStatus = karamelApi.getClusterStatus(cluster.getName());
-//          logger.debug(clusterStatus);
-
-          Thread.currentThread().sleep(30000);
-        }
       }
     } catch (ParseException e) {
       usage(-1);
@@ -240,8 +179,6 @@ public class KaramelServiceApplication extends Application<KaramelServiceConfigu
     if (!cli) {
       new KaramelServiceApplication().run(modifiedArgs);
     }
-
-    Runtime.getRuntime().addShutdownHook(new KaramelCleanupBeforeShutdownThread());
   }
 
 // Name of the application displayed when application boots up.
@@ -250,50 +187,34 @@ public class KaramelServiceApplication extends Application<KaramelServiceConfigu
     return "karamel-core";
   }
 
-  // Pre start of the dropwizard to plugin with separate bundles.
   @Override
-  public void initialize(Bootstrap<KaramelServiceConfiguration> bootstrap) {
-
-    logger.debug("Executing any initialization tasks.");
-//        bootstrap.addBundle(new ConfiguredAssetsBundle("/assets/", "/dashboard/"));
-    // https://groups.google.com/forum/#!topic/dropwizard-user/UaVcAYm0VlQ
-    bootstrap.addBundle(new AssetsBundle("/assets/", "/"));
-  }
+  public void initialize(Bootstrap<KaramelServiceConfiguration> bootstrap) { }
 
   @Override
   public void run(KaramelServiceConfiguration configuration, Environment environment) throws Exception {
 
     healthCheck = new TemplateHealthCheck("%s");
-//        http://stackoverflow.com/questions/26610502/serve-static-content-from-a-base-url-in-dropwizard-0-7-1
-//        environment.jersey().setUrlPattern("/angular/*");
 
     /*
-     * To allow cross orign resource request from angular js client
+     * To allow cross origin resource request from angular js client
      */
-    FilterRegistration.Dynamic filter = environment.servlets().addFilter("CORS", CrossOriginFilter.class
-    );
+    FilterRegistration.Dynamic filter = environment.servlets().addFilter("CORS", CrossOriginFilter.class);
 
     // Allow cross origin requests.
-    filter.addMappingForUrlPatterns(EnumSet.allOf(DispatcherType.class
-    ), true, "/*");
-    filter.setInitParameter(
-      "allowedOrigins", "*"); // allowed origins comma separated
-    filter.setInitParameter(
-      "allowedHeaders", "Content-Type,Authorization,X-Requested-With,Content-Length,Accept,Origin");
-    filter.setInitParameter(
-      "allowedMethods", "GET,PUT,POST,DELETE,OPTIONS,HEAD");
-    filter.setInitParameter(
-      "preflightMaxAge", "5184000"); // 2 months
-    filter.setInitParameter(
-      "allowCredentials", "true");
+    filter.addMappingForUrlPatterns(EnumSet.allOf(DispatcherType.class), true, "/*");
+    filter.setInitParameter("allowedOrigins", "*"); // allowed origins comma separated
+    filter.setInitParameter("allowedHeaders",
+        "Content-Type,Authorization,X-Requested-With,Content-Length,Accept,Origin");
+    filter.setInitParameter("allowedMethods", "GET,PUT,POST,DELETE,OPTIONS,HEAD");
+    filter.setInitParameter("preflightMaxAge", "5184000"); // 2 months
+    filter.setInitParameter("allowCredentials", "true");
 
-    environment.jersey()
-      .setUrlPattern("/api/*");
+    environment.jersey().setUrlPattern("/api/*");
 
-    environment.healthChecks()
-      .register("template", healthCheck);
+    environment.healthChecks().register("template", healthCheck);
 
     //definitions
+    environment.jersey().register(new Upload(karamelApi));
     environment.jersey().register(new FetchCookbook(karamelApi));
 
     //ssh
@@ -336,9 +257,7 @@ public class KaramelServiceApplication extends Application<KaramelServiceConfigu
           try {
             Thread.sleep(1500);
             openWebpage(new URL("http://localhost:" + webPort + "/index.html#/"));
-          } catch (InterruptedException e) {
-            // swallow the exception
-          } catch (java.net.MalformedURLException e) {
+          } catch (InterruptedException | java.net.MalformedURLException e) {
             // swallow the exception
           }
         }
@@ -387,7 +306,7 @@ public class KaramelServiceApplication extends Application<KaramelServiceConfigu
         e.printStackTrace();
       }
     } else {
-      System.err.println("Brower UI could not be launched using Java's Desktop library. "
+      System.err.println("Browser UI could not be launched using Java's Desktop library. "
         + "Are you running a window manager?");
       System.err.println("If you are using Ubuntu, try: sudo apt-get install libgnome");
       System.err.println("Retrying to launch the browser now using a different method.");
@@ -402,15 +321,4 @@ public class KaramelServiceApplication extends Application<KaramelServiceConfigu
       e.printStackTrace();
     }
   }
-
-  static class KaramelCleanupBeforeShutdownThread extends Thread {
-
-    @Override
-    public void run() {
-      logger.info("Bye! Cleaning up first....");
-      // TODO - interrupt all threads
-      // Should we cleanup AMIs?
-    }
-  }
-
 }
