@@ -235,7 +235,7 @@ public class DagBuilder {
           map1.put(t1.uniqueId(), t1);
         }
 
-        for (KaramelizedCookbook kbc : jg.getCookbooks()) {
+        for (KaramelizedCookbook kbc : jg.getKaramelizedCookbooks()) {
           String recipeName = kbc.getCookbookName() + Settings.COOKBOOK_DELIMITER + Settings.PURGE_RECIPE;
           JsonObject json = chefJsons.get(me.getId() + recipeName);
           RunRecipeTask t2 = makeRecipeTaskIfNotExist(recipeName, me, clusterStats, json, submitter,
@@ -289,7 +289,7 @@ public class DagBuilder {
           map1.put(t1.uniqueId(), t1);
         }
 
-        for (KaramelizedCookbook kcb : jg.getCookbooks()) {
+        for (KaramelizedCookbook kcb : jg.getKaramelizedCookbooks()) {
           String recipeName = kcb.getCookbookName() + Settings.COOKBOOK_DELIMITER + Settings.INSTALL_RECIPE;
           JsonObject json = chefJsons.get(me.getId() + recipeName);
           RunRecipeTask t2 = makeRecipeTaskIfNotExist(recipeName, me, clusterStats,

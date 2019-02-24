@@ -48,6 +48,10 @@ public class ClusterService {
     clusterContext.setEc2Context(ec2Context);
   }
 
+  public synchronized Ec2Context getEc2Context() {
+    return clusterContext.getEc2Context();
+  }
+
   public synchronized void registerGceContext(GceContext gceContext) {
     clusterContext.setGceContext(gceContext);
   }
@@ -65,6 +69,10 @@ public class ClusterService {
     sshKeyPair.setNeedsPassword(SshKeyService.checkIfPasswordNeeded(sshKeyPair));
 
     clusterContext.setSshKeyPair(sshKeyPair);
+  }
+
+  public synchronized SshKeyPair getSshKeyPair() {
+    return clusterContext.getSshKeyPair();
   }
 
   public synchronized void startCluster(Cluster cluster) throws KaramelException {

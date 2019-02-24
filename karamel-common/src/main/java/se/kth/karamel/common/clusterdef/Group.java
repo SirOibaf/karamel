@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import se.kth.karamel.common.cookbookmeta.KaramelizedCookbook;
 import se.kth.karamel.common.util.AttributesValidator;
 import se.kth.karamel.common.util.Settings;
 import se.kth.karamel.common.exception.KaramelException;
@@ -53,6 +55,11 @@ public class Group extends Scope {
       throw new ValidationException("Duplicated recipes found in group: " + name);
     }
 
+    // Validate recipe name
+    for (Recipe r : recipes) {
+      r.validate();
+    }
+
     // Validate number of IPs in the Baremetal case
     if (getProvider() instanceof Baremetal) {
       int ipSize = getBaremetal().getIps().size();
@@ -66,4 +73,8 @@ public class Group extends Scope {
     (new AttributesValidator()).validateAttributes(attributes);
   }
 
+  @JsonIgnore
+  public List<KaramelizedCookbook> getKaramelizedCookbooks() {
+    return recipes.stream().map(Recipe::getCookbook).collect(Collectors.toList());
+  }
 }

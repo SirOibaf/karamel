@@ -45,7 +45,7 @@ public class ChefJsonGenerator {
       //Adding all attributes to all chef-jsons
       addScopeAttributes(group, root);
 
-      for (KaramelizedCookbook cb : group.getCookbooks()) {
+      for (KaramelizedCookbook cb : group.getKaramelizedCookbooks()) {
         Map<String, JsonObject> gj = generatePurgeChefJsons(clone, cb, groupEntity);
         chefJsons.putAll(gj);
       }
@@ -125,7 +125,7 @@ public class ChefJsonGenerator {
         JsonObject clone = addMachineNRecipeToJson(json, me, recipe.getCanonicalName());
         groupJsons.put(me.getId() + recipe.getCanonicalName(), clone);
       }
-      for (KaramelizedCookbook cookbook : group.getCookbooks()) {
+      for (KaramelizedCookbook cookbook : group.getKaramelizedCookbooks()) {
         String installRecipeName = cookbook.getCookbookName() + Settings.COOKBOOK_DELIMITER + Settings.INSTALL_RECIPE;
         JsonObject clone = addMachineNRecipeToJson(json, me, installRecipeName);
         groupJsons.put(me.getId() + installRecipeName, clone);

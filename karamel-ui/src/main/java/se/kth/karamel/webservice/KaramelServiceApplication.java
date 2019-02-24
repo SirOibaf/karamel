@@ -40,14 +40,12 @@ import se.kth.karamel.client.api.KaramelApi;
 import se.kth.karamel.client.api.KaramelApiImpl;
 import se.kth.karamel.common.CookbookScaffolder;
 import static se.kth.karamel.common.CookbookScaffolder.deleteRecursive;
-import se.kth.karamel.common.clusterdef.yaml.YamlCluster;
+
+import se.kth.karamel.common.clusterdef.Cluster;
 import se.kth.karamel.common.exception.KaramelException;
 import se.kth.karamel.common.util.SshKeyPair;
-import se.kth.karamel.webservice.calls.cluster.ProcessCommand;
 import se.kth.karamel.webservice.calls.cluster.StartCluster;
 import se.kth.karamel.webservice.calls.definition.FetchCookbook;
-import se.kth.karamel.webservice.calls.definition.JsonToYaml;
-import se.kth.karamel.webservice.calls.definition.YamlToJson;
 import se.kth.karamel.webservice.calls.ec2.LoadEc2Credentials;
 import se.kth.karamel.webservice.calls.ec2.ValidateEc2Credentials;
 import se.kth.karamel.webservice.calls.gce.LoadGceCredentials;
@@ -212,8 +210,7 @@ public class KaramelServiceApplication extends Application<KaramelServiceConfigu
         // Try to open and read the yaml file. 
         // Print error msg if invalid file or invalid YAML.
         yamlTxt = CookbookScaffolder.readFile(line.getOptionValue("launch"));
-        YamlCluster cluster = ClusterDefinitionService.yamlToYamlObject(yamlTxt);
-        String jsonTxt = karamelApi.yamlToJson(yamlTxt);
+        Cluster cluster = (new ClusterDefinitionService()).loadYaml("fixme");
 
         if (!noSudoPasswd && sudoPasswd.isEmpty() == false) {
           karamelApi.registerSudoPassword(sudoPasswd);
@@ -223,7 +220,7 @@ public class KaramelServiceApplication extends Application<KaramelServiceConfigu
 
         karamelApi.registerSshKeys(pair);
 
-        karamelApi.startCluster(jsonTxt);
+        karamelApi.startCluster(cluster);
 
         long ms1 = System.currentTimeMillis();
         while (ms1 + 60000000 > System.currentTimeMillis()) {
@@ -297,8 +294,6 @@ public class KaramelServiceApplication extends Application<KaramelServiceConfigu
       .register("template", healthCheck);
 
     //definitions
-    environment.jersey().register(new YamlToJson(karamelApi));
-    environment.jersey().register(new JsonToYaml(karamelApi));
     environment.jersey().register(new FetchCookbook(karamelApi));
 
     //ssh
@@ -316,7 +311,6 @@ public class KaramelServiceApplication extends Application<KaramelServiceConfigu
 
     //cluster
     environment.jersey().register(new StartCluster(karamelApi));
-    environment.jersey().register(new ProcessCommand(karamelApi));
 
     environment.jersey().register(new ExitKaramel(karamelApi));
     environment.jersey().register(new PingServer(karamelApi));

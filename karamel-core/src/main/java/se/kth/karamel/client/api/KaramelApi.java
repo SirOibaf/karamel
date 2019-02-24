@@ -1,6 +1,6 @@
 package se.kth.karamel.client.api;
 
-import se.kth.karamel.backend.command.CommandResponse;
+import se.kth.karamel.common.clusterdef.Cluster;
 import se.kth.karamel.common.exception.KaramelException;
 import se.kth.karamel.common.util.Ec2Credentials;
 import se.kth.karamel.common.util.OcciCredentials;
@@ -15,17 +15,6 @@ import se.kth.karamel.common.util.SshKeyPair;
 public interface KaramelApi {
 
   /**
-   * Parses the command, if valid fetches the result in string, result could have different formatting depends on the
-   * command.
-   *
-   * @param command
-   * @param args
-   * @return
-   * @throws KaramelException
-   */
-  CommandResponse processCommand(String command, String... args) throws KaramelException;
-
-  /**
    * Returns visible recipes and attributes of the cookbook with their detail as a json file
    *
    * @param cookbookUrl
@@ -33,24 +22,6 @@ public interface KaramelApi {
    * @throws KaramelException
    */
   String getCookbookDetails(String cookbookUrl) throws KaramelException;
-
-  /**
-   * Converts json definition of the cluster into a yaml object
-   *
-   * @param json
-   * @return
-   * @throws KaramelException
-   */
-  String jsonToYaml(String json) throws KaramelException;
-
-  /**
-   * Converts yaml definition of the cluster into the json
-   *
-   * @param yaml
-   * @return
-   * @throws KaramelException
-   */
-  String yamlToJson(String yaml) throws KaramelException;
 
   /**
    * Loads Karamel common keys
@@ -109,10 +80,10 @@ public interface KaramelApi {
    * Starts running the cluster by launching machines and installing softwares It expect to receive a complete
    * cluster-json for the cluster.
    *
-   * @param json
+   * @param Cluster to run
    * @throws KaramelException
    */
-  void startCluster(String json) throws KaramelException;
+  void startCluster(Cluster Cluster) throws KaramelException;
 
   /**
    * In case user wants to pause the running cluster for inspection reasons. It implies that machines won't receive any

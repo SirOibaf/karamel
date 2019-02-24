@@ -3,10 +3,7 @@ package se.kth.karamel.client.api;
 import org.jclouds.ContextBuilder;
 import org.jclouds.domain.Credentials;
 import org.jclouds.openstack.nova.v2_0.NovaApiMetadata;
-import se.kth.karamel.backend.ClusterDefinitionService;
 import se.kth.karamel.backend.ClusterService;
-import se.kth.karamel.backend.command.CommandResponse;
-import se.kth.karamel.backend.command.CommandService;
 import se.kth.karamel.backend.launcher.amazon.Ec2Context;
 import se.kth.karamel.backend.launcher.amazon.Ec2Launcher;
 import se.kth.karamel.backend.launcher.google.GceContext;
@@ -17,6 +14,7 @@ import se.kth.karamel.backend.launcher.novav3.NovaV3Context;
 import se.kth.karamel.backend.launcher.novav3.NovaV3Launcher;
 import se.kth.karamel.backend.launcher.occi.OcciContext;
 import se.kth.karamel.backend.launcher.occi.OcciLauncher;
+import se.kth.karamel.common.clusterdef.Cluster;
 import se.kth.karamel.common.cookbookmeta.CookbookCache;
 import se.kth.karamel.common.exception.InvalidNovaCredentialsException;
 import se.kth.karamel.common.exception.InvalidOcciCredentialsException;
@@ -40,23 +38,8 @@ public class KaramelApiImpl implements KaramelApi {
   private static final ClusterService clusterService = ClusterService.getInstance();
 
   @Override
-  public CommandResponse processCommand(String command, String... args) throws KaramelException {
-    return CommandService.processCommand(command, args);
-  }
-
-  @Override
   public String getCookbookDetails(String cookbookName) throws KaramelException {
     return CookbookCache.getInstance().get(cookbookName).getInfoJson();
-  }
-
-  @Override
-  public String jsonToYaml(String json) throws KaramelException {
-    return ClusterDefinitionService.jsonToYaml(json);
-  }
-
-  @Override
-  public String yamlToJson(String yaml) throws KaramelException {
-    return ClusterDefinitionService.yamlToJson(yaml);
   }
 
   @Override
@@ -171,9 +154,8 @@ public class KaramelApiImpl implements KaramelApi {
   }
 
   @Override
-  public void startCluster(String json) throws KaramelException {
-    //logger.info("cluster to launch: \n" + json);
-    clusterService.startCluster(json);
+  public void startCluster(Cluster cluster) throws KaramelException {
+    clusterService.startCluster(cluster);
   }
 
   @Override
