@@ -44,11 +44,10 @@ public class AttributesValidator {
   private Map<String, Object> flattenAttrs(Map<String, Object> map, String partialName) throws ValidationException {
     Map<String, Object> flatten = new HashMap<>();
     if (map == null) {
-      throw new ValidationException("attributes block cannot be empty");
+      return flatten;
     }
-    Set<Map.Entry<String, Object>> entrySet = map.entrySet();
 
-    for (Map.Entry<String, Object> entry : entrySet) {
+    for (Map.Entry<String, Object> entry : map.entrySet()) {
       String key = ((partialName.isEmpty()) ? "" : partialName + "/") + entry.getKey();
       Object value = entry.getValue();
       if (value instanceof Map) {

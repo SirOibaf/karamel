@@ -206,8 +206,8 @@ public class ClusterManager implements Runnable {
   }
 
   private void initLaunchers() throws KaramelException {
-    for (Group group : definition.getGroups()) {
-      Provider provider = UserClusterDataExtractor.getGroupProvider(definition, group.getName());
+    for (Map.Entry<String,Group> group : definition.getGroups().entrySet()) {
+      Provider provider = UserClusterDataExtractor.getGroupProvider(definition, group.getKey());
       Launcher launcher = launchers.get(provider.getClass());
       if (launcher == null) {
         if (provider instanceof Ec2) {

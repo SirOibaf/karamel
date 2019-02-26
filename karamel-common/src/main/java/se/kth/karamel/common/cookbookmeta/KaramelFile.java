@@ -12,6 +12,10 @@ public final class KaramelFile {
 
   private List<KaramelFileYamlDeps> dependencies;
 
+  public KaramelFile() {
+    dependencies = new ArrayList<>();
+  }
+
   public KaramelFile(String fileContent) throws MetadataParseException {
     Yaml yaml = new Yaml(new Constructor(KaramelFileYamlRep.class));
     KaramelFileYamlRep file = null;

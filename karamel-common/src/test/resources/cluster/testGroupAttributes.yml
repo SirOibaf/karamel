@@ -1,0 +1,79 @@
+name: test1
+baremetal:
+  username: testuser
+
+cookbooks:
+  hopsworks:
+    github: "logicalclocks/hopsworks-chef"
+    branch: "0.9"
+
+attributes:
+  install:
+    dir: /srv/hops
+    current_version: "0.6.1"
+  ntp:
+    install: true
+  hops:
+    format: false
+    cgroups: true
+    nn:
+      heap_size: '25000'
+      direct_memory_size: '10000'
+    yarn:
+      rm_heartbeat: "1000"
+      memory_mbs: 216000
+      vcores: 24
+      max_vcores: 24
+      gpus: '*'
+      quota_threshold_gpu: 1
+      quota_minimum_charged_mb: 16384
+      quota_variable_price_enabled: false
+
+groups:
+  group1:
+     baremetal:
+       ip: 127.0.0.1
+       ip: 127.0.0.2
+       ip: 127.0.0.2
+     size: 3
+     attributes:
+       elastic:
+        projects:
+          reindex: "true"
+        memory:
+          Xms: "16g"
+          Xmx: "16g"
+     recipes:
+       - kagent
+       - conda
+       - hadoop_spark::yarn
+       - flink::yarn
+       - hopsworks
+       - tensorflow
+       - hadoop_spark::historyserver
+       - livy
+       - hopslog
+       - hopsmonitor
+       - hops_airflow
+       - hops::jhs
+       - hops::client
+  group2:
+     baremetal:
+       ip: 127.0.0.1
+       ip: 127.0.0.2
+       ip: 127.0.0.2
+     size: 3
+     recipes:
+       - kagent
+       - conda
+       - hadoop_spark::yarn
+       - flink::yarn
+       - hopsworks
+       - tensorflow
+       - hadoop_spark::historyserver
+       - livy
+       - hopslog
+       - hopsmonitor
+       - hops_airflow
+       - hops::jhs
+       - hops::client

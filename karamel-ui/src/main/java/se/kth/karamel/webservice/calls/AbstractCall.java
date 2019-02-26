@@ -17,8 +17,7 @@ public abstract class AbstractCall {
   
   protected Response buildExceptionResponse(Exception e) {
     logger.error("", e);
-    Response response = Response.status(Response.Status.INTERNAL_SERVER_ERROR).
+    return Response.status(Response.Status.INTERNAL_SERVER_ERROR).
         entity(new StatusResponseJSON(StatusResponseJSON.ERROR_STRING, e.getMessage())).build();
-    return response;
   }
 }

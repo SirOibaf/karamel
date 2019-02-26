@@ -10,7 +10,9 @@ public class MetadataRb {
   private String version;
   private List<Recipe> recipes = new ArrayList<>();
   private List<Attribute> attributes = new ArrayList<>();
-  
+
+  public MetadataRb() { }
+
   public void setAttributes(List<Attribute> attributes) {
     this.attributes = attributes;
   }

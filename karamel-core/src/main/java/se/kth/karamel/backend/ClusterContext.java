@@ -16,6 +16,8 @@ import se.kth.karamel.common.clusterdef.Group;
 import se.kth.karamel.common.exception.KaramelException;
 import se.kth.karamel.common.util.SshKeyPair;
 
+import java.util.Map;
+
 /**
  * Authenticated APIs and privacy-sensitive data, that must not be revealed by storing them in the file-system, is
  * stored here in memory. It is valid just until the system is running otherwise it will disappear.
@@ -83,8 +85,8 @@ public class ClusterContext {
     }
     context.mergeContext(commonContext);
 
-    for (Group group : definition.getGroups()) {
-      Provider provider = UserClusterDataExtractor.getGroupProvider(definition, group.getName());
+    for (Map.Entry<String,Group> group : definition.getGroups().entrySet()) {
+      Provider provider = UserClusterDataExtractor.getGroupProvider(definition, group.getKey());
       if (provider instanceof Ec2 && context.getEc2Context() == null) {
         throw new KaramelException("No valid Ec2 credentials registered :-|");
       } else if (provider instanceof Gce && context.getGceContext() == null) {

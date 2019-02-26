@@ -1,22 +1,11 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package se.kth.karamel.backend.running.model;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import se.kth.karamel.common.clusterdef.Group;
-
-/**
- *
- * @author kamal
- */
 public class GroupRuntime {
 
-  public static enum GroupPhase {
+  public enum GroupPhase {
 
     NONE, PRECLEANING, PRECLEANED, FORKING_GROUPS, GROUPS_FORKED, FORKING_MACHINES, MACHINES_FORKED, 
     RUNNING_DAG, DAG_DONE, TERMINATING;
@@ -32,9 +21,9 @@ public class GroupRuntime {
     this.cluster = cluster;
   }
 
-  public GroupRuntime(ClusterRuntime cluster, Group definition) {
+  public GroupRuntime(ClusterRuntime cluster, String groupName) {
     this.cluster = cluster;
-    this.name = definition.getName();
+    this.name = groupName;
   }
 
   public synchronized void setMachines(List<MachineRuntime> machines) {

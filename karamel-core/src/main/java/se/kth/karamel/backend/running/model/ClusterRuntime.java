@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package se.kth.karamel.backend.running.model;
 
 import java.util.ArrayList;
@@ -10,12 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import se.kth.karamel.common.clusterdef.Cluster;
-import se.kth.karamel.common.clusterdef.Group;
 
-/**
- *
- * @author kamal
- */
 public class ClusterRuntime {
 
   public static enum ClusterPhases {
@@ -39,9 +29,8 @@ public class ClusterRuntime {
 
   public ClusterRuntime(Cluster definition) {
     this.name = definition.getName();
-    List<Group> definedGroups = definition.getGroups();
-    for (Group jg : definedGroups) {
-      GroupRuntime group = new GroupRuntime(this, jg);
+    for (String groupName : definition.getGroups().keySet()) {
+      GroupRuntime group = new GroupRuntime(this, groupName);
       groups.add(group);
     }
   }

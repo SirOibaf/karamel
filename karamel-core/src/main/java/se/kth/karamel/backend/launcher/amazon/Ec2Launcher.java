@@ -108,8 +108,7 @@ public final class Ec2Launcher extends Launcher {
     Ec2 ec2 = (Ec2) provider;
     Set<String> ports = new HashSet<>();
     ports.addAll(Settings.AWS_VM_PORTS_DEFAULT);
-    String groupId = createSecurityGroup(definition.getName(), jg.getName(), ec2, ports);
-    return groupId;
+    return createSecurityGroup(definition.getName(), groupName, ec2, ports);
   }
 
   public String createSecurityGroup(String clusterName, String groupName, Ec2 ec2, Set<String> ports)

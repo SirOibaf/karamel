@@ -1,7 +1,7 @@
 package se.kth.karamel.common.cookbookmeta;
 
-
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Charsets;
 import org.apache.log4j.Logger;
 import se.kth.karamel.common.clusterdef.Cookbook;
@@ -29,7 +29,6 @@ import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import se.kth.karamel.common.util.ProcOutputConsumer;
 import se.kth.karamel.common.util.Settings;
-
 
 public class CookbookCache {
 
@@ -60,6 +59,11 @@ public class CookbookCache {
           String.format("Cookbook could not be found '%s'", cookbookName));
     }
     return cb;
+  }
+
+  @VisibleForTesting
+  public void addToCache(String cookbookName, KaramelizedCookbook kbc) {
+    cookbooks.put(cookbookName, kbc);
   }
 
   public List<KaramelizedCookbook> getKaramelizedCookbooksList() {

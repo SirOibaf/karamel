@@ -262,13 +262,11 @@ public final class NovaLauncher extends Launcher{
 
   @Override
   public String forkGroup(Cluster definition, ClusterRuntime runtime, String name) throws KaramelException {
-    Group jg = UserClusterDataExtractor.findGroup(definition,name);
     Provider provider = UserClusterDataExtractor.getGroupProvider(definition,name);
     Nova nova = (Nova) provider;
     Set<String> ports = new HashSet<>();
     ports.addAll(Settings.AWS_VM_PORTS_DEFAULT);
-    String groupId = createSecurityGroup(definition.getName(), jg.getName(), nova, ports);
-    return groupId;
+    return createSecurityGroup(definition.getName(), name, nova, ports);
   }
 
   @Override

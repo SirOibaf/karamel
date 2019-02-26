@@ -307,12 +307,11 @@ public final class NovaV3Launcher extends Launcher {
   public String forkGroup(Cluster definition, ClusterRuntime runtime, String name) throws KaramelException {
     
     Set<String> ports = new HashSet<>();
-    Group jg = UserClusterDataExtractor.findGroup(definition,name);
     Provider provider = UserClusterDataExtractor.getGroupProvider(definition,name);
     Nova nova = (Nova) provider;
     
     ports.addAll(Settings.AWS_VM_PORTS_DEFAULT);
-    return createSecurityGroup(definition.getName(), jg.getName(), nova, ports);
+    return createSecurityGroup(definition.getName(), name, nova, ports);
 
   }
 

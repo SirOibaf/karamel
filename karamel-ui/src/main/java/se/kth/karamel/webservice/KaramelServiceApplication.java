@@ -97,9 +97,7 @@ public class KaramelServiceApplication extends Application<KaramelServiceConfigu
       .hasArg()
       .withDescription("Karamel cluster definition in a YAML file")
       .create("launch"));
-    options.addOption("scaffold", false, "Creates scaffolding for a new Chef/Karamel Cookbook.");
     options.addOption("headless", false, "Launch Karamel from a headless server (no terminal on the server).");
-//    options.addOption("passwd", false, "Sudo password");
     options.addOption(OptionBuilder.withArgName("sudoPassword")
       .hasArg()
       .withDescription("Sudo password")
@@ -188,7 +186,7 @@ public class KaramelServiceApplication extends Application<KaramelServiceConfigu
   }
 
   @Override
-  public void initialize(Bootstrap<KaramelServiceConfiguration> bootstrap) { }
+  public void initialize(Bootstrap<KaramelServiceConfiguration> bootstrap) {}
 
   @Override
   public void run(KaramelServiceConfiguration configuration, Environment environment) throws Exception {
@@ -214,6 +212,7 @@ public class KaramelServiceApplication extends Application<KaramelServiceConfigu
     environment.healthChecks().register("template", healthCheck);
 
     //definitions
+
     environment.jersey().register(new Upload(karamelApi));
     environment.jersey().register(new FetchCookbook(karamelApi));
 

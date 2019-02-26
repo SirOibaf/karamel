@@ -13,8 +13,10 @@ public class Recipe implements Comparable<Recipe>{
 
   private String name;
 
-  public Recipe() {
+  public Recipe() {}
 
+  public Recipe(String name) {
+    this.name = name;
   }
 
   public Recipe(KaramelizedCookbook cookbook, String name) {
@@ -40,7 +42,11 @@ public class Recipe implements Comparable<Recipe>{
 
   @JsonIgnore
   public String getCanonicalName() {
-    return cookbook.getCookbookName() + Settings.COOKBOOK_DELIMITER + name;
+    if (name.contains(Settings.COOKBOOK_DELIMITER)) {
+      return name;
+    }
+
+    return cookbook.getCookbookName() + Settings.COOKBOOK_DELIMITER + Settings.DEFAULT_RECIPE;
   }
 
   @Override
