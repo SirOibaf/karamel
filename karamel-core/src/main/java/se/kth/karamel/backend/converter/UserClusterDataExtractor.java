@@ -20,16 +20,16 @@ public class UserClusterDataExtractor {
 
   public static int totalMachines(Cluster cluster) {
     int total = 0;
-    for (Group g : cluster.getGroups().values()) {
+    for (Group g : cluster.getGroups()) {
       total += g.getSize();
     }
     return total;
   }
 
   public static Group findGroup(Cluster cluster, String groupName) {
-    for (Map.Entry<String, Group> group : cluster.getGroups().entrySet()) {
-      if (group.getKey().equals(groupName)) {
-        return group.getValue();
+    for (Group group : cluster.getGroups()) {
+      if (group.getName().equals(groupName)) {
+        return group;
       }
     }
     return null;

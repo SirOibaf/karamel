@@ -85,8 +85,8 @@ public class ClusterContext {
     }
     context.mergeContext(commonContext);
 
-    for (Map.Entry<String,Group> group : definition.getGroups().entrySet()) {
-      Provider provider = UserClusterDataExtractor.getGroupProvider(definition, group.getKey());
+    for (Group group : definition.getGroups()) {
+      Provider provider = UserClusterDataExtractor.getGroupProvider(definition, group.getName());
       if (provider instanceof Ec2 && context.getEc2Context() == null) {
         throw new KaramelException("No valid Ec2 credentials registered :-|");
       } else if (provider instanceof Gce && context.getGceContext() == null) {

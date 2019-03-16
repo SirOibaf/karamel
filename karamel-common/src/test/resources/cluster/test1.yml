@@ -36,7 +36,7 @@ attributes:
       Xmx: "16g"
 
 groups:
-  group1:
+   - name: group1
      baremetal:
        ip: 127.0.0.1
        ip: 127.0.0.2
@@ -56,7 +56,7 @@ groups:
        - hops_airflow
        - hops::jhs
        - hops::client
-  group2:
+   - name: group2
      baremetal:
        ip: 127.0.0.1
        ip: 127.0.0.2

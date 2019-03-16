@@ -23,8 +23,9 @@ public class TestCluster {
     Cluster cluster = (Cluster) yaml.load(clusterDefinition);
     assertEquals("test1", cluster.getName());
     assertEquals(4, cluster.getAttributes().size());
-    assertEquals(2, cluster.getGroups().entrySet().size());
-    assertEquals(13, cluster.getGroups().get("group1").getRecipes().size());
+    assertEquals(2, cluster.getGroups().size());
+    assertEquals(13,
+        cluster.getGroups().stream().filter(g -> g.getName().equals("group1")).findFirst().get().getRecipes().size());
   }
 
   @Test
@@ -32,8 +33,12 @@ public class TestCluster {
     String clusterDefinition = IOUtils.toString(
         this.getClass().getResourceAsStream("/cluster/testGroupAttributes.yml"), "UTF-8");
     Cluster cluster = (Cluster) yaml.load(clusterDefinition);
-    assertEquals(1, cluster.getGroups().get("group1").getAttributes().size());
-    assertNull(cluster.getGroups().get("group2").getAttributes());
+    assertEquals(1,
+        cluster.getGroups().stream().filter(g -> g.getName().equals("group1"))
+            .findFirst().get().getAttributes().size());
+
+    assertNull(cluster.getGroups().stream().filter(g -> g.getName().equals("group2"))
+            .findFirst().get().getAttributes());
   }
 
   @Test

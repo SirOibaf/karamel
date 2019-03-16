@@ -10,7 +10,7 @@ cookbooks:
     branch: master
 
 groups:
-  group1:
+  -  name: group1
      baremetal:
        ip: 127.0.0.1
      size: 1

@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import se.kth.karamel.common.clusterdef.Cluster;
+import se.kth.karamel.common.clusterdef.Group;
 
 public class ClusterRuntime {
 
@@ -29,9 +30,9 @@ public class ClusterRuntime {
 
   public ClusterRuntime(Cluster definition) {
     this.name = definition.getName();
-    for (String groupName : definition.getGroups().keySet()) {
-      GroupRuntime group = new GroupRuntime(this, groupName);
-      groups.add(group);
+    for (Group group : definition.getGroups()) {
+      GroupRuntime groupRuntime = new GroupRuntime(this, group.getName());
+      groups.add(groupRuntime);
     }
   }
 

@@ -1,6 +1,8 @@
 package se.kth.karamel.common.clusterdef;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import se.kth.karamel.common.exception.KaramelException;
@@ -11,7 +13,7 @@ public class Cluster extends Scope {
 
   private String name;
   private Map<String, Cookbook> cookbooks = new HashMap<>();
-  private Map<String, Group> groups = new HashMap<>();
+  private List<Group> groups = new ArrayList<>();
 
   public Cluster() { }
 
@@ -23,11 +25,11 @@ public class Cluster extends Scope {
     this.name = name;
   }
 
-  public Map<String, Group> getGroups() {
+  public List<Group> getGroups() {
     return groups;
   }
 
-  public void setGroups(Map<String, Group> groups) {
+  public void setGroups(List<Group> groups) {
     this.groups = groups;
   }
 
@@ -52,7 +54,8 @@ public class Cluster extends Scope {
     (new AttributesValidator()).validateAttributes(attributes);
 
     // Validate Groups
-    for (Group g : groups.values()) {
+    // TODO(Fabio) validate that there are not more than 2 groups with the same name
+    for (Group g : groups) {
       g.validate();
     }
   }

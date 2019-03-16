@@ -12,8 +12,8 @@ import se.kth.karamel.common.exception.ValidationException;
 
 public class Group extends Scope {
 
+  private String name;
   private int size;
-
   private List<Recipe> recipes = new ArrayList<>();
 
   public Group() {
@@ -33,6 +33,14 @@ public class Group extends Scope {
 
   public void setRecipes(List<Recipe> recipes) {
     this.recipes = recipes;
+  }
+
+  public String getName() {
+    return name;
+  }
+
+  public void setName(String name) {
+    this.name = name;
   }
 
   @Override

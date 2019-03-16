@@ -2,6 +2,7 @@ package se.kth.karamel.webservice;
 
 import icons.TrayUI;
 import io.dropwizard.Application;
+import io.dropwizard.forms.MultiPartBundle;
 import io.dropwizard.jetty.MutableServletContextHandler;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
@@ -35,11 +36,10 @@ import se.kth.karamel.backend.ClusterManager;
 import se.kth.karamel.client.api.KaramelApi;
 import se.kth.karamel.client.api.KaramelApiImpl;
 
-import se.kth.karamel.common.clusterdef.Cluster;
 import se.kth.karamel.common.exception.KaramelException;
 import se.kth.karamel.common.util.SshKeyPair;
-import se.kth.karamel.webservice.calls.cluster.StartCluster;
-import se.kth.karamel.webservice.calls.cluster.Upload;
+import se.kth.karamel.webservice.calls.cluster.ClusterService;
+import se.kth.karamel.webservice.calls.cluster.UploadService;
 import se.kth.karamel.webservice.calls.definition.FetchCookbook;
 import se.kth.karamel.webservice.calls.ec2.LoadEc2Credentials;
 import se.kth.karamel.webservice.calls.ec2.ValidateEc2Credentials;
@@ -157,7 +157,7 @@ public class KaramelServiceApplication extends Application<KaramelServiceConfigu
 
         // Try to open and read the yaml file. 
         // Print error msg if invalid file or invalid YAML.
-        Cluster cluster = (new ClusterDefinitionService()).loadYaml("fixme");
+        se.kth.karamel.common.clusterdef.Cluster cluster = (new ClusterDefinitionService()).loadYaml("fixme");
 
         if (!noSudoPasswd && !sudoPasswd.isEmpty()) {
           karamelApi.registerSudoPassword(sudoPasswd);
@@ -186,7 +186,9 @@ public class KaramelServiceApplication extends Application<KaramelServiceConfigu
   }
 
   @Override
-  public void initialize(Bootstrap<KaramelServiceConfiguration> bootstrap) {}
+  public void initialize(Bootstrap<KaramelServiceConfiguration> bootstrap) {
+    bootstrap.addBundle(new MultiPartBundle());
+  }
 
   @Override
   public void run(KaramelServiceConfiguration configuration, Environment environment) throws Exception {
@@ -213,7 +215,7 @@ public class KaramelServiceApplication extends Application<KaramelServiceConfigu
 
     //definitions
 
-    environment.jersey().register(new Upload(karamelApi));
+    environment.jersey().register(new UploadService(karamelApi));
     environment.jersey().register(new FetchCookbook(karamelApi));
 
     //ssh
@@ -230,7 +232,7 @@ public class KaramelServiceApplication extends Application<KaramelServiceConfigu
     environment.jersey().register(new ValidateGceCredentials(karamelApi));
 
     //cluster
-    environment.jersey().register(new StartCluster(karamelApi));
+    environment.jersey().register(new ClusterService(karamelApi));
 
     environment.jersey().register(new ExitKaramel(karamelApi));
     environment.jersey().register(new PingServer(karamelApi));

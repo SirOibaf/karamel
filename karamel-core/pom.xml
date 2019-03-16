@@ -89,11 +89,6 @@
       <version>2.4</version>
     </dependency>
     <dependency>
-      <groupId>com.sun.jersey</groupId>
-      <artifactId>jersey-client</artifactId>
-      <version>1.19</version>
-    </dependency>
-    <dependency>
       <groupId>se.kth.karamel</groupId>
       <artifactId>karamel-common</artifactId>
     </dependency>
