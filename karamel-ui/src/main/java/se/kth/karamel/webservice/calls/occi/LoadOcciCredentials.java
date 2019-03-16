@@ -14,9 +14,6 @@ import javax.ws.rs.core.Response;
 import se.kth.karamel.common.exception.KaramelException;
 import se.kth.karamel.common.util.OcciCredentials;
 
-/**
- * Created by Mamut on 2015-1-18.
- */
 @Path("/occi/loadCredentials")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)

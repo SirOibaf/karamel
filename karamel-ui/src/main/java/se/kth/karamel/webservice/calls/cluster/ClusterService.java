@@ -9,8 +9,10 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import org.apache.commons.lang.NotImplementedException;
 import se.kth.karamel.client.api.KaramelApi;
 import se.kth.karamel.common.clusterdef.Cluster;
+import se.kth.karamel.common.exception.KaramelException;
 import se.kth.karamel.webservice.calls.AbstractCall;
 
 @Path("/cluster")
@@ -29,8 +31,18 @@ public class ClusterService extends AbstractCall {
 
   @POST
   @Produces(MediaType.APPLICATION_JSON)
-  public Response action() {
-    return Response.ok().build();
+  public Response action(ClusterActions action) throws KaramelException {
+    if (action == null) {
+      throw new IllegalArgumentException("Action expected, found none");
+    }
+
+    switch (action) {
+      case VALIDATE:
+        karamelApi.getCluster().validate();
+        return Response.ok().build();
+      default:
+        throw new NotImplementedException("Action not implemented yet");
+    }
   }
 
   @PUT
@@ -40,4 +52,5 @@ public class ClusterService extends AbstractCall {
     // TODO(Fabio): Implement this
     return Response.ok().build();
   }
+
 }

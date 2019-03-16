@@ -16,8 +16,6 @@ import se.kth.karamel.common.clusterdef.Group;
 import se.kth.karamel.common.exception.KaramelException;
 import se.kth.karamel.common.util.SshKeyPair;
 
-import java.util.Map;
-
 /**
  * Authenticated APIs and privacy-sensitive data, that must not be revealed by storing them in the file-system, is
  * stored here in memory. It is valid just until the system is running otherwise it will disappear.

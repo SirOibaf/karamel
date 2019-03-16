@@ -1,10 +1,12 @@
 package se.kth.karamel.common.clusterdef;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import se.kth.karamel.common.cookbookmeta.CookbookCache;
 import se.kth.karamel.common.exception.KaramelException;
 import se.kth.karamel.common.exception.ValidationException;
 import se.kth.karamel.common.util.AttributesValidator;
@@ -48,6 +50,13 @@ public class Cluster extends Scope {
     // Validate cookbooks
     for (Cookbook cookbook : cookbooks.values()) {
       cookbook.validate();
+    }
+
+    // Clone and vendor cookbooks to validate attributes
+    try {
+      CookbookCache.getInstance().loadKaramelizedCookbooks(cookbooks);
+    } catch (IOException e) {
+      throw new KaramelException(e);
     }
 
     // Validate Attributes

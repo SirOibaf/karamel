@@ -203,9 +203,6 @@ public class KaramelServiceApplication extends Application<KaramelServiceConfigu
     // Allow cross origin requests.
     filter.addMappingForUrlPatterns(EnumSet.allOf(DispatcherType.class), true, "/*");
     filter.setInitParameter("allowedOrigins", "*"); // allowed origins comma separated
-    filter.setInitParameter("allowedHeaders",
-        "Content-Type,Authorization,X-Requested-With,Content-Length,Accept,Origin");
-    filter.setInitParameter("allowedMethods", "GET,PUT,POST,DELETE,OPTIONS,HEAD");
     filter.setInitParameter("preflightMaxAge", "5184000"); // 2 months
     filter.setInitParameter("allowCredentials", "true");
 

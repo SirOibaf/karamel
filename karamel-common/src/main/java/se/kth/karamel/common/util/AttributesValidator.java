@@ -15,7 +15,7 @@ import java.util.Set;
 public class AttributesValidator {
   public void validateAttributes(Map<String, Object> attributeMap) throws KaramelException {
 
-    List<KaramelizedCookbook> cookbooks = CookbookCache.getInstance().getKaramelizedCookbooksList();
+    List<KaramelizedCookbook> cookbooks = CookbookCache.getInstance().getKaramelizedCookbooks();
 
     // Validate cluster-wide attributes
     Map<String, Object> attributes = flattenAttrs(attributeMap, "");

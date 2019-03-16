@@ -3,6 +3,7 @@ package se.kth.karamel.common.cookbookmeta;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Charsets;
+import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 import se.kth.karamel.common.clusterdef.Cookbook;
 import se.kth.karamel.common.exception.KaramelException;
@@ -29,6 +30,8 @@ import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import se.kth.karamel.common.util.ProcOutputConsumer;
 import se.kth.karamel.common.util.Settings;
+
+import static se.kth.karamel.common.clusterdef.Cookbook.CookbookType.GIT;
 
 public class CookbookCache {
 
@@ -66,64 +69,72 @@ public class CookbookCache {
     cookbooks.put(cookbookName, kbc);
   }
 
-  public List<KaramelizedCookbook> getKaramelizedCookbooksList() {
+  public List<KaramelizedCookbook> getKaramelizedCookbooks() {
     return new ArrayList<>(cookbooks.values());
   }
 
-  public List<KaramelizedCookbook> loadAllKaramelizedCookbooks(Map<String, Cookbook> rootCookbooks)
-      throws KaramelException {
-    if (!cookbooks.isEmpty()) {
-      return new ArrayList<>(cookbooks.values());
-    }
+  public List<KaramelizedCookbook> loadKaramelizedCookbooks(Map<String, Cookbook> rootCookbooks)
+      throws KaramelException, IOException {
 
-    if (!Settings.USE_CLONED_REPO_FILES) {
-      cloneAndVendorCookbooks(rootCookbooks);
-    }
-
-    buildCookbookObjects();
-    return new ArrayList<>(cookbooks.values());
-  }
-
-  private void cloneAndVendorCookbooks(Map<String, Cookbook> toClone) throws KaramelException {
     File workingDir = Paths.get(Settings.WORKING_DIR).toFile();
-    if (!workingDir.exists()) {
+    if (workingDir.exists()) {
+      // Clean up directory
+      FileUtils.deleteDirectory(workingDir);
+      workingDir.mkdir();
+    } else {
       workingDir.mkdir();
     }
 
-    for (Map.Entry<String, Cookbook> cb : toClone.entrySet()) {
-      // Clone the repository
-      try {
-        if (!Paths.get(Settings.WORKING_DIR, cb.getKey()).toFile().exists()) {
-          Git.cloneRepository()
-              // TODO(Fabio): make base url as setting in the cluster definition
-              // So we can support also GitLab/Bitbucket and so on.
-              .setURI(Settings.GITHUB_BASE_URL + "/" + cb.getValue().getGithub())
-              .setBranch(cb.getValue().getBranch())
-              .setDirectory(Paths.get(Settings.WORKING_DIR, cb.getKey()).toFile())
-              .call();
-        }
-        // TODO(Fabio) try to update the branch
-      } catch (GitAPIException e) {
-        throw new KaramelException(e);
+    for (Map.Entry<String, Cookbook> cookbook : rootCookbooks.entrySet()) {
+      if (cookbook.getValue().getCookbookType() == GIT) {
+        cloneAndVendorCookbook(cookbook);
+      } else {
+        // Build cookbook objects for local cookbook
+        buildCookbookObjects(cookbook.getValue().getLocalPath());
       }
+    }
 
-      // Vendor the repository
-      try {
-        Process vendorProcess = Runtime.getRuntime().exec("berks vendor --berksfile=" +
-            Paths.get(Settings.WORKING_DIR, cb.getKey(), "Berksfile") + " " + Settings.WORKING_DIR);
-        Future<String> vendorOutput = es.submit(new ProcOutputConsumer(vendorProcess.getInputStream()));
-        vendorProcess.waitFor(10, TimeUnit.MINUTES);
+    // Load all cookbooks which were vendored
+    buildCookbookObjects(Settings.WORKING_DIR);
 
-        if (vendorProcess.exitValue() != 0) {
-          throw new KaramelException("Fail to vendor the cookbook: " + cb.getKey() + " " + vendorOutput.get());
-        }
-      } catch (IOException | InterruptedException | ExecutionException e) {
-        throw new KaramelException(e);
+    return new ArrayList<>(cookbooks.values());
+  }
+
+  private void cloneAndVendorCookbook(Map.Entry<String, Cookbook> cookbook) throws KaramelException {
+    // Clone the repository
+    Path cbTargetDir = Paths.get(Settings.WORKING_DIR, cookbook.getKey());
+
+    try {
+      if (!cbTargetDir.toFile().exists()) {
+        Git.cloneRepository()
+            // TODO(Fabio): make base url as setting in the cluster definition
+            // So we can support also GitLab/Bitbucket and so on.
+            .setURI(Settings.GITHUB_BASE_URL + "/" + cookbook.getValue().getGithub())
+            .setBranch(cookbook.getValue().getBranch())
+            .setDirectory(Paths.get(Settings.WORKING_DIR, cookbook.getKey()).toFile())
+            .call();
       }
+    } catch (GitAPIException e) {
+      throw new KaramelException(e);
+    }
+
+    // Vendor the repository
+    try {
+      Process vendorProcess = Runtime.getRuntime().exec("berks vendor --berksfile=" +
+          Paths.get(Settings.WORKING_DIR, cookbook.getKey(), "Berksfile") + " " + Settings.WORKING_DIR);
+
+      Future<String> vendorOutput = es.submit(new ProcOutputConsumer(vendorProcess.getInputStream()));
+      vendorProcess.waitFor(10, TimeUnit.MINUTES);
+
+      if (vendorProcess.exitValue() != 0) {
+        throw new KaramelException("Fail to vendor the cookbook: " + cookbook.getKey() + " " + vendorOutput.get());
+      }
+    } catch (IOException | InterruptedException | ExecutionException e) {
+      throw new KaramelException(e);
     }
   }
 
-  private void buildCookbookObjects() throws KaramelException {
+  private void buildCookbookObjects(String cookbooksPath) throws KaramelException {
     try (Stream<Path> paths = Files.find(Paths.get(Settings.WORKING_DIR),
         Integer.MAX_VALUE, (path, attributes) -> attributes.isDirectory())) {
       paths.forEach(path -> {

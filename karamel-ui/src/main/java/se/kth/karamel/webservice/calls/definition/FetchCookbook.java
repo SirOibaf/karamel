@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package se.kth.karamel.webservice.calls.definition;
 
 import javax.ws.rs.Consumes;
@@ -16,10 +11,6 @@ import se.kth.karamel.common.exception.KaramelException;
 import se.kth.karamel.webservice.calls.AbstractCall;
 import se.kth.karamel.webservicemodel.CookbookJSON;
 
-/**
- *
- * @author kamal
- */
 @Path("/definition/fetchCookbook")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
