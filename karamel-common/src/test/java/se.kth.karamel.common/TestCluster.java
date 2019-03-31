@@ -6,8 +6,10 @@ import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.Constructor;
 import se.kth.karamel.common.clusterdef.Cluster;
 import se.kth.karamel.common.clusterdef.Cookbook;
+import se.kth.karamel.common.exception.KaramelException;
 
 import java.io.IOException;
+import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
@@ -54,5 +56,18 @@ public class TestCluster {
     Cookbook gitChef = cluster.getCookbooks().get("git-chef");
     assertEquals(Cookbook.CookbookType.GIT, gitChef.getCookbookType());
     assertNull(gitChef.getLocalPath());
+  }
+
+  @Test
+  public void testNestedAttributes() throws IOException, KaramelException {
+    String clusterDefinition = IOUtils.toString(
+        this.getClass().getResourceAsStream("/cluster/testNested.yml"), "UTF-8");
+    Cluster cluster = (Cluster) yaml.load(clusterDefinition);
+
+    Map<String, Object> clusterAttributes = cluster.getAttributes();
+    assertEquals(1, clusterAttributes.size());
+
+    Map<String, Object> groupAttribute = cluster.getGroups().get(0).getAttributes();
+    assertEquals(1, groupAttribute.size());
   }
 }

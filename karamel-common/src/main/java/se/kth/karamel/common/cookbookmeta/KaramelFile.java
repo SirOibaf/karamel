@@ -25,7 +25,10 @@ public final class KaramelFile {
       throw new MetadataParseException(ex.getMessage());
     }
     dependencies = new ArrayList<>();
-    dependencies.addAll(file.getDependencies());
+
+    if (file != null) {
+      dependencies.addAll(file.getDependencies());
+    }
   }
 
   public KaramelFileYamlDeps getDependency(String recipeName) {

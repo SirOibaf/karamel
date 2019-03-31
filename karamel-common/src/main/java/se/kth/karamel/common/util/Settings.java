@@ -15,13 +15,9 @@ public class Settings {
 
   // ---- Added by Fabio
   public static final String WORKING_DIR = "/tmp/karamel";
-  public static final boolean USE_CLONED_REPO_FILES = true;
   public static final String GITHUB_BASE_URL = "https://github.com";
 
   private static final Logger logger = Logger.getLogger(Settings.class);
-
-  //test
-  public static boolean CB_CLASSPATH_MODE = false;
 
   //read
   public static final String ATTR_DELIMITER = "/";
@@ -29,11 +25,6 @@ public class Settings {
   public static final String INSTALL_RECIPE = "install";
   public static final String DEFAULT_RECIPE = "default";
   public static final String PURGE_RECIPE = "purge";
-  public static final String HTTP_PREFIX = "http://";
-  public static final String HTTPS_PREFIX = "https://";
-  public static final String SLASH = "/";
-  public static final String DOLLAR = "$";
-  public static final String CARET = "^";
   public static final int DAY_IN_MS = 24 * 3600 * 1000;
   public static final int DAY_IN_MIN = 24 * 60;
   public static final int SEC_IN_MS = 1000;

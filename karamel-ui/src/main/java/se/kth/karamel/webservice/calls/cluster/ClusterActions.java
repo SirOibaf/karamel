@@ -1,15 +1,19 @@
 package se.kth.karamel.webservice.calls.cluster;
 
-import javax.xml.bind.annotation.XmlEnum;
-
-@XmlEnum
 public enum ClusterActions {
-  VALIDATE,
-  START,
-  PAUSE,
-  STOP;
+  VALIDATE("validate"),
+  START("start"),
+  PAUSE("pause"),
+  STOP("stop");
 
-  public static ClusterActions fromString(String action) {
-    return valueOf(action.toUpperCase());
+  private String value = null;
+
+  ClusterActions(String value) {
+    this.value = value;
+  }
+
+  @Override
+  public String toString() {
+    return this.value;
   }
 }

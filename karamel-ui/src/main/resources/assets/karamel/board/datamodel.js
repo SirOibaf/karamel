@@ -19,7 +19,6 @@ function Cluster() {
 
   this.removeCookbook = function(cookbook) {
     var id = -1;
-   // In this we can also override the equals method in the cookbook object and then call the equals method TODO :==============
     for (var i = 0; i < this.rootCookbooks.length; i++) {
       if (this.rootCookbooks[i].id === cookbook.id) {
         id = i;

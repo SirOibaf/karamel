@@ -167,7 +167,7 @@ public class TrayUI extends TrayIcon implements PropertyChangeListener {
 
     setJPopupMenu(createJPopupMenu());
     try {
-            // TODO: Bug in setting transparency of SystemTray Icon in 
+      // TODO: Bug in setting transparency of SystemTray Icon in
       // Linux - http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6453521
       SystemTray.getSystemTray().add(this);
     } catch (AWTException e) {

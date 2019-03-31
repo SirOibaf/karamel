@@ -8,7 +8,6 @@ import java.util.Map;
 
 import se.kth.karamel.common.cookbookmeta.CookbookCache;
 import se.kth.karamel.common.exception.KaramelException;
-import se.kth.karamel.common.exception.ValidationException;
 import se.kth.karamel.common.util.AttributesValidator;
 
 public class Cluster extends Scope {
@@ -44,7 +43,7 @@ public class Cluster extends Scope {
   }
 
   @Override
-  public void validate() throws ValidationException, KaramelException {
+  public void validate() throws KaramelException {
     super.validate();
 
     // Validate cookbooks
@@ -60,7 +59,7 @@ public class Cluster extends Scope {
     }
 
     // Validate Attributes
-    (new AttributesValidator()).validateAttributes(attributes);
+    AttributesValidator.validateAttributes(attributes);
 
     // Validate Groups
     // TODO(Fabio) validate that there are not more than 2 groups with the same name

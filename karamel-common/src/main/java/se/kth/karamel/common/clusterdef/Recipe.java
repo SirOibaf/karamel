@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import se.kth.karamel.common.cookbookmeta.CookbookCache;
 import se.kth.karamel.common.cookbookmeta.KaramelizedCookbook;
 import se.kth.karamel.common.exception.KaramelException;
+import se.kth.karamel.common.exception.ValidationException;
 import se.kth.karamel.common.util.Settings;
 
 public class Recipe implements Comparable<Recipe>{
@@ -56,11 +57,21 @@ public class Recipe implements Comparable<Recipe>{
 
   public void validate() throws KaramelException {
     CookbookCache cache = CookbookCache.getInstance();
-    String cookbookName = name;
-    if (name.contains(Settings.COOKBOOK_DELIMITER)) {
-      cookbookName = name.split(Settings.COOKBOOK_DELIMITER)[0];
+    String recipeName = name;
+
+    if (!name.contains(Settings.COOKBOOK_DELIMITER)) {
+      recipeName = recipeName + Settings.COOKBOOK_DELIMITER +  Settings.DEFAULT_RECIPE;
+      cookbook = cache.get(name);
+    } else {
+      cookbook = cache.get(name.split(Settings.COOKBOOK_DELIMITER)[0]);
     }
 
-    cookbook = cache.get(cookbookName);
+    for (String rName : cookbook.getMetadataRb().getRecipes().keySet()) {
+      if (recipeName.equals(rName)) {
+        return;
+      }
+    }
+
+    throw new ValidationException("Recipe: " + getCanonicalName() + " does not exists");
   }
 }

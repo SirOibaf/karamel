@@ -3,6 +3,7 @@ package se.kth.karamel.common.clusterdef;
 import se.kth.karamel.common.exception.KaramelException;
 import se.kth.karamel.common.exception.ValidationException;
 
+import java.util.HashMap;
 import java.util.Map;
 
 public class Scope {
@@ -14,7 +15,7 @@ public class Scope {
   private Nova nova;
   private Occi occi;
 
-  protected Map<String, Object> attributes;
+  protected Map<String, Object> attributes = new HashMap<>();
 
   public Scope() {
   }

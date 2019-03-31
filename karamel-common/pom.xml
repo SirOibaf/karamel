@@ -28,6 +28,7 @@
       <artifactId>slf4j-log4j12</artifactId>
       <version>1.7.7</version>
     </dependency>
+    <!-- TODO(Fabio): Update guava version, File marked as unstable -->
     <dependency>
       <groupId>com.google.guava</groupId>
       <artifactId>guava</artifactId>

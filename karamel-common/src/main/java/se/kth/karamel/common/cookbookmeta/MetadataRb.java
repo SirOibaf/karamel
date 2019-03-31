@@ -1,23 +1,27 @@
 package se.kth.karamel.common.cookbookmeta;
 
-import java.util.ArrayList;
-import java.util.List;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
+import java.util.HashMap;
+import java.util.Map;
+
+// Ignore all the properties not specified in this class
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class MetadataRb {
 
   private String name;
   private String description;
   private String version;
-  private List<Recipe> recipes = new ArrayList<>();
-  private List<Attribute> attributes = new ArrayList<>();
+  private Map<String, String> recipes = new HashMap<>();
+  private Map<String, Attribute> attributes = new HashMap<>();
 
   public MetadataRb() { }
 
-  public void setAttributes(List<Attribute> attributes) {
+  public void setAttributes(Map<String, Attribute> attributes) {
     this.attributes = attributes;
   }
   
-  public List<Attribute> getAttributes() {
+  public Map<String,Attribute> getAttributes() {
     return attributes;
   }
   
@@ -37,11 +41,11 @@ public class MetadataRb {
     return name;
   }
   
-  public void setRecipes(List<Recipe> recipes) {
+  public void setRecipes(Map<String, String> recipes) {
     this.recipes = recipes;
   }
   
-  public List<Recipe> getRecipes() {
+  public Map<String, String> getRecipes() {
     return recipes;
   }
   

@@ -40,7 +40,6 @@ import se.kth.karamel.common.exception.KaramelException;
 import se.kth.karamel.common.util.SshKeyPair;
 import se.kth.karamel.webservice.calls.cluster.ClusterService;
 import se.kth.karamel.webservice.calls.cluster.UploadService;
-import se.kth.karamel.webservice.calls.definition.FetchCookbook;
 import se.kth.karamel.webservice.calls.ec2.LoadEc2Credentials;
 import se.kth.karamel.webservice.calls.ec2.ValidateEc2Credentials;
 import se.kth.karamel.webservice.calls.gce.LoadGceCredentials;
@@ -213,7 +212,6 @@ public class KaramelServiceApplication extends Application<KaramelServiceConfigu
     //definitions
 
     environment.jersey().register(new UploadService(karamelApi));
-    environment.jersey().register(new FetchCookbook(karamelApi));
 
     //ssh
     environment.jersey().register(new LoadSshKeys(karamelApi));

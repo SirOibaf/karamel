@@ -18,7 +18,6 @@ import se.kth.karamel.backend.launcher.novav3.NovaV3Launcher;
 import se.kth.karamel.backend.launcher.occi.OcciContext;
 import se.kth.karamel.backend.launcher.occi.OcciLauncher;
 import se.kth.karamel.common.clusterdef.Cluster;
-import se.kth.karamel.common.cookbookmeta.CookbookCache;
 import se.kth.karamel.common.exception.InvalidNovaCredentialsException;
 import se.kth.karamel.common.exception.InvalidOcciCredentialsException;
 import se.kth.karamel.common.exception.KaramelException;
@@ -51,11 +50,6 @@ public class KaramelApiImpl implements KaramelApi {
   @Override
   public Cluster getCluster() {
     return clusterService.getCurrentCluster();
-  }
-
-  @Override
-  public String getCookbookDetails(String cookbookName) throws KaramelException {
-    return CookbookCache.getInstance().get(cookbookName).getInfoJson();
   }
 
   @Override

@@ -72,7 +72,7 @@ public class Group extends Scope {
     }
 
     // Validate Group attributes
-    (new AttributesValidator()).validateAttributes(attributes);
+    AttributesValidator.validateAttributes(attributes);
   }
 
   @JsonIgnore

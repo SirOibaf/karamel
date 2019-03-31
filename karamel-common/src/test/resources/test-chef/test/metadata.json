@@ -1,0 +1,135 @@
+{
+  "name": "test",
+  "description": "Installs/Configures test-chef",
+  "long_description": "Installs/Configures test-chef",
+  "maintainer": "The Authors",
+  "maintainer_email": "you@example.com",
+  "license": "All Rights Reserved",
+  "platforms": {
+
+  },
+  "dependencies": {
+
+  },
+  "providing": {
+
+  },
+  "attributes": {
+    "test/attribute": {
+      "description": "attribute1",
+      "type": "string",
+      "choice": [
+
+      ],
+      "calculated": false,
+      "required": "optional",
+      "recipes": [
+
+      ]
+    },
+    "test/nested/attribute": {
+      "description": "nested attribute",
+      "type": "string",
+      "choice": [
+
+      ],
+      "calculated": false,
+      "required": "optional",
+      "recipes": [
+
+      ]
+    },
+    "test/default_attribute": {
+      "description": "nested attribute",
+      "default": "default",
+      "type": "string",
+      "choice": [
+
+      ],
+      "calculated": false,
+      "required": "optional",
+      "recipes": [
+
+      ]
+    },
+    "test/required_attribute": {
+      "description": "nested attribute",
+      "required": "required",
+      "type": "string",
+      "choice": [
+
+      ],
+      "calculated": false,
+      "recipes": [
+
+      ]
+    },
+    "test/numeric_attribute": {
+      "description": "numeric_attribute",
+      "type": "numeric",
+      "choice": [
+
+      ],
+      "calculated": false,
+      "required": "optional",
+      "recipes": [
+
+      ]
+    },
+    "test/boolean_attribute": {
+      "description": "boolean attribute",
+      "type": "boolean",
+      "choice": [
+
+      ],
+      "calculated": false,
+      "required": "optional",
+      "recipes": [
+
+      ]
+    },
+    "test/array_attribute": {
+      "description": "array attribute",
+      "type": "array",
+      "choice": [
+
+      ],
+      "calculated": false,
+      "required": "optional",
+      "recipes": [
+
+      ]
+    },
+    "test/hash_attribute": {
+      "description": "hash attribute",
+      "type": "hash",
+      "choice": [
+
+      ],
+      "calculated": false,
+      "required": "optional",
+      "recipes": [
+
+      ]
+    }
+  },
+  "recipes": {
+    "test::install": "Install the test recipe",
+    "test::default": "Default recipe"
+  },
+  "version": "0.1.0",
+  "source_url": "",
+  "issues_url": "",
+  "privacy": false,
+  "chef_versions": [
+    [
+      ">= 13.0"
+    ]
+  ],
+  "ohai_versions": [
+
+  ],
+  "gems": [
+
+  ]
+}

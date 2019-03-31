@@ -87,6 +87,7 @@ public class CookbookCache {
 
     for (Map.Entry<String, Cookbook> cookbook : rootCookbooks.entrySet()) {
       if (cookbook.getValue().getCookbookType() == GIT) {
+        // TODO(Fabio): make sure berks can vendor multiple times into the same dir
         cloneAndVendorCookbook(cookbook);
       } else {
         // Build cookbook objects for local cookbook
@@ -94,7 +95,7 @@ public class CookbookCache {
       }
     }
 
-    // Load all cookbooks which were vendored
+    // Load all cookbooks which were cloned from GIT
     buildCookbookObjects(Settings.WORKING_DIR);
 
     return new ArrayList<>(cookbooks.values());
@@ -135,11 +136,11 @@ public class CookbookCache {
   }
 
   private void buildCookbookObjects(String cookbooksPath) throws KaramelException {
-    try (Stream<Path> paths = Files.find(Paths.get(Settings.WORKING_DIR),
+    try (Stream<Path> paths = Files.find(Paths.get(cookbooksPath),
         Integer.MAX_VALUE, (path, attributes) -> attributes.isDirectory())) {
       paths.forEach(path -> {
           File rawKaramelFile = path.resolve("Karamelfile").toFile();
-          File rawMetadataRb = path.resolve("metadata.rb").toFile();
+          File rawMetadataRb = path.resolve("metadata.json").toFile();
           if (rawKaramelFile.exists()) {
             try {
               KaramelFile karamelFile = new KaramelFile(com.google.common.io.Files.toString(
