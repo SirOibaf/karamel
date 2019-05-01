@@ -6,17 +6,17 @@ import org.jclouds.domain.Credentials;
 import org.jclouds.openstack.nova.v2_0.NovaApiMetadata;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.Constructor;
-import se.kth.karamel.backend.ClusterService;
-import se.kth.karamel.backend.launcher.amazon.Ec2Context;
-import se.kth.karamel.backend.launcher.amazon.Ec2Launcher;
-import se.kth.karamel.backend.launcher.google.GceContext;
-import se.kth.karamel.backend.launcher.google.GceLauncher;
-import se.kth.karamel.backend.launcher.nova.NovaContext;
-import se.kth.karamel.backend.launcher.nova.NovaLauncher;
-import se.kth.karamel.backend.launcher.novav3.NovaV3Context;
-import se.kth.karamel.backend.launcher.novav3.NovaV3Launcher;
-import se.kth.karamel.backend.launcher.occi.OcciContext;
-import se.kth.karamel.backend.launcher.occi.OcciLauncher;
+import se.kth.karamel.core.ClusterService;
+import se.kth.karamel.core.launcher.amazon.Ec2Context;
+import se.kth.karamel.core.launcher.amazon.Ec2Launcher;
+import se.kth.karamel.core.launcher.google.GceContext;
+import se.kth.karamel.core.launcher.google.GceLauncher;
+import se.kth.karamel.core.launcher.nova.NovaContext;
+import se.kth.karamel.core.launcher.nova.NovaLauncher;
+import se.kth.karamel.core.launcher.novav3.NovaV3Context;
+import se.kth.karamel.core.launcher.novav3.NovaV3Launcher;
+import se.kth.karamel.core.launcher.occi.OcciContext;
+import se.kth.karamel.core.launcher.occi.OcciLauncher;
 import se.kth.karamel.common.clusterdef.Cluster;
 import se.kth.karamel.common.exception.InvalidNovaCredentialsException;
 import se.kth.karamel.common.exception.InvalidOcciCredentialsException;
@@ -164,8 +164,8 @@ public class KaramelApiImpl implements KaramelApi {
   }
 
   @Override
-  public void startCluster(Cluster cluster) throws KaramelException {
-    clusterService.startCluster(cluster);
+  public void startCluster() throws KaramelException {
+    clusterService.startCluster();
   }
 
   @Override

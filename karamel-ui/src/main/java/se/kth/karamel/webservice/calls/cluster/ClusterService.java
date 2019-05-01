@@ -38,6 +38,10 @@ public class ClusterService extends AbstractCall {
     switch (action) {
       case VALIDATE:
         karamelApi.getCluster().validate();
+        // If the cluster is valid, no exceptions are thrown, so respond OK
+        return Response.ok().build();
+      case START:
+        karamelApi.startCluster();
         return Response.ok().build();
       default:
         throw new NotImplementedException("Action not implemented yet");

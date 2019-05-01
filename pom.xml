@@ -7,7 +7,6 @@
   <packaging>pom</packaging>
   <version>0.5</version>
   <name>karamel-parent</name>
-  <url>http://maven.apache.org</url>
 
   <!-- Modules in the Project.-->
   <modules>
@@ -21,21 +20,11 @@
     <jclouds.version>2.1.0</jclouds.version>
     <java.compiler.version>1.8</java.compiler.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <lombok.version>1.18.6</lombok.version>
   </properties>
 
   <dependencies>
-    <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <version>4.12</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.mockito</groupId>
-      <artifactId>mockito-all</artifactId>
-      <version>1.9.5</version>
-      <scope>test</scope>
-    </dependency>
+
   </dependencies>
 
   <developers>
@@ -99,6 +88,24 @@
         <groupId>se.kth</groupId>
         <artifactId>karamel-core</artifactId>
         <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>junit</groupId>
+        <artifactId>junit</artifactId>
+        <version>4.12</version>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.mockito</groupId>
+        <artifactId>mockito-all</artifactId>
+        <version>1.9.5</version>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.projectlombok</groupId>
+        <artifactId>lombok</artifactId>
+        <version>${lombok.version}</version>
+        <scope>provided</scope>
       </dependency>
     </dependencies>
   </dependencyManagement>

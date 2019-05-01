@@ -1,18 +1,9 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package se.kth.karamel.common.clusterdef;
 
 import se.kth.karamel.common.util.Settings;
 import se.kth.karamel.common.exception.ValidationException;
 import se.kth.karamel.common.launcher.amazon.Region;
 
-/**
- *
- * @author kamal
- */
 public class Ec2 extends Provider {
 
   private String type;

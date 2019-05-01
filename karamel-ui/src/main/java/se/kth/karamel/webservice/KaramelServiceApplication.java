@@ -31,8 +31,8 @@ import org.eclipse.jetty.server.AbstractNetworkConnector;
 import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlets.CrossOriginFilter;
-import se.kth.karamel.backend.ClusterDefinitionService;
-import se.kth.karamel.backend.ClusterManager;
+import se.kth.karamel.core.ClusterDefinitionService;
+import se.kth.karamel.core.ClusterManager;
 import se.kth.karamel.client.api.KaramelApi;
 import se.kth.karamel.client.api.KaramelApiImpl;
 

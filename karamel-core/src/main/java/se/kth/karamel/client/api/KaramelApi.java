@@ -81,13 +81,11 @@ public interface KaramelApi {
   boolean updateEc2CredentialsIfValid(Ec2Credentials credentials) throws KaramelException;
 
   /**
-   * Starts running the cluster by launching machines and installing softwares It expect to receive a complete
-   * cluster-json for the cluster.
+   * Starts running the cluster by launching machines and installing software
    *
-   * @param Cluster to run
    * @throws KaramelException
    */
-  void startCluster(Cluster Cluster) throws KaramelException;
+  void startCluster() throws KaramelException;
 
   /**
    * In case user wants to pause the running cluster for inspection reasons. It implies that machines won't receive any

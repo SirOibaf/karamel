@@ -1,334 +1,82 @@
 package se.kth.karamel.common.util;
 
-import org.apache.log4j.Logger;
-import org.jclouds.aws.domain.Region;
-import org.jclouds.ec2.domain.InstanceType;
+import org.apache.commons.io.FileUtils;
 
 import java.io.File;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-import java.util.ArrayList;
+import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.Arrays;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 public class Settings {
 
-  // ---- Added by Fabio
-  public static final String WORKING_DIR = "/tmp/karamel";
-  public static final String GITHUB_BASE_URL = "https://github.com";
+  private static final Logger LOGGER = Logger.getLogger(Settings.class.getName());
 
-  private static final Logger logger = Logger.getLogger(Settings.class);
+  public enum SettingsKeys {
+    WORKING_DIR("karamel.working.dir", "/tmp/karamel"),
+    CHEFDK_VERSION_KEY("karamel.chefdk.version", "2.3.1"),
 
-  //read
-  public static final String ATTR_DELIMITER = "/";
-  public static final String COOKBOOK_DELIMITER = "::";
-  public static final String INSTALL_RECIPE = "install";
-  public static final String DEFAULT_RECIPE = "default";
-  public static final String PURGE_RECIPE = "purge";
-  public static final int DAY_IN_MS = 24 * 3600 * 1000;
-  public static final int DAY_IN_MIN = 24 * 60;
-  public static final int SEC_IN_MS = 1000;
-  public static final int MIN_IN_MS = 60 * SEC_IN_MS;
-  public static final String IP_REGEX = "^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)"
-      + "\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)"
-      + "\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)"
-      + "\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$";
+    // TODO(Fabio): what is this supposed to do?
+    SKIP_EXISTINGTASKS_KEY("karamel.skip.existing.tasks", "false"),
 
-  //------------------------------Cluster Runtime Dynamics--------------------------------------------------------------
-  public static final int INSTALLATION_DAG_THREADPOOL_SIZE = 100;
-  public static final int CLUSTER_STATUS_CHECKING_INTERVAL = 1000;
-  public static final int CLUSTER_FAILURE_DETECTION_INTERVAL = 5000;
-  public static final int CLUSTER_STAT_REPORT_INTERVAL = Settings.MIN_IN_MS;
-  public static final int MACHINE_TASKRUNNER_BUSYWAITING_INTERVALS = 100;
-  public static final int MACHINES_TASKQUEUE_SIZE = 100;
-  public static final int SSH_CONNECTION_TIMEOUT = DAY_IN_MS;
-  public static final int SSH_SESSION_TIMEOUT = DAY_IN_MS;
-  public static final int SSH_PING_INTERVAL = 10 * SEC_IN_MS;
-  public static final int SSH_SESSION_RETRY_NUM = 10;
-  public static final int SSH_CMD_RETRY_NUM = 2;
-  public static final int SSH_CMD_RETRY_INTERVALS = 3 * SEC_IN_MS;
-  public static final float SSH_CMD_RETRY_SCALE = 1.5f;
-  public static final int SSH_CMD_MAX_TIOMEOUT = DAY_IN_MIN;
-  public static final String CHEFDK_VERSION_KEY = "chefdk.version";
-  public static final String CHEFDK_VERSION_DEFAULT = "2.3.1";
+    // AWS specific configurations
+    PREPARE_STORAGES_KEY("karamel.prepare.storages", "false"),
 
-  //-----------------------------------------------JCLOUDS--------------------------------------------------------------
-  public static final int JCLOUDS_PROPERTY_MAX_RETRIES = 100;
-  public static final int JCLOUDS_PROPERTY_RETRY_DELAY_START = 1000; //ms
-  public static final int EC2_MAX_FORK_VMS_PER_REQUEST = 50;
+    // Chef solo configuration
+    SOLO_FILE_CACHE_PATH("solo.file_cache_path", "/tmp/chef-solo");
 
-  //-------------------------------------------Shell script templates---------------------------------------------------
-  public static final String SCRIPT_PATH_ROOT = "se/kth/karamel/backend/shellscripts/";
-  public static final String SCRIPT_PATH_APTGET_ESSENTIALS = SCRIPT_PATH_ROOT + "aptget_essentials.sc";
-  public static final String SCRIPT_FIND_OSTYPE = SCRIPT_PATH_ROOT + "find_ostype.sc";
-  public static final String SCRIPT_PATH_CLONE_VENDOR_COOKBOOK = SCRIPT_PATH_ROOT + "clone_vendor_cookbook.sb";
-  public static final String SCRIPET_PATH_PREPARE_STORAGE = SCRIPT_PATH_ROOT + "prepare_storages.sh";
-  public static final String SCRIPT_NAME_INSTALL_CHEFDK = "install_chefdk.sh";
-  public static final String SCRIPT_PATH_INSTALL_CHEFDK = SCRIPT_PATH_ROOT
-      + SCRIPT_NAME_INSTALL_CHEFDK;
-  public static final String SCRIPT_PATH_MAKE_SOLO_RB = SCRIPT_PATH_ROOT + "make_solo_rb.sc";
-  public static final String SCRIPT_PATH_RUN_RECIPE = SCRIPT_PATH_ROOT + "run_recipe.sc";
-  public static final String SCRIPT_PATH_KILL_RUNNING_SESSION = SCRIPT_PATH_ROOT + "kill_current_session.sh";
+    public String keyName;
+    public String defaultValue;
 
-  //----------------------------------------Providers General-----------------------------------------------------------
-  public static final String UNIQUE_GROUP_NAME(String provider, String clusterName, String groupName) {
-    return (provider + USER_NAME + "-" + clusterName + "-" + groupName).toLowerCase();
-  }
-
-  public static final List<String> UNIQUE_VM_NAMES(String provider, String clusterName, String groupName, int size) {
-    List<String> names = new ArrayList<>();
-    for (int i = 1; i <= size; i++) {
-      names.add(UNIQUE_GROUP_NAME(provider, clusterName, groupName) + "-" + i);
+    SettingsKeys(String keyName, String defaultValue) {
+      this.keyName = keyName;
+      this.defaultValue = defaultValue;
     }
-    return names;
+
   }
 
-  public static final String PREPARE_STORAGES_KEY = "karamel.prepare.storages";
-  public static final String PREPARE_STORAGES_DEFAULT = "false";
-  public static final String SKIP_EXISTINGTASKS_KEY = "karamel.skip.existing.tasks";
-  public static final String SKIP_EXISTINGTASKS_DEFAULT = "false";
+  private Map<String, String> confMap = new HashMap<>();
 
-  //--------------------------------------------Baremetal---------------------------------------------------------------
-  public static final String PROVIDER_BAREMETAL_DEFAULT_USERNAME = "root";
-  public static final int BAREMETAL_DEFAULT_SSH_PORT = 22;
-
-  //--------------------------------------------AWS EC2-----------------------------------------------------------------
-  public static final String AWS_VM_TYPE_DEFAULT = InstanceType.M3_MEDIUM;
-  public static final String AWS_REGION_CODE_DEFAULT = Region.EU_WEST_1;
-  public static final String AWS_VM_USERNAME_DEFAULT = "ubuntu";
-  public static final String AWS_STORAGE_MAPPINGNAME_PREFIX = "/dev/sd";
-  public static final String AWS_STORAGE_VIRTUALNAME_PREFIX = "ephemeral";
-  public static final String AWS_STORAGE_KERNELALIAS_PREFIX = "/dev/xvd";
-  public static final String AWS_STORAGE_MOUNTPOINT_PREFIX = "/mnt/disk";
-  public static final List<String> AWS_VM_PORTS_DEFAULT = Arrays.asList(new String[]{"22"});
-  public static final String AWS_GEOUPNAME_PATTERN = "[a-z0-9][[a-z0-9]|[-]]*";
-
-  public static final String AWS_ACCESSKEY_KEY = "aws.access.key";
-  public static final String AWS_ACCESSKEY_ENV_VAR = "AWS_ACCESS_KEY_ID";
-  public static final String AWS_SECRETKEY_KEY = "aws.secret.key";
-  public static final String AWS_SECRETKEY_ENV_VAR = "AWS_SECRET_ACCESS_KEY";
-  public static final Integer AWS_BATCH_SIZE_DEFAULT = 1;
-  public static final String AWS_BATCH_SIZE_KEY = "aws.batch.size";
-  public static final int AWS_RETRY_INTERVAL = 6 * 1000;
-  public static final int AWS_RETRY_MAX = 300;
-
-  public static final String AWS_KEYPAIR_NAME(String clusterName, String region) {
-    return (USER_NAME + "-" + clusterName + "-" + region + "-" + OS_NAME + "-" + IP_ADDRESS).toLowerCase();
-  }
-
-  public static final String AWS_UNIQUE_GROUP_NAME(String clusterName, String groupName) {
-    return (USER_NAME + "-" + clusterName + "-" + groupName).toLowerCase();
-  }
-
-  public static final List<String> AWS_UNIQUE_VM_NAMES(String clusterName, String groupName, int startCount, int size) {
-    List<String> names = new ArrayList<>();
-    for (int i = startCount; i <= size; i++) {
-      names.add(AWS_UNIQUE_GROUP_NAME(clusterName, groupName) + "-" + i);
+  public Settings() throws IOException {
+    // Apply defaults
+    for (SettingsKeys settingsKeys : SettingsKeys.values()) {
+      confMap.put(settingsKeys.keyName, settingsKeys.defaultValue);
     }
-    return names;
-  }
 
-  public static final int AWS_VM_BATCH_SIZE() {
-    Confs confs = Confs.loadKaramelConfs();
-    int batchSize = Settings.AWS_BATCH_SIZE_DEFAULT;
-    if (confs != null && confs.getProperty(Settings.AWS_BATCH_SIZE_KEY) != null) {
-      try {
-        batchSize = Integer.parseInt(confs.getProperty(Settings.AWS_BATCH_SIZE_KEY));
-      } catch (NumberFormatException ex) {
-        logger.warn("Batch size in karamel config file is not a valid integer");
+    // Parse the configuration file in KARAMEL_HOME/conf/karamel.conf
+    File confFile = Paths.get(System.getenv(Constants.KARAMEL_HOME),
+        Constants.KARAMEL_CONF_DIRNAME,
+        Constants.KARAMEL_CONF_NAME).toFile();
+
+    String confContent = FileUtils.readFileToString(confFile);
+
+    Set<String> validConfigurations = Arrays.stream(SettingsKeys.values())
+        .map(settingsKeys -> settingsKeys.keyName).collect(Collectors.toSet());
+
+    // Iterate over specified configuration, if configuration doesn't exists, log a message
+    for (String conf : confContent.split("\n")) {
+      String[] confSplits = conf.split("=");
+
+      if (confSplits.length  != 2) {
+        LOGGER.log(Level.INFO, "Error processing: " + conf);
+      } else if (!validConfigurations.contains(confSplits[0])) {
+        LOGGER.log(Level.INFO, "Unrecognized property: " + confSplits[0]);
+      } else {
+        confMap.put(confSplits[0], confSplits[1]);
       }
     }
-    return batchSize;
   }
 
-  //--------------------------------------Google Compute Engine---------------------------------------------------------
-  public static final String GCE_JSON_KEY_FILE_PATH = "gce.jsonkey.path";
-  public static final String GCE_DEFAULT_IP_RANGE = "10.240.0.0/16";
-
-  public static final String GCE_UNIQUE_FIREWALL_NAME(String networkName, String port, String protocol) {
-    return (networkName + "-" + protocol + port).toLowerCase();
+  public Map<String, String> getConfMap() {
+    return this.confMap;
   }
 
-  //--------------------------------------OCCI Engine---------------------------------------------------------
-  public static final String OCCI_DEFAULT_USERNAME = "ubuntu";
-  public static final String OCCI_DEFAULT_ENDPOINT = "https://carach5.ics.muni.cz:11443";
-  public static final String OCCI_DEFAULT_IMAGE = "uuid_training_ubuntu_server_12_04_lts_fedcloud_warg_122";
-  public static final String OCCI_DEFAULT_IMAGE_SIZE = "atlas";
-  public static final String OCCI_USER_CERTIFICATE_PATH = "/tmp/x509up_u1000";
-  public static final String OCCI_CERTIFICATE_DIR = "/etc/grid-security/certificates/";
-
-  // ---------------------------------Cookbooks Scaffolding on Karamel Machine------------------------------------------
-  public static final String CB_TEMPLATE_PATH_ROOT = "se" + File.separator + "kth" + File.separator + "karamel"
-      + File.separator + "backend" + File.separator + "templates" + File.separator;
-  public static final String CB_TEMPLATE_RECIPE_INSTALL = CB_TEMPLATE_PATH_ROOT + "recipe_install";
-  public static final String CB_TEMPLATE_METADATA = CB_TEMPLATE_PATH_ROOT + "metadata";
-  public static final String CB_TEMPLATE_BERKSFILE = CB_TEMPLATE_PATH_ROOT + "Berksfile";
-  public static final String CB_TEMPLATE_README = CB_TEMPLATE_PATH_ROOT + "README.md";
-  public static final String CB_TEMPLATE_ATTRIBUTES_DEFAULT = CB_TEMPLATE_PATH_ROOT + "attributes_default";
-
-  // Relative file locations of files in cookbook scaffolding
-  public static final String COOKBOOK_DEFAULTRB_REL_PATH = File.separator + "attributes" + File.separator
-      + "default.rb";
-  public static final String COOKBOOK_METADATARB_REL_PATH = File.separator + "metadata.rb";
-  public static final String COOKBOOK_BERKSFILE_REL_PATH = File.separator + "Berksfile";
-  public static final String COOKBOOK_README_PATH = File.separator + "README.md";
-  public static final String COOKBOOK_RECIPE_INSTALL_PATH = File.separator + "recipes" + File.separator
-      + INSTALL_RECIPE + ".rb";
-
-  public static final String METADATA_INCOMMENT_HOST_KEY = "%host%";
-
-  //-----------------------------------------Machine General------------------------------------------------------------
-  public static final String TMP_FOLDER_NAME = "tmp";
-  public static final String PID_FILE_NAME = "pid";
-  public static final String OSTYPE_FILE_NAME = "ostype";
-  public static final String SYSTEM_TMP_FOLDER_PATH = "/" + TMP_FOLDER_NAME;
-  public static final String SUCCEED_TASKLIST_FILENAME = "succeed_list";
-
-  //--------------------------------Target Macines----------------------------------------------------------------------
-  public static final String REMOTE_COOKBOOKS_DIR_NAME = "cookbooks";
-  public static final String REMOTE_HOME_ROOT = "/home";
-  public static final String REMOTE_CB_FS_PATH_DELIMITER = "__";
-  public final static String REMOTE_CHEFJSON_PRIVATEIPS_TAG = "private_ips";
-  public final static String REMOTE_CHEFJSON_PUBLICIPS_TAG = "public_ips";
-  public final static String REMOTE_CHEFJSON_HOSTS_TAG = "hosts";
-  public static final String REMOTE_CHEFJSON_RUNLIST_TAG = "run_list";
-  public static final String REMOTE_WORKING_DIR_NAME = ".karamel";
-  public static final String REMOTE_INSTALL_DIR_NAME = "install";
-
-  public static String RECIPE_RESULT_REMOTE_PATH(String recipeName) {
-    String recName;
-    if (!recipeName.contains(COOKBOOK_DELIMITER)) {
-      recName = recipeName + COOKBOOK_DELIMITER + "default";
-    } else {
-      recName = recipeName;
-    }
-
-    return Settings.SYSTEM_TMP_FOLDER_PATH + "/"
-        + recName.replace(COOKBOOK_DELIMITER, REMOTE_CB_FS_PATH_DELIMITER) + RECIPE_RESULT_POSFIX;
-  }
-
-  public static String REMOTE_USER_HOME_PATH(String sshUserName) {
-    return REMOTE_HOME_ROOT + "/" + sshUserName;
-  }
-
-  public static String REMOTE_WORKING_DIR_PATH(String sshUserName) {
-    return REMOTE_USER_HOME_PATH(sshUserName) + "/" + REMOTE_WORKING_DIR_NAME;
-  }
-
-  public static String REMOTE_INSTALL_DIR_PATH(String sshUserName) {
-    return REMOTE_WORKING_DIR_PATH(sshUserName) + "/" + REMOTE_INSTALL_DIR_NAME;
-  }
-
-  public static String REMOTE_COOKBOOKS_PATH(String sshUserName) {
-    return REMOTE_WORKING_DIR_PATH(sshUserName) + "/" + REMOTE_COOKBOOKS_DIR_NAME;
-  }
-
-  public static String REMOTE_COOKBOOK_VENDOR_PATH(String sshUserName, String repoName) {
-    return REMOTE_COOKBOOKS_PATH(sshUserName) + "/" + repoName + "_vendor";
-  }
-
-  public static String REMOTE_SUCCEEDTASKS_PATH(String sshUserName) {
-    return REMOTE_INSTALL_DIR_PATH(sshUserName) + "/" + SUCCEED_TASKLIST_FILENAME;
-  }
-
-  public static String REMOTE_OSTYPE_PATH(String sshUserName) {
-    return REMOTE_INSTALL_DIR_PATH(sshUserName) + "/" + OSTYPE_FILE_NAME;
-  }
-
-  //------------------------------------------Karamel Machine-----------------------------------------------------------
-  public static final String USER_HOME = System.getProperty("user.home");
-  public static final String USER_NAME = System.getProperty("user.name");
-  public static final String OS_NAME = System.getProperty("os.name");
-  public static final String IP_ADDRESS = loadIpAddress();
-  public static final boolean IS_UNIX_OS = OS_NAME.toLowerCase().contains("mac")
-      || OS_NAME.toLowerCase().contains("linux");
-  public static final String DEFAULT_PUBKEY_PATH = IS_UNIX_OS ? USER_HOME + "/.ssh/id_rsa.pub" : null;
-  public static final String DEFAULT_PRIKEY_PATH = IS_UNIX_OS ? USER_HOME + "/.ssh/id_rsa" : null;
-  public static final String SSH_PUBKEY_PATH_KEY = "ssh.publickey.path";
-  public static final String SSH_PRIVKEY_PATH_KEY = "ssh.privatekey.path";
-  public static final String TEST_CB_ROOT_FOLDER = "testgithub";
-  public static final String KARAMEL_ROOT_PATH = USER_HOME + File.separator + ".karamel";
-  public static final String COOKBOOKS_PATH = KARAMEL_ROOT_PATH + File.separator + "cookbooks";
-  public static final String YAML_FILE_NAME = "definition.yaml";
-  public static final String KARAMEL_CONF_NAME = "conf";
-  public static final String SSH_FOLDER_NAME = ".ssh";
-  public static final String STATS_FOLDER_NAME = "stats";
-  public static final String KARAMEL_SSH_PATH = KARAMEL_ROOT_PATH + File.separator + SSH_FOLDER_NAME;
-  public static final String KARAMEL_TMP_PATH = KARAMEL_ROOT_PATH + File.separator + TMP_FOLDER_NAME;
-  public static final String SSH_PUBKEY_FILENAME = "ida_rsa.pub";
-  public static final String SSH_PRIVKEY_FILENAME = "ida_rsa";
-  public static final String RECIPE_RESULT_POSFIX = "__out.json";
-
-  public static String loadIpAddress() {
-    String address = "UnknownHost";
-    try {
-      address = InetAddress.getLocalHost().getHostAddress();
-    } catch (UnknownHostException ex) {
-    }
-    return address;
-  }
-
-  public static String CLUSTER_LOG_FOLDER(String clusterName) {
-    return CLUSTER_ROOT_PATH(clusterName) + File.separator + "logs";
-  }
-
-  public static String MACHINE_LOG_FOLDER(String clusterName, String machineIp) {
-    return CLUSTER_LOG_FOLDER(clusterName) + File.separator + machineIp;
-  }
-
-  public static String TASK_LOG_FILE_PATH(String clusterName, String machinIp, String taskName) {
-    return MACHINE_LOG_FOLDER(clusterName, machinIp) + File.separator
-        + taskName.toLowerCase().replaceAll("\\W", "_") + ".log";
-  }
-
-  public static String CLUSTER_ROOT_PATH(String clusterName) {
-    return KARAMEL_ROOT_PATH + File.separator + clusterName.toLowerCase();
-  }
-
-  public static String CLUSTER_SSH_PATH(String clusterName) {
-    return CLUSTER_ROOT_PATH(clusterName) + File.separator + SSH_FOLDER_NAME;
-  }
-
-  public static String CLUSTER_YAML_PATH(String clusterName) {
-    return CLUSTER_ROOT_PATH(clusterName) + File.separator + YAML_FILE_NAME;
-  }
-
-  public static String CLUSTER_STATS_FOLDER(String clusterName) {
-    return CLUSTER_ROOT_PATH(clusterName) + File.separator + STATS_FOLDER_NAME;
-  }
-
-  public static String RECIPE_CANONICAL_NAME(String recipeName) {
-    if (!recipeName.contains(COOKBOOK_DELIMITER)) {
-      return recipeName + COOKBOOK_DELIMITER + "default";
-    } else {
-      return recipeName;
-    }
-  }
-
-  public static String CLUSTER_TEMP_FOLDER(String clusterName) {
-    return CLUSTER_ROOT_PATH(clusterName) + File.separator + "tmp";
-  }
-
-  public static String MACHINE_TEMP_FOLDER(String clusterName, String machineIp) {
-    return CLUSTER_TEMP_FOLDER(clusterName) + File.separator + machineIp;
-  }
-
-  public static String MACHINE_SUCCEEDTASKS_PATH(String clusterName, String machineIp) {
-    return MACHINE_TEMP_FOLDER(clusterName, machineIp) + File.separator + SUCCEED_TASKLIST_FILENAME;
-  }
-
-  public static String MACHINE_OSTYPE_PATH(String clusterName, String machineIp) {
-    return MACHINE_TEMP_FOLDER(clusterName, machineIp) + File.separator + OSTYPE_FILE_NAME;
-  }
-
-  public static String RECIPE_RESULT_LOCAL_PATH(String recipeName, String clusterName, String machineIp) {
-    String recName;
-    if (!recipeName.contains(COOKBOOK_DELIMITER)) {
-      recName = recipeName + COOKBOOK_DELIMITER + "default";
-    } else {
-      recName = recipeName;
-    }
-    return MACHINE_TEMP_FOLDER(clusterName, machineIp) + File.separator
-        + recName.replace(COOKBOOK_DELIMITER, REMOTE_CB_FS_PATH_DELIMITER) + RECIPE_RESULT_POSFIX;
+  public String get(SettingsKeys key) {
+    return confMap.get(key.keyName);
   }
 }

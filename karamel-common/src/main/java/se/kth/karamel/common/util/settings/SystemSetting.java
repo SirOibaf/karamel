@@ -6,9 +6,6 @@ import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * Created by Alberto on 2015-05-16.
- */
 public enum SystemSetting {
 
   USER_HOME(System.getProperty("user.home")),
