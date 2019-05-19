@@ -4,10 +4,6 @@ import java.io.File;
 import org.apache.log4j.Logger;
 import se.kth.karamel.core.provisioner.jcloud.amazon.Ec2Context;
 import se.kth.karamel.core.provisioner.jcloud.google.GceContext;
-import se.kth.karamel.core.provisioner.jcloud.nova.NovaContext;
-import se.kth.karamel.core.provisioner.jcloud.novav3.NovaV3Context;
-import se.kth.karamel.core.provisioner.jcloud.occi.OcciContext;
-import se.kth.karamel.core.running.model.ClusterRuntime;
 import se.kth.karamel.common.exception.KaramelException;
 import se.kth.karamel.common.clusterdef.Cluster;
 import se.kth.karamel.common.util.SshKeyPair;
@@ -25,7 +21,6 @@ public class ClusterService {
   private final Logger logger = Logger.getLogger(ClusterService.class);
   private ClusterDefinitionService clusterDefinitionService = new ClusterDefinitionService();
 
-  private ClusterManager clusterManager = null;
   private ClusterContext clusterContext = new ClusterContext();
 
   private Cluster currentCluster = null;
@@ -86,64 +81,20 @@ public class ClusterService {
   }
 
   public synchronized void startCluster() throws KaramelException {
-    clusterManager = new ClusterManager(cluster, clusterContext);
-    clusterManager.start();
-    clusterManager.enqueue(ClusterManager.Command.LAUNCH_CLUSTER);
-    clusterManager.enqueue(ClusterManager.Command.SUBMIT_INSTALL_DAG);
   }
 
   public synchronized void submitInstallationDag() throws KaramelException {
-    clusterManager.enqueue(ClusterManager.Command.INTERRUPT_DAG);
-    clusterManager.enqueue(ClusterManager.Command.SUBMIT_INSTALL_DAG);
   }
 
   public synchronized void submitPurgeDag() throws KaramelException {
-    clusterManager.enqueue(ClusterManager.Command.INTERRUPT_DAG);
-    clusterManager.enqueue(ClusterManager.Command.SUBMIT_PURGE_DAG);
   }
 
   public synchronized void pauseDag() throws KaramelException {
-    clusterManager.enqueue(ClusterManager.Command.PAUSE_DAG);
   }
 
   public synchronized void resumeDag() throws KaramelException {
-    clusterManager.enqueue(ClusterManager.Command.RESUME_DAG);
   }
 
   public synchronized void terminateCluster() throws KaramelException {
-    Thread t = new Thread() {
-      @Override
-      public void run() {
-        try {
-          ClusterRuntime runtime = clusterManager.getRuntime();
-          clusterManager.enqueue(ClusterManager.Command.INTERRUPT_CLUSTER);
-          clusterManager.enqueue(ClusterManager.Command.TERMINATE_CLUSTER);
-          while (runtime.getPhase() != ClusterRuntime.ClusterPhases.NOT_STARTED) {
-            Thread.sleep(100);
-          }
-          String name = runtime.getName().toLowerCase();
-          logger.info(String.format("Cluster '%s' terminated, removing it from the list of running clusters",
-              runtime.getName()));
-          clusterManager = null;
-          clusterContext = new ClusterContext();
-        } catch (InterruptedException ex) {
-        } catch (KaramelException ex) {
-          logger.error("", ex);
-        }
-      }
-    };
-    t.start();
-  }
-
-  public synchronized void registerNovaV3Context(NovaV3Context context) {
-    clusterContext.setNovaV3Context(context);
-  }
-
-  public synchronized void registerNovaContext(NovaContext context) {
-    clusterContext.setNovaContext(context);
-  }
-
-  public synchronized void registerOcciContext(OcciContext context) {
-    clusterContext.setOcciContext(context);
   }
 }

@@ -32,7 +32,6 @@ import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlets.CrossOriginFilter;
 import se.kth.karamel.core.ClusterDefinitionService;
-import se.kth.karamel.core.ClusterManager;
 import se.kth.karamel.client.api.KaramelApi;
 import se.kth.karamel.client.api.KaramelApiImpl;
 
@@ -44,10 +43,6 @@ import se.kth.karamel.webservice.calls.ec2.LoadEc2Credentials;
 import se.kth.karamel.webservice.calls.ec2.ValidateEc2Credentials;
 import se.kth.karamel.webservice.calls.gce.LoadGceCredentials;
 import se.kth.karamel.webservice.calls.gce.ValidateGceCredentials;
-import se.kth.karamel.webservice.calls.nova.LoadNovaCredentials;
-import se.kth.karamel.webservice.calls.nova.ValidateNovaCredentials;
-import se.kth.karamel.webservice.calls.occi.LoadOcciCredentials;
-import se.kth.karamel.webservice.calls.occi.ValidateOcciCredentials;
 import se.kth.karamel.webservice.calls.sshkeys.LoadSshKeys;
 import se.kth.karamel.webservice.calls.sshkeys.RegisterSshKeys;
 import se.kth.karamel.webservice.calls.sshkeys.SetSudoPassword;
@@ -151,7 +146,7 @@ public class KaramelServiceApplication extends Application<KaramelServiceConfigu
 
       if (cli) {
 
-        ClusterManager.EXIT_ON_COMPLETION  = true;
+        //ClusterManager.EXIT_ON_COMPLETION  = true;
         new KaramelServiceApplication().run(modifiedArgs);
 
         // Try to open and read the yaml file. 
@@ -164,7 +159,7 @@ public class KaramelServiceApplication extends Application<KaramelServiceConfigu
 
         SshKeyPair pair = karamelApi.loadSshKeysIfExist();
         karamelApi.registerSshKeys(pair);
-        karamelApi.startCluster(cluster);
+        karamelApi.startCluster();
       }
     } catch (ParseException e) {
       usage(-1);
@@ -231,14 +226,6 @@ public class KaramelServiceApplication extends Application<KaramelServiceConfigu
 
     environment.jersey().register(new ExitKaramel(karamelApi));
     environment.jersey().register(new PingServer(karamelApi));
-
-    //Openstack nova
-    environment.jersey().register(new LoadNovaCredentials(karamelApi));
-    environment.jersey().register(new ValidateNovaCredentials(karamelApi));
-
-    //occi
-    environment.jersey().register(new LoadOcciCredentials(karamelApi));
-    environment.jersey().register(new ValidateOcciCredentials(karamelApi));
 
     // Wait to make sure jersey/angularJS is running before launching the browser
     final int webPort = getPort(environment);

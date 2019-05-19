@@ -40,7 +40,8 @@ public class NodeSetupTask extends Task {
 
     Session.Command yumCmd = node.execCommand("yum --help", false);
 
-    String chefDkLocalPath = Paths.get(Constants.KARAMEL_HOME, "chefdk").toString();
+    // TODO(Fabio) this is wrong
+    String chefDkLocalPath = Paths.get(System.getenv(Constants.KARAMEL_HOME), "chefdk").toString();
     OSFamily osFamily = null;
     String chefBinName = null;
     if (yumCmd.getExitStatus() == 0) {

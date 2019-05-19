@@ -66,7 +66,7 @@ public class ClusterContext {
     context.mergeContext(commonContext);
 
     for (Group group : definition.getGroups()) {
-      Provider provider = group.getProvider()
+      Provider provider = group.getProvider();
       if (provider instanceof EC2 && context.getEc2Context() == null) {
         throw new KaramelException("No valid EC2 credentials registered :-|");
       } else if (provider instanceof GCE && context.getGceContext() == null) {

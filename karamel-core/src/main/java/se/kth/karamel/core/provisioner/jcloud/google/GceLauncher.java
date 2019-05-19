@@ -1,61 +1,6 @@
 package se.kth.karamel.core.provisioner.jcloud.google;
 
-import com.google.common.base.Supplier;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
-import com.google.common.io.Files;
-import java.io.File;
-import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import org.apache.log4j.Logger;
-import org.jclouds.domain.Credentials;
-import org.jclouds.googlecloud.GoogleCredentialsFromJson;
-import org.jclouds.googlecomputeengine.GoogleComputeEngineApi;
-import org.jclouds.googlecomputeengine.domain.AttachDisk;
-import org.jclouds.googlecomputeengine.domain.Firewall;
-import org.jclouds.googlecomputeengine.domain.Instance;
-import org.jclouds.googlecomputeengine.domain.Instance.Scheduling;
-import org.jclouds.googlecomputeengine.domain.Metadata;
-import org.jclouds.googlecomputeengine.domain.NewInstance;
-import org.jclouds.googlecomputeengine.domain.Operation;
-import org.jclouds.googlecomputeengine.domain.Zone;
-import org.jclouds.googlecomputeengine.features.InstanceApi;
-import org.jclouds.googlecomputeengine.features.NetworkApi;
-import org.jclouds.googlecomputeengine.features.OperationApi;
-import org.jclouds.googlecomputeengine.options.FirewallOptions;
-import org.jclouds.googlecomputeengine.options.NetworkCreationOptions;
-import org.jclouds.rest.AuthorizationException;
-import se.kth.karamel.common.clusterdef.GCE;
-import se.kth.karamel.core.converter.UserClusterDataExtractor;
-import se.kth.karamel.core.provisioner.jcloud.JCloudProvisionerInt;
-import se.kth.karamel.core.running.model.ClusterRuntime;
-import se.kth.karamel.core.running.model.GroupRuntime;
-import se.kth.karamel.core.running.model.MachineRuntime;
-import se.kth.karamel.common.clusterdef.Provider;
-import se.kth.karamel.common.clusterdef.Cluster;
-import se.kth.karamel.common.clusterdef.Group;
-import se.kth.karamel.common.util.GceSettings;
-import se.kth.karamel.common.util.Settings;
-import se.kth.karamel.common.util.SshKeyPair;
-import se.kth.karamel.common.exception.InvalidCredentialsException;
-import se.kth.karamel.common.exception.KaramelException;
-import se.kth.karamel.common.exception.UnsupportedImageType;
-
-/**
- *
- * @author Hooman
- */
-public class GceLauncher extends JCloudProvisionerInt {
+public class GceLauncher { /*extends JCloudProvisionerInt {
 
   private static final int DEFAULT_SSH_PORT = 22;
   private static final String GCE_PROVIDER = "gce";
@@ -72,7 +17,7 @@ public class GceLauncher extends JCloudProvisionerInt {
    *
    * @param jsonKeyPath
    * @return
-   */
+
   public static Credentials readCredentials(String jsonKeyPath) {
     Credentials credentials = null;
     if (jsonKeyPath != null && !jsonKeyPath.isEmpty()) {
@@ -92,7 +37,6 @@ public class GceLauncher extends JCloudProvisionerInt {
    * @param credentials
    * @return
    * @throws InvalidCredentialsException
-   */
   public static GceContext validateCredentials(Credentials credentials) throws InvalidCredentialsException {
     try {
       GceContext context = new GceContext(credentials);
@@ -291,7 +235,6 @@ public class GceLauncher extends JCloudProvisionerInt {
    * @param clusterName
    * @param groupNames
    * @throws KaramelException
-   */
   public void cleanup(Map<String, List<String>> vmZone, String clusterName, Set<String> groupNames)
       throws KaramelException {
     Iterator<Map.Entry<String, List<String>>> iterator = vmZone.entrySet().iterator();
@@ -375,7 +318,6 @@ public class GceLauncher extends JCloudProvisionerInt {
      * operation.operationType(), operation.targetLink()));
      * }
      * }
-     */
   }
 
   private static int waitForOperation(OperationApi api, Operation operation) {
@@ -430,5 +372,5 @@ public class GceLauncher extends JCloudProvisionerInt {
     }
     return null;
   }
-
+*/
 }

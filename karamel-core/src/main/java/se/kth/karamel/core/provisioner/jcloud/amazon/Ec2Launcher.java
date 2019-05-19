@@ -1,57 +1,6 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package se.kth.karamel.core.provisioner.jcloud.amazon;
 
-import se.kth.karamel.common.clusterdef.Cluster;
-import se.kth.karamel.common.clusterdef.EC2;
-import se.kth.karamel.common.clusterdef.Group;
-import se.kth.karamel.common.launcher.amazon.InstanceType;
-import com.google.common.base.Optional;
-import com.google.common.base.Predicate;
-import com.google.common.base.Predicates;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import org.apache.log4j.Logger;
-import org.jclouds.aws.AWSResponseException;
-import org.jclouds.aws.ec2.compute.AWSEC2TemplateOptions;
-import org.jclouds.aws.ec2.features.AWSSecurityGroupApi;
-import org.jclouds.aws.ec2.options.CreateSecurityGroupOptions;
-import org.jclouds.compute.RunNodesException;
-import org.jclouds.compute.domain.NodeMetadata;
-import org.jclouds.compute.domain.TemplateBuilder;
-import org.jclouds.ec2.domain.BlockDeviceMapping;
-import org.jclouds.ec2.domain.KeyPair;
-import org.jclouds.ec2.domain.SecurityGroup;
-import org.jclouds.ec2.features.SecurityGroupApi;
-import org.jclouds.net.domain.IpPermission;
-import org.jclouds.net.domain.IpProtocol;
-import org.jclouds.rest.AuthorizationException;
-import se.kth.karamel.core.converter.UserClusterDataExtractor;
-import se.kth.karamel.core.provisioner.jcloud.JCloudProvisionerInt;
-import se.kth.karamel.core.running.model.ClusterRuntime;
-import se.kth.karamel.core.running.model.GroupRuntime;
-import se.kth.karamel.core.running.model.MachineRuntime;
-import se.kth.karamel.common.util.Settings;
-import se.kth.karamel.common.exception.KaramelException;
-import se.kth.karamel.common.clusterdef.Provider;
-import se.kth.karamel.common.util.Confs;
-import se.kth.karamel.common.util.Ec2Credentials;
-import se.kth.karamel.common.util.SshKeyPair;
-import se.kth.karamel.common.exception.InvalidEc2CredentialsException;
-
-/**
- * @author kamal
- */
-public final class Ec2Launcher extends JCloudProvisionerInt {
+public final class Ec2Launcher { /*extends JCloudProvisionerInt {
 
   private static final Logger logger = Logger.getLogger(Ec2Launcher.class);
   public static boolean TESTING = true;
@@ -553,4 +502,5 @@ public final class Ec2Launcher extends JCloudProvisionerInt {
       }
     };
   }
+  */
 }

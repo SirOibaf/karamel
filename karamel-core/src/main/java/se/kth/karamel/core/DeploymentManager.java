@@ -5,11 +5,14 @@ import se.kth.karamel.common.clusterdef.Cluster;
 import se.kth.karamel.common.clusterdef.Group;
 import se.kth.karamel.common.exception.KaramelException;
 import se.kth.karamel.common.util.Settings;
+import se.kth.karamel.core.chef.DataBagsFactory;
 import se.kth.karamel.core.dag.Dag;
 import se.kth.karamel.core.dag.DagFactory;
 import se.kth.karamel.core.execution.ExecutionEngine;
 import se.kth.karamel.core.provisioner.Provisioner;
 import se.kth.karamel.core.provisioner.ProvisionerFactory;
+
+import java.io.IOException;
 
 public class DeploymentManager {
 
@@ -22,7 +25,7 @@ public class DeploymentManager {
 
   public DeploymentManager(Settings settings) {
     this.settings = settings;
-    this.executionEngine = new ExecutionEngine();
+    this.executionEngine = new ExecutionEngine(settings);
   }
 
   /**
@@ -44,7 +47,11 @@ public class DeploymentManager {
 
     // Build the DAG
     DagFactory dagFactory = new DagFactory();
-    dag = dagFactory.buildDag(cluster);
+    try {
+      dag = dagFactory.buildDag(cluster, settings, new DataBagsFactory(cluster));
+    } catch (IOException e) {
+      throw new KaramelException("Could not build the dag", e);
+    }
 
     // Execute the DAG
     executionEngine.execute(dag, numNodes);

@@ -2,8 +2,6 @@ package se.kth.karamel.core.converter;
 
 import org.apache.log4j.Logger;
 import se.kth.karamel.common.clusterdef.Group;
-import se.kth.karamel.common.clusterdef.EC2;
-import se.kth.karamel.common.clusterdef.Provider;
 import se.kth.karamel.common.clusterdef.Cluster;
 
 public class UserClusterDataExtractor {

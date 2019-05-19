@@ -25,18 +25,18 @@ public abstract class Provider {
     // i.e. the value for the group provider is not set,
     // get the value from the parent
     Stream.of(Introspector.getBeanInfo(this.getClass()).getPropertyDescriptors())
-        .filter(pd -> !(pd.getReadMethod().getName().equals("getClass") ||
+          .filter(pd -> !(pd.getReadMethod().getName().equals("getClass") ||
             pd.getReadMethod().getName().equals("getNodes")))
         .forEach(pd -> {
-          try {
-            if (pd.getReadMethod().invoke(this) == null) {
-              // If the current value is null, get the parent one
-              Object parentValue = pd.getReadMethod().invoke(parent);
-              pd.getWriteMethod().invoke(this, parentValue);
+            try {
+              if (pd.getReadMethod().invoke(this) == null) {
+                // If the current value is null, get the parent one
+                Object parentValue = pd.getReadMethod().invoke(parent);
+                pd.getWriteMethod().invoke(this, parentValue);
+              }
+            } catch (Exception e) {
+              throw new RuntimeException(e);
             }
-          } catch (Exception e) {
-            throw new RuntimeException(e);
-          }
-        });
+          });
   }
 }

@@ -1,13 +1,7 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package se.kth.karamel.core.provisioner.jcloud.amazon;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.Module;
-import org.jclouds.Constants;
 import org.jclouds.ContextBuilder;
 import org.jclouds.aws.ec2.compute.AWSEC2ComputeService;
 import org.jclouds.aws.ec2.features.AWSKeyPairApi;
@@ -18,7 +12,6 @@ import org.jclouds.enterprise.config.EnterpriseConfigurationModule;
 import org.jclouds.logging.slf4j.config.SLF4JLoggingModule;
 import org.jclouds.sshj.config.SshjSshClientModule;
 import se.kth.karamel.common.util.Ec2Credentials;
-import se.kth.karamel.common.util.Settings;
 
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
@@ -29,10 +22,6 @@ import static org.jclouds.aws.ec2.reference.AWSEC2Constants.PROPERTY_EC2_CC_AMI_
 import static org.jclouds.compute.config.ComputeServiceProperties.TIMEOUT_PORT_OPEN;
 import static org.jclouds.compute.config.ComputeServiceProperties.TIMEOUT_SCRIPT_COMPLETE;
 
-/**
- *
- * @author kamal
- */
 public class Ec2Context {
 
   private final Ec2Credentials credentials;
@@ -40,7 +29,7 @@ public class Ec2Context {
   private final EC2Api ec2api;
   private final SecurityGroupApi securityGroupApi;
   private final AWSKeyPairApi keypairApi;
-  private final int vmBatchSize;
+  //private final int vmBatchSize;
 
   public Ec2Context(Ec2Credentials credentials) {
     this.credentials = credentials;
@@ -51,8 +40,8 @@ public class Ec2Context {
     properties.setProperty(PROPERTY_CONNECTION_TIMEOUT, scriptTimeout + "");
     properties.setProperty(PROPERTY_EC2_AMI_QUERY, "owner-id=137112412989;state=available;image-type=machine");
     properties.setProperty(PROPERTY_EC2_CC_AMI_QUERY, "");
-    properties.setProperty(Constants.PROPERTY_MAX_RETRIES, Settings.JCLOUDS_PROPERTY_MAX_RETRIES + "");
-    properties.setProperty(Constants.PROPERTY_RETRY_DELAY_START, Settings.JCLOUDS_PROPERTY_RETRY_DELAY_START + "");
+    //properties.setProperty(Constants.PROPERTY_MAX_RETRIES, Settings.JCLOUDS_PROPERTY_MAX_RETRIES + "");
+    //properties.setProperty(Constants.PROPERTY_RETRY_DELAY_START, Settings.JCLOUDS_PROPERTY_RETRY_DELAY_START + "");
 
     Iterable<Module> modules = ImmutableSet.<Module>of(
         new SshjSshClientModule(),
@@ -69,12 +58,12 @@ public class Ec2Context {
     this.securityGroupApi = ec2api.getSecurityGroupApi().get();
     this.keypairApi = (AWSKeyPairApi) ec2api.getKeyPairApi().get();
 
-    vmBatchSize = Settings.AWS_VM_BATCH_SIZE();
+    //vmBatchSize = Settings.AWS_VM_BATCH_SIZE();
   }
 
-  public int getVmBatchSize() {
-    return vmBatchSize;
-  }
+  //public int getVmBatchSize() {
+  //  return vmBatchSize;
+  //}
 
   public Ec2Credentials getCredentials() {
     return credentials;

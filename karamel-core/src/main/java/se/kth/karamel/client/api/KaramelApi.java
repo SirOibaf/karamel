@@ -3,8 +3,6 @@ package se.kth.karamel.client.api;
 import se.kth.karamel.common.clusterdef.Cluster;
 import se.kth.karamel.common.exception.KaramelException;
 import se.kth.karamel.common.util.Ec2Credentials;
-import se.kth.karamel.common.util.OcciCredentials;
-import se.kth.karamel.common.util.NovaCredentials;
 import se.kth.karamel.common.util.SshKeyPair;
 
 
@@ -134,12 +132,4 @@ public interface KaramelApi {
   String loadGceCredentialsIfExist() throws KaramelException;
 
   boolean updateGceCredentialsIfValid(String jsonFilePath) throws KaramelException;
-
-  NovaCredentials loadNovaCredentialsIfExist() throws KaramelException;
-
-  boolean updateNovaCredentialsIfValid(NovaCredentials credentials) throws KaramelException;
-
-  OcciCredentials loadOcciCredentialsIfExist() throws KaramelException;
-
-  boolean updateOcciCredentialsIfValid(OcciCredentials credentials) throws KaramelException;
 }

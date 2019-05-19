@@ -11,6 +11,7 @@ public class Constants {
 
   // Local directories filenames
   public static final String KARAMEL_CONF_DIRNAME = "conf";
+  public static final String KARAMEL_CLUSTERS_DIRNAME = "clusters";
   public static final String KARAMEL_TMP_DIRNAME = "tmp";
   public static final String KARAMEL_COOKBOOK_DIRNAME = "cookbooks";
   public static final String KARAMEL_CONF_NAME = "karamel.conf";

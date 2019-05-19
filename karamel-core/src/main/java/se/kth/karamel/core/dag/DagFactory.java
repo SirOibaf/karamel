@@ -84,7 +84,7 @@ public class DagFactory {
 
     for (Node node : group.getProvider().getNodes()) {
       for (Recipe recipe : group.getRecipes()) {
-        Task runRecipeTask = new RunRecipeTask(taskIdProgress++, node, group, recipe, settings, dbFactory)
+        Task runRecipeTask = new RunRecipeTask(taskIdProgress++, node, group, recipe, settings, dbFactory);
 
         addToTaskCache(recipe, node, runRecipeTask);
 
