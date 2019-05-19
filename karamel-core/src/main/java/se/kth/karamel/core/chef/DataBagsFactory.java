@@ -34,9 +34,9 @@ public class DataBagsFactory {
     DataBag dataBag = new DataBag(cluster.getAttributes());
     // After we merge (in case of collision they get overwritten) the group attributes
     dataBag.merge(group.getAttributes());
-    // Finally we add the IP addr bag
 
-    // TODO(Fabio) see how we can handle the cloud providers
+    // TODO(Fabio) Finally we add the IP addr bag
+
     return dataBag;
   }
 }

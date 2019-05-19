@@ -1,6 +1,8 @@
 package se.kth.karamel.common.util;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
 
 import java.io.File;
 import java.io.IOException;
@@ -9,8 +11,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 public class Settings {
@@ -18,11 +18,15 @@ public class Settings {
   private static final Logger LOGGER = Logger.getLogger(Settings.class.getName());
 
   public enum SettingsKeys {
+    // --------------------- GENERAL CONFIGURATION  --------------------- //
     WORKING_DIR("karamel.working.dir", "/tmp/karamel"),
     CHEFDK_VERSION_KEY("karamel.chefdk.version", "2.3.1"),
 
     // TODO(Fabio): what is this supposed to do?
     SKIP_EXISTINGTASKS_KEY("karamel.skip.existing.tasks", "false"),
+    PROVISIONER_CLASS("karamel.provisioner.class",
+        "se.kth.karamel.core.provisioner.jcloud.JCloudProvisioner"),
+    EXECUTION_THREADS("karamel.execution.threads", "20"),
 
     // AWS specific configurations
     PREPARE_STORAGES_KEY("karamel.prepare.storages", "false"),
@@ -79,4 +83,6 @@ public class Settings {
   public String get(SettingsKeys key) {
     return confMap.get(key.keyName);
   }
+
+  public int getInt(SettingsKeys key) { return Integer.valueOf(confMap.get(key.keyName)); }
 }

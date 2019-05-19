@@ -10,7 +10,7 @@ public class DataBag extends HashMap<String, Object> {
   }
 
   /**
-   * Recursively merge the hashmap - only 1 thread thread at the time should be able to merge
+   * Recursively merge the hashmap - only 1 thread at the time should be able to merge
    * @param dataBag
    */
   public synchronized void merge(Map<String, Object> dataBag) {

@@ -2,11 +2,11 @@ package se.kth.karamel.core;
 
 import java.io.File;
 import org.apache.log4j.Logger;
-import se.kth.karamel.core.launcher.amazon.Ec2Context;
-import se.kth.karamel.core.launcher.google.GceContext;
-import se.kth.karamel.core.launcher.nova.NovaContext;
-import se.kth.karamel.core.launcher.novav3.NovaV3Context;
-import se.kth.karamel.core.launcher.occi.OcciContext;
+import se.kth.karamel.core.provisioner.jcloud.amazon.Ec2Context;
+import se.kth.karamel.core.provisioner.jcloud.google.GceContext;
+import se.kth.karamel.core.provisioner.jcloud.nova.NovaContext;
+import se.kth.karamel.core.provisioner.jcloud.novav3.NovaV3Context;
+import se.kth.karamel.core.provisioner.jcloud.occi.OcciContext;
 import se.kth.karamel.core.running.model.ClusterRuntime;
 import se.kth.karamel.common.exception.KaramelException;
 import se.kth.karamel.common.clusterdef.Cluster;

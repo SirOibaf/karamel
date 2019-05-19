@@ -3,16 +3,17 @@ package se.kth.karamel.core;
 import com.google.common.collect.Lists;
 import com.google.gson.JsonObject;
 import org.apache.log4j.Logger;
+import se.kth.karamel.common.clusterdef.EC2;
 import se.kth.karamel.core.converter.ChefJsonGenerator;
 import se.kth.karamel.core.converter.UserClusterDataExtractor;
 import se.kth.karamel.core.dag.Dag;
-import se.kth.karamel.core.launcher.Launcher;
-import se.kth.karamel.core.launcher.amazon.Ec2Launcher;
-import se.kth.karamel.core.launcher.baremetal.BaremetalLauncher;
-import se.kth.karamel.core.launcher.google.GceLauncher;
-import se.kth.karamel.core.launcher.nova.NovaLauncher;
-import se.kth.karamel.core.launcher.novav3.NovaV3Launcher;
-import se.kth.karamel.core.launcher.occi.OcciLauncher;
+import se.kth.karamel.core.provisioner.jcloud.JCloudProvisionerInt;
+import se.kth.karamel.core.provisioner.jcloud.amazon.Ec2Launcher;
+import se.kth.karamel.core.provisioner.jcloud.baremetal.BaremetalLauncher;
+import se.kth.karamel.core.provisioner.jcloud.google.GceLauncher;
+import se.kth.karamel.core.provisioner.jcloud.nova.NovaLauncher;
+import se.kth.karamel.core.provisioner.jcloud.novav3.NovaV3Launcher;
+import se.kth.karamel.core.provisioner.jcloud.occi.OcciLauncher;
 import se.kth.karamel.core.machines.MachinesMonitor;
 import se.kth.karamel.core.running.model.ClusterRuntime;
 import se.kth.karamel.core.running.model.Failure;
@@ -22,8 +23,7 @@ import se.kth.karamel.core.running.model.tasks.DagBuilder;
 import se.kth.karamel.core.stats.ClusterStatistics;
 import se.kth.karamel.common.clusterdef.Baremetal;
 import se.kth.karamel.common.clusterdef.Cluster;
-import se.kth.karamel.common.clusterdef.Ec2;
-import se.kth.karamel.common.clusterdef.Gce;
+import se.kth.karamel.common.clusterdef.GCE;
 import se.kth.karamel.common.clusterdef.Group;
 import se.kth.karamel.common.clusterdef.Nova;
 import se.kth.karamel.common.clusterdef.Occi;
@@ -63,7 +63,7 @@ public class ClusterManager implements Runnable {
   private final BlockingQueue<Command> cmdQueue = new ArrayBlockingQueue<>(2);
   ExecutorService tpool;
   private final ClusterContext clusterContext;
-  private Map<Class, Launcher> launchers = new HashMap<>();
+  private Map<Class, JCloudProvisionerInt> launchers = new HashMap<>();
   private Future<?> clusterManagerFuture = null;
   private Future<?> machinesMonitorFuture = null;
   private boolean stopping = false;
@@ -198,13 +198,13 @@ public class ClusterManager implements Runnable {
   private void initLaunchers() throws KaramelException {
     for (Group group : definition.getGroups()) {
       Provider provider = UserClusterDataExtractor.getGroupProvider(definition, group.getName());
-      Launcher launcher = launchers.get(provider.getClass());
+      JCloudProvisionerInt launcher = launchers.get(provider.getClass());
       if (launcher == null) {
-        if (provider instanceof Ec2) {
+        if (provider instanceof EC2) {
           launcher = new Ec2Launcher(clusterContext.getEc2Context(), clusterContext.getSshKeyPair());
         } else if (provider instanceof Baremetal) {
           launcher = new BaremetalLauncher(clusterContext.getSshKeyPair());
-        } else if (provider instanceof Gce) {
+        } else if (provider instanceof GCE) {
           launcher = new GceLauncher(clusterContext.getGceContext(), clusterContext.getSshKeyPair());
         } else if (provider instanceof Nova) {
           if (clusterContext.getNovaContext() != null) {
@@ -240,8 +240,8 @@ public class ClusterManager implements Runnable {
       ec2GroupEntities.add(group);
     }
     try {
-      for (Map.Entry<Class, Launcher> entry : launchers.entrySet()) {
-        Launcher launcher = entry.getValue();
+      for (Map.Entry<Class, JCloudProvisionerInt> entry : launchers.entrySet()) {
+        JCloudProvisionerInt launcher = entry.getValue();
         launcher.cleanup(definition, runtime);
       }
       for (GroupRuntime group : ec2GroupEntities) {
@@ -275,7 +275,7 @@ public class ClusterManager implements Runnable {
       runtime.resolveFailure(Failure.hash(Failure.Type.CREATING_SEC_GROUPS_FAILE, group.getName()));
       group.setPhase(GroupRuntime.GroupPhase.FORKING_GROUPS);
       Provider provider = UserClusterDataExtractor.getGroupProvider(definition, group.getName());
-      Launcher launcher = launchers.get(provider.getClass());
+      JCloudProvisionerInt launcher = launchers.get(provider.getClass());
       try {
         String groupId = launcher.forkGroup(definition, runtime, group.getName());
         group.setId(groupId);
@@ -381,7 +381,7 @@ public class ClusterManager implements Runnable {
         logger.info(String.format("Gogo"));
         Provider provider = UserClusterDataExtractor.getGroupProvider(definition, group.getName());
         logger.info(String.format("Using provider '%s'", provider));
-        Launcher launcher = launchers.get(provider.getClass());
+        JCloudProvisionerInt launcher = launchers.get(provider.getClass());
         logger.info(String.format("Using launcher '%s'", launcher));
         try {
           logger.info(String.format("Using launcher '%s'", launcher));

@@ -1,11 +1,16 @@
 package se.kth.karamel.common;
 
 import org.apache.commons.io.IOUtils;
+import org.junit.Before;
 import org.junit.Test;
+import org.yaml.snakeyaml.TypeDescription;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.Constructor;
+import se.kth.karamel.common.clusterdef.Baremetal;
 import se.kth.karamel.common.clusterdef.Cluster;
 import se.kth.karamel.common.clusterdef.Cookbook;
+import se.kth.karamel.common.clusterdef.EC2;
+import se.kth.karamel.common.clusterdef.GCE;
 import se.kth.karamel.common.exception.KaramelException;
 
 import java.io.IOException;
@@ -13,6 +18,7 @@ import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 public class TestCluster {
 
@@ -69,5 +75,16 @@ public class TestCluster {
 
     Map<String, Object> groupAttribute = cluster.getGroups().get(0).getAttributes();
     assertEquals(1, groupAttribute.size());
+  }
+
+  @Test
+  public void testEC2Provider() throws IOException, KaramelException {
+    String clusterDefinition = IOUtils.toString(
+        this.getClass().getResourceAsStream("/cluster/testEC2.yml"), "UTF-8");
+    Cluster cluster = (Cluster) yaml.load(clusterDefinition);
+    assertTrue(cluster.getProvider() instanceof EC2);
+    assertTrue(cluster.getGroups().get(0).getProvider() instanceof EC2);
+
+    assertEquals(((EC2)cluster.getGroups().get(0).getProvider()).getType(), "m3.large");
   }
 }

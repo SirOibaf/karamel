@@ -4,20 +4,27 @@ import lombok.Getter;
 import net.schmizz.sshj.SSHClient;
 import net.schmizz.sshj.connection.channel.direct.Session;
 import net.schmizz.sshj.xfer.FileSystemFile;
+import org.apache.log4j.Logger;
+import org.apache.log4j.Level;
+import se.kth.karamel.common.node.Node;
 import se.kth.karamel.common.util.Constants;
 import se.kth.karamel.core.ClusterContext;
 
 import java.io.IOException;
 import java.nio.file.Paths;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class NodeImpl implements Node {
 
   private final static Logger LOGGER = Logger.getLogger(NodeImpl.class.getName());
 
   @Getter
-  private String hostAddr;
+  private int nodeId;
+  @Getter
+  private String hostname;
+  @Getter
+  private String privateIP;
+  @Getter
+  private String publicIP;
 
   @Getter
   private String workDir;
@@ -27,8 +34,12 @@ public class NodeImpl implements Node {
 
   private ClusterContext clusterContext;
 
-  public NodeImpl(String hostAddr, String user, ClusterContext clusterContext) {
-    this.hostAddr = hostAddr;
+  public NodeImpl(int nodeId, String hostname, String privateIP, String publicIP,
+                  String user, ClusterContext clusterContext) {
+    this.nodeId = nodeId;
+    this.hostname = hostname;
+    this.privateIP = privateIP;
+    this.publicIP = publicIP;
     this.user = user;
     this.clusterContext = clusterContext;
     this.workDir = Paths.get("/home", user, Constants.REMOTE_WORKING_DIR_NAME).toString();
@@ -64,7 +75,7 @@ public class NodeImpl implements Node {
       // Wait for the command to finish.
       cmd.join();
 
-      LOGGER.log(Level.FINE, "Command " + command + " executed on node: " + hostAddr);
+      LOGGER.log(Level.DEBUG, "Command " + command + " executed on node: " + hostname);
 
       return cmd;
     } finally {
@@ -80,7 +91,7 @@ public class NodeImpl implements Node {
     SSHClient sshClient = getSSHClient();
     try {
       sshClient.newSCPFileTransfer().upload(new FileSystemFile(localFilePath), targetPath);
-      LOGGER.log(Level.FINE, "File " + localFilePath + " copied to node: " + hostAddr);
+      LOGGER.log(Level.DEBUG, "File " + localFilePath + " copied to node: " + hostname);
     } finally {
       sshClient.disconnect();
     }
@@ -92,7 +103,7 @@ public class NodeImpl implements Node {
     sshClient.loadKnownHosts();
     // TODO(Fabio): Make it configurable and not limited to SSHKey
     sshClient.loadKeys(clusterContext.getSshKeyPair().getPrivateKeyPath());
-    sshClient.connect(hostAddr);
+    sshClient.connect(privateIP);
     sshClient.authPublickey(user);
 
     return sshClient;

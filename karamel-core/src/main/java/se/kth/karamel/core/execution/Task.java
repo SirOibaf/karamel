@@ -3,26 +3,25 @@ package se.kth.karamel.core.execution;
 import lombok.Getter;
 import lombok.Setter;
 import se.kth.karamel.common.util.Settings;
-import se.kth.karamel.core.node.Node;
+import se.kth.karamel.common.node.Node;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 public abstract class Task {
 
   @Getter
-  private int taskId;
+  protected int taskId;
 
   @Getter @Setter
-  private TaskStatus taskStatus;
+  private TaskStatus taskStatus = TaskStatus.WAITING;
 
   @Getter @Setter
   protected Node node;
 
   @Getter @Setter
-  private List<Task> dependsOn;
-  @Getter @Setter
-  private List<Task> block;
+  private List<Task> dependsOn = new ArrayList<>();
 
   protected Settings settings;
 

@@ -1,11 +1,16 @@
 package se.kth.karamel.common.cookbookmeta;
 
+import lombok.Getter;
+import lombok.Setter;
+
 public class KaramelizedCookbook {
 
+  @Getter @Setter
   private String cookbookName;
+  @Getter @Setter
   private MetadataRb metadataRb;
+  @Getter @Setter
   private KaramelFile karamelFile;
-  private String json;
 
   public KaramelizedCookbook(MetadataRb metadata, KaramelFile karamelFile) {
     this.cookbookName = metadata.getName();
@@ -13,27 +18,19 @@ public class KaramelizedCookbook {
     this.karamelFile = karamelFile;
   }
 
-  public MetadataRb getMetadataRb() {
-    return metadataRb;
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+
+    KaramelizedCookbook that = (KaramelizedCookbook) o;
+
+    return cookbookName != null ? cookbookName.equals(that.cookbookName) : that.cookbookName == null;
+
   }
 
-  public KaramelFile getKaramelFile() {
-    return karamelFile;
-  }
-
-  public String getCookbookName() {
-    return cookbookName;
-  }
-
-  public void setCookbookName(String cookbookName) {
-    this.cookbookName = cookbookName;
-  }
-
-  public void setMetadataRb(MetadataRb metadataRb) {
-    this.metadataRb = metadataRb;
-  }
-
-  public void setKaramelFile(KaramelFile karamelFile) {
-    this.karamelFile = karamelFile;
+  @Override
+  public int hashCode() {
+    return cookbookName != null ? cookbookName.hashCode() : 0;
   }
 }

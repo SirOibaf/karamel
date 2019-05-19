@@ -5,7 +5,9 @@ import se.kth.karamel.common.cookbookmeta.CookbookCache;
 import se.kth.karamel.common.cookbookmeta.KaramelizedCookbook;
 import se.kth.karamel.common.exception.KaramelException;
 import se.kth.karamel.common.exception.ValidationException;
-import se.kth.karamel.common.util.Settings;
+import se.kth.karamel.common.util.Constants;
+
+import java.io.IOException;
 
 public class Recipe implements Comparable<Recipe>{
 
@@ -43,11 +45,11 @@ public class Recipe implements Comparable<Recipe>{
 
   @JsonIgnore
   public String getCanonicalName() {
-    if (name.contains(Settings.COOKBOOK_DELIMITER)) {
+    if (name.contains(Constants.COOKBOOK_DELIMITER)) {
       return name;
     }
 
-    return cookbook.getCookbookName() + Settings.COOKBOOK_DELIMITER + Settings.DEFAULT_RECIPE;
+    return cookbook.getCookbookName() + Constants.COOKBOOK_DELIMITER + Constants.DEFAULT_RECIPE;
   }
 
   @Override
@@ -55,15 +57,15 @@ public class Recipe implements Comparable<Recipe>{
     return this.getCanonicalName().compareTo(o.getCanonicalName());
   }
 
-  public void validate() throws KaramelException {
+  public void validate() throws IOException, KaramelException {
     CookbookCache cache = CookbookCache.getInstance();
     String recipeName = name;
 
-    if (!name.contains(Settings.COOKBOOK_DELIMITER)) {
-      recipeName = recipeName + Settings.COOKBOOK_DELIMITER +  Settings.DEFAULT_RECIPE;
+    if (!name.contains(Constants.COOKBOOK_DELIMITER)) {
+      recipeName = recipeName + Constants.COOKBOOK_DELIMITER +  Constants.DEFAULT_RECIPE;
       cookbook = cache.get(name);
     } else {
-      cookbook = cache.get(name.split(Settings.COOKBOOK_DELIMITER)[0]);
+      cookbook = cache.get(name.split(Constants.COOKBOOK_DELIMITER)[0]);
     }
 
     for (String rName : cookbook.getMetadataRb().getRecipes().keySet()) {

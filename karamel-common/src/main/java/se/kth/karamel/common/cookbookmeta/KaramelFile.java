@@ -10,7 +10,7 @@ import se.kth.karamel.common.exception.MetadataParseException;
 
 public final class KaramelFile {
 
-  private List<KaramelFileYamlDeps> dependencies;
+  private List<KaramelFileDeps> dependencies;
 
   public KaramelFile() {
     dependencies = new ArrayList<>();
@@ -31,21 +31,11 @@ public final class KaramelFile {
     }
   }
 
-  public KaramelFileYamlDeps getDependency(String recipeName) {
-    for (KaramelFileYamlDeps yd : dependencies) {
-      if (yd.getRecipe().compareToIgnoreCase(recipeName) == 0 || yd.getRecipeCanonicalName().compareToIgnoreCase(
-          recipeName) == 0) {
-        return yd;
-      }
-    }
-    return null;
-  }
-
-  public List<KaramelFileYamlDeps> getDependencies() {
+  public List<KaramelFileDeps> getDependencies() {
     return dependencies;
   }
 
-  public void setDependencies(List<KaramelFileYamlDeps> dependencies) {
+  public void setDependencies(List<KaramelFileDeps> dependencies) {
     this.dependencies = dependencies;
   }
 

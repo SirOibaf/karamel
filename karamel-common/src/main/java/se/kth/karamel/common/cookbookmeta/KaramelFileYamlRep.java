@@ -5,13 +5,13 @@ import java.util.List;
 
 public class KaramelFileYamlRep {
 
-  private List<KaramelFileYamlDeps> dependencies = new ArrayList<>();
+  private List<KaramelFileDeps> dependencies = new ArrayList<>();
 
-  public List<KaramelFileYamlDeps> getDependencies() {
+  public List<KaramelFileDeps> getDependencies() {
     return dependencies;
   }
 
-  public void setDependencies(List<KaramelFileYamlDeps> dependencies) {
+  public void setDependencies(List<KaramelFileDeps> dependencies) {
     if (dependencies != null) {
       this.dependencies = dependencies;
     }

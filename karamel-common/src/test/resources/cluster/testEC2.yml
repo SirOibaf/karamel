@@ -1,0 +1,26 @@
+name: test1
+
+ec2:
+  type: m3.medium
+  region: eu-west-1
+
+cookbooks:
+  test:
+    localPath: "cookbooks"
+
+attributes:
+  test:
+    nested:
+      attribute: "test"
+
+groups:
+  -  name: group1
+     ec2:
+       type: m3.large
+     attributes:
+       test:
+         nested:
+            attribute: "test"
+     size: 1
+     recipes:
+       - test

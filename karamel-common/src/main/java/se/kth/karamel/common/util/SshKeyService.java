@@ -21,12 +21,6 @@ public class SshKeyService {
     return sshKey.getPrivateKey().contains("Proc-Type: 4,ENCRYPTED");
   }  
 
-  public static SshKeyPair loadSshKeys(Confs confs) throws SshKeysNotfoundException {
-    String pubkeyPath = confs.getProperty(Settings.SSH_PUBKEY_PATH_KEY);
-    String privKeyPath = confs.getProperty(Settings.SSH_PRIVKEY_PATH_KEY);
-    return loadSshKeys(pubkeyPath, privKeyPath, "");
-  }
-
   public static SshKeyPair loadSshKeys(String pubkeyPath, String prikeyPath, String passphrase)
       throws SshKeysNotfoundException {
     String pubKey = null;

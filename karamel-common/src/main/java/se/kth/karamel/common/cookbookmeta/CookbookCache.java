@@ -3,6 +3,7 @@ package se.kth.karamel.common.cookbookmeta;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Charsets;
+import lombok.Getter;
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 import se.kth.karamel.common.clusterdef.Cookbook;
@@ -28,10 +29,12 @@ import java.util.stream.Stream;
 
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
+import se.kth.karamel.common.util.Constants;
 import se.kth.karamel.common.util.ProcOutputConsumer;
 import se.kth.karamel.common.util.Settings;
 
 import static se.kth.karamel.common.clusterdef.Cookbook.CookbookType.GIT;
+import static se.kth.karamel.common.util.Settings.SettingsKeys.WORKING_DIR;
 
 public class CookbookCache {
 
@@ -40,14 +43,20 @@ public class CookbookCache {
   private Map<String, KaramelizedCookbook> cookbooks = new HashMap<>();
   private ObjectMapper objectMapper = new ObjectMapper();
   private ExecutorService es = Executors.newFixedThreadPool(2);
+  private Settings settings;
+
+  @Getter
+  private String localCookbookPath = "";
 
   //TODO(Fabio): This is a singleton. - Maybe it doesn't need to be.
 
   private static CookbookCache cookbookCacheInstance = null;
 
-  private CookbookCache() { }
+  private CookbookCache() throws IOException {
+    this.settings = new Settings();
+  }
 
-  public static CookbookCache getInstance() {
+  public static CookbookCache getInstance() throws IOException {
     if (cookbookCacheInstance == null) {
       cookbookCacheInstance = new CookbookCache();
     }
@@ -76,7 +85,7 @@ public class CookbookCache {
   public List<KaramelizedCookbook> loadKaramelizedCookbooks(Map<String, Cookbook> rootCookbooks)
       throws KaramelException, IOException {
 
-    File workingDir = Paths.get(Settings.WORKING_DIR).toFile();
+    File workingDir = Paths.get(settings.get(WORKING_DIR)).toFile();
     if (workingDir.exists()) {
       // Clean up directory
       FileUtils.deleteDirectory(workingDir);
@@ -89,30 +98,32 @@ public class CookbookCache {
       if (cookbook.getValue().getCookbookType() == GIT) {
         // TODO(Fabio): make sure berks can vendor multiple times into the same dir
         cloneAndVendorCookbook(cookbook);
+        localCookbookPath = settings.get(WORKING_DIR);
       } else {
         // Build cookbook objects for local cookbook
         buildCookbookObjects(cookbook.getValue().getLocalPath());
+        localCookbookPath = cookbook.getValue().getLocalPath();
       }
     }
 
     // Load all cookbooks which were cloned from GIT
-    buildCookbookObjects(Settings.WORKING_DIR);
+    buildCookbookObjects(settings.get(WORKING_DIR));
 
     return new ArrayList<>(cookbooks.values());
   }
 
   private void cloneAndVendorCookbook(Map.Entry<String, Cookbook> cookbook) throws KaramelException {
     // Clone the repository
-    Path cbTargetDir = Paths.get(Settings.WORKING_DIR, cookbook.getKey());
+    Path cbTargetDir = Paths.get(settings.get(WORKING_DIR), cookbook.getKey());
 
     try {
       if (!cbTargetDir.toFile().exists()) {
         Git.cloneRepository()
             // TODO(Fabio): make base url as setting in the cluster definition
             // So we can support also GitLab/Bitbucket and so on.
-            .setURI(Settings.GITHUB_BASE_URL + "/" + cookbook.getValue().getGithub())
+            .setURI(Constants.GITHUB_BASE_URL + "/" + cookbook.getValue().getGithub())
             .setBranch(cookbook.getValue().getBranch())
-            .setDirectory(Paths.get(Settings.WORKING_DIR, cookbook.getKey()).toFile())
+            .setDirectory(Paths.get(settings.get(WORKING_DIR), cookbook.getKey()).toFile())
             .call();
       }
     } catch (GitAPIException e) {
@@ -122,7 +133,8 @@ public class CookbookCache {
     // Vendor the repository
     try {
       Process vendorProcess = Runtime.getRuntime().exec("berks vendor --berksfile=" +
-          Paths.get(Settings.WORKING_DIR, cookbook.getKey(), "Berksfile") + " " + Settings.WORKING_DIR);
+          Paths.get(settings.get(WORKING_DIR), cookbook.getKey(), "Berksfile")
+          + " " + settings.get(WORKING_DIR));
 
       Future<String> vendorOutput = es.submit(new ProcOutputConsumer(vendorProcess.getInputStream()));
       vendorProcess.waitFor(10, TimeUnit.MINUTES);

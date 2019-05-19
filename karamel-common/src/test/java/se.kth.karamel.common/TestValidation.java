@@ -31,7 +31,7 @@ public class TestValidation {
   private Yaml yaml = new Yaml(new Constructor(Cluster.class));
 
   @BeforeClass
-  public static void setup() {
+  public static void setup() throws IOException {
     Map<String, String> cookbookRecipes = new HashMap<>();
     cookbookRecipes.put("test::install", "Install recipe");
     cookbookRecipes.put("test::default", "Default recipe");

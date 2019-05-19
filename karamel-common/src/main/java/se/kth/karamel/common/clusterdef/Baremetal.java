@@ -3,81 +3,45 @@ package se.kth.karamel.common.clusterdef;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+
+import lombok.Getter;
+import lombok.Setter;
 import se.kth.karamel.common.util.IpAddressUtil;
-import se.kth.karamel.common.util.Settings;
 import se.kth.karamel.common.exception.ValidationException;
 
 public class Baremetal extends Provider {
 
+  @Getter @Setter
   private final List<String> ips = new ArrayList<>();
-  private String sudoPassword="";
 
-  public void setSudoPassword(String sudoPassword) {
-    this.sudoPassword = sudoPassword;
-  }
-
-  public String getSudoPassword() {
-    return sudoPassword;
-  }
-
-  public List<String> getIps() {
-    return ips;
-  }
-
-  public void setIps(List<String> ips) {
-    this.ips.addAll(ips);
-  }
-
-  public void setIp(String ip) {
-    ips.add(ip);
-  }
-
+  /**
+   * We support ip ranges (TODO)
+   * ip: 10.0.0.1-10.0.0.10
+   * @return
+   * @throws ValidationException
+   */
   public HashSet<String> retriveAllIps() throws ValidationException {
     HashSet<String> indivIps = new HashSet<>();
     for (String iprange : ips) {
-      List<String> ips1 = IpAddressUtil.ipRange(iprange);
-      for (String ip1 : ips1) {
-        if (indivIps.contains(ip1)) {
-          throw new ValidationException("ip-address already exist " + ip1);
+      for (String parsedIp : IpAddressUtil.parseIPRange(iprange)) {
+        if (!indivIps.add(parsedIp)) {
+          throw new ValidationException("ip-address already exist " + parsedIp);
         }
-        indivIps.add(ip1);
       }
     }
     return indivIps;
   }
 
   @Override
-  public Baremetal applyDefaults() {
-    Baremetal clone = cloneMe();
-    if (clone.getUsername() == null) {
-      clone.setUsername(Settings.PROVIDER_BAREMETAL_DEFAULT_USERNAME);
-    }
-    return clone;
-  }
-
-  @Override
-  public Baremetal cloneMe() {
-    Baremetal baremetal = new Baremetal();
-    baremetal.setUsername(getUsername());
-    baremetal.setIps(ips);
-    baremetal.setSudoPassword(getSudoPassword());
-    return baremetal;
-  }
-
-  @Override
-  public Provider applyParentScope(Provider parentScopeProvider) {
-    Baremetal clone = cloneMe();
-    if (parentScopeProvider instanceof Baremetal) {
-      Baremetal parentBm = (Baremetal) parentScopeProvider;
-      if (clone.getUsername() == null) {
-        clone.setUsername(parentBm.getUsername());
-      }
-    }
-    return clone;
-  }
-
-  @Override
   public void validate() throws ValidationException {
+    // Validate number of IPs in the Baremetal case
+    // TODO(Fabio)
+    // int ipSize = ips.size();
+    // if (ipSize != size) {
+    //   throw new ValidationException(
+    //       String.format("Number of ip addresses is not equal to the group size %d != %d", ipSize, size));
+    // }
+
     retriveAllIps();
   }
 }

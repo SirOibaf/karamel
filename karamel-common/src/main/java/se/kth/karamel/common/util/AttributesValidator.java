@@ -7,6 +7,7 @@ import se.kth.karamel.common.cookbookmeta.KaramelizedCookbook;
 import se.kth.karamel.common.exception.KaramelException;
 import se.kth.karamel.common.exception.ValidationException;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -16,7 +17,12 @@ import java.util.Set;
 public class AttributesValidator {
   public static void validateAttributes(Map<String, Object> attributeMap) throws KaramelException {
 
-    List<KaramelizedCookbook> cookbooks = CookbookCache.getInstance().getKaramelizedCookbooks();
+    List<KaramelizedCookbook> cookbooks = null;
+    try {
+      CookbookCache.getInstance().getKaramelizedCookbooks();
+    } catch (IOException e) {
+      throw new KaramelException(e);
+    }
 
     // Validate cluster-wide attributes
     Map<String, Object> attributes = flattenAttrs(attributeMap, "");
