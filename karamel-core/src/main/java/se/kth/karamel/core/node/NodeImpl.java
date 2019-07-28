@@ -87,11 +87,23 @@ public class NodeImpl implements Node {
   }
 
   @Override
-  public void scpFile(String localFilePath, String targetPath) throws IOException {
+  public void scpFileUpload(String localFilePath, String targetPath) throws IOException {
     SSHClient sshClient = getSSHClient();
     try {
       sshClient.newSCPFileTransfer().upload(new FileSystemFile(localFilePath), targetPath);
       LOGGER.log(Level.DEBUG, "File " + localFilePath + " copied to node: " + hostname);
+    } finally {
+      sshClient.disconnect();
+    }
+  }
+
+
+  @Override
+  public void scpFileDownload(String localFilePath, String targetPath) throws IOException {
+    SSHClient sshClient = getSSHClient();
+    try {
+      sshClient.newSCPFileTransfer().download(targetPath, new FileSystemFile(localFilePath));
+      LOGGER.log(Level.DEBUG, "File " + localFilePath + " copied from node: " + hostname);
     } finally {
       sshClient.disconnect();
     }
@@ -107,5 +119,21 @@ public class NodeImpl implements Node {
     sshClient.authPublickey(user);
 
     return sshClient;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+
+    NodeImpl node = (NodeImpl) o;
+
+    return nodeId == node.nodeId;
+
+  }
+
+  @Override
+  public int hashCode() {
+    return nodeId;
   }
 }

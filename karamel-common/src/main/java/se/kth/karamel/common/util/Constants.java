@@ -14,6 +14,7 @@ public class Constants {
   public static final String KARAMEL_CLUSTERS_DIRNAME = "clusters";
   public static final String KARAMEL_TMP_DIRNAME = "tmp";
   public static final String KARAMEL_COOKBOOK_DIRNAME = "cookbooks";
+  public static final String KARAMEL_RESULTS_DIRNAME = "results";
   public static final String KARAMEL_CONF_NAME = "karamel.conf";
   public static final String SOLO_CONF_NAME = "solo.rb";
 

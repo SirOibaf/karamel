@@ -17,11 +17,11 @@ import java.nio.file.Paths;
 
 public class RunRecipeTask extends Task {
 
-  private DataBagsFactory dataBagsFactory = null;
-  private Settings settings = null;
+  private DataBagsFactory dataBagsFactory;
+  private Settings settings;
 
-  private Group group = null;
-  private Recipe recipe = null;
+  private Group group;
+  private Recipe recipe;
 
   public RunRecipeTask(int taskId, Node node, Group group, Recipe recipe,
                        Settings settings, DataBagsFactory dataBagsFactory) {
@@ -51,6 +51,9 @@ public class RunRecipeTask extends Task {
 
     // 2. Run recipe
     runRecipe(dataBagPath);
+
+    // 3. Fetch output
+    fetchRecipeOutput();
   }
 
   // TODO(Fabio): we can probably avoid to execute this in case of retries
@@ -75,7 +78,8 @@ public class RunRecipeTask extends Task {
     FileUtils.writeStringToFile(dataBagPath.toFile(), dataBagStr);
 
     // SCP the file to the target machine
-    node.scpFile(dataBagPath.toString(), Paths.get(node.getWorkDir(), Constants.REMOTE_INSTALL_DIR_NAME).toString());
+    node.scpFileUpload(dataBagPath.toString(),
+        Paths.get(node.getWorkDir(), Constants.REMOTE_INSTALL_DIR_NAME).toString());
 
     return dataBagPath;
   }
@@ -102,6 +106,12 @@ public class RunRecipeTask extends Task {
   }
 
   private void fetchRecipeOutput() throws IOException {
-    // TODO(Fabio): This can be implemented later on.
+    String localResultsPath =
+        Paths.get(System.getenv(Constants.KARAMEL_HOME), Constants.KARAMEL_RESULTS_DIRNAME).toString();
+    String remoteResultPath = Paths.get("/tmp",
+        recipe.getCanonicalName().replace("::", "__") + Constants.RECIPE_RESULT_POSFIX).toString();
+    node.scpFileDownload(localResultsPath, remoteResultPath);
+
+    // TODO(Fabio): parse output and add it to databag
   }
 }

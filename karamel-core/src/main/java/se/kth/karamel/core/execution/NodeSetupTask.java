@@ -63,7 +63,7 @@ public class NodeSetupTask extends Task {
     String remoteInstallDir = Paths.get(node.getWorkDir(), Constants.REMOTE_INSTALL_DIR_NAME).toString();
     chefDkLocalPath = Paths.get(chefDkLocalPath, chefBinName).toString();
 
-    node.scpFile(chefDkLocalPath, remoteInstallDir);
+    node.scpFileUpload(chefDkLocalPath, remoteInstallDir);
 
     // install ChefDk
     installChefDK(chefBinName, osFamily, remoteInstallDir);
@@ -88,6 +88,6 @@ public class NodeSetupTask extends Task {
   }
 
   private void templateSoloConf(Settings settings, String remoteInstallDir) throws IOException {
-    node.scpFile(ChefSoloConf.getConfLocalPath(settings, node.getUser()), remoteInstallDir);
+    node.scpFileUpload(ChefSoloConf.getConfLocalPath(settings, node.getUser()), remoteInstallDir);
   }
 }

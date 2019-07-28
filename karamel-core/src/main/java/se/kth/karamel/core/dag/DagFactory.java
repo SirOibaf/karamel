@@ -142,6 +142,7 @@ public class DagFactory {
         .flatMap(g -> g.getKaramelizedCookbooks().stream())
         .collect(Collectors.toSet());
 
+    // TODO(Fabio): add local dependencies to setup tasks
     for (KaramelizedCookbook kCookbook : kCookbookSet) {
       addKCookbookDependencies(kCookbook.getKaramelFile().getDependencies());
     }

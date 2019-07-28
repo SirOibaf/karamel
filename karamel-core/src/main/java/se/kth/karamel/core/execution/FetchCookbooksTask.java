@@ -35,7 +35,7 @@ public class FetchCookbooksTask extends Task {
     Files.walk(localCookbooksPath).forEach(path -> {
         try {
           Path relativePath = localCookbooksPath.relativize(path);
-          node.scpFile(path.toString(),
+          node.scpFileUpload(path.toString(),
               Paths.get(node.getWorkDir(), Constants.REMOTE_COOKBOOKS_DIR_NAME,
                   relativePath.toString()).toString());
         } catch (IOException e) {

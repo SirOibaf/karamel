@@ -11,11 +11,11 @@ public interface Node {
   String getUser();
 
   Session.Command execCommand(String command, boolean requiresRoot) throws IOException;
-  void scpFile(String localPath, String targetPath) throws IOException;
+  void scpFileUpload(String localPath, String targetPath) throws IOException;
+  void scpFileDownload(String localPath, String targetPath) throws IOException;
 
   String getHostname();
   String getPrivateIP();
   String getPublicIP();
-
 
 }
