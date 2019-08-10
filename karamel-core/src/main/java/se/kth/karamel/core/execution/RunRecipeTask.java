@@ -114,4 +114,8 @@ public class RunRecipeTask extends Task {
 
     // TODO(Fabio): parse output and add it to databag
   }
+
+  public Recipe getRecipe() {
+    return recipe;
+  }
 }

@@ -1,32 +1,32 @@
 package se.kth.karamel.core;
 
 import java.io.File;
+import java.io.IOException;
+
+import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
+import se.kth.karamel.common.util.Settings;
 import se.kth.karamel.core.provisioner.jcloud.amazon.Ec2Context;
 import se.kth.karamel.core.provisioner.jcloud.google.GceContext;
 import se.kth.karamel.common.exception.KaramelException;
 import se.kth.karamel.common.clusterdef.Cluster;
 import se.kth.karamel.common.util.SshKeyPair;
-import se.kth.karamel.common.util.SshKeyService;
 
 /**
  * Keeps repository of running clusters with a unique name for each. Privacy sensitive data such as credentials is
- * stored inside a context. There is a common context with shared values between clusters and each cluster has its own
- * context inside which values can be overwritten.
+ * stored inside a context.
  */
 // TODO(Fabio) this class is total BS. We run 1 cluster at the time
 // First you learn to walk then you run.
 public class ClusterService {
 
-  private final Logger logger = Logger.getLogger(ClusterService.class);
-  private ClusterDefinitionService clusterDefinitionService = new ClusterDefinitionService();
+  private final Logger LOGGER = Logger.getLogger(ClusterService.class);
 
-  private ClusterContext clusterContext = new ClusterContext();
-
-  private Cluster currentCluster = null;
+  private ClusterContext clusterContext = null;
+  private DeploymentManager deploymentManager = null;
 
   private static ClusterService instance = null;
-  public static ClusterService getInstance() {
+  public synchronized static ClusterService getInstance() {
     if (instance == null) {
       instance = new ClusterService();
     }
@@ -34,19 +34,15 @@ public class ClusterService {
   }
 
   public synchronized void setCurrentCluster(Cluster currentCluster) {
-    this.currentCluster = currentCluster;
+    clusterContext = new ClusterContext(currentCluster);
   }
 
   public synchronized Cluster getCurrentCluster() {
-    return this.currentCluster;
+    return clusterContext.getCluster();
   }
 
   public synchronized void registerSudoAccountPassword(String password) {
     clusterContext.setSudoPassword(password);
-  }
-
-  public synchronized String getSudoAccountPassword() {
-    return clusterContext.getSudoPassword();
   }
 
   public synchronized void registerEc2Context(Ec2Context ec2Context) throws KaramelException {
@@ -62,7 +58,6 @@ public class ClusterService {
   }
 
   public synchronized void registerSshKeyPair(SshKeyPair sshKeyPair) throws KaramelException {
-
     File pubKey = new File(sshKeyPair.getPublicKeyPath());
     if (!pubKey.exists()) {
       throw new KaramelException("Could not find public key: " + sshKeyPair.getPublicKeyPath());
@@ -71,30 +66,41 @@ public class ClusterService {
     if (!privKey.exists()) {
       throw new KaramelException("Could not find private key: " + sshKeyPair.getPrivateKeyPath());
     }
-    sshKeyPair.setNeedsPassword(SshKeyService.checkIfPasswordNeeded(sshKeyPair));
 
     clusterContext.setSshKeyPair(sshKeyPair);
   }
 
-  public synchronized SshKeyPair getSshKeyPair() {
-    return clusterContext.getSshKeyPair();
-  }
+  public synchronized void startCluster() throws KaramelException, IOException {
+    if (deploymentManager != null) {
+      throw new KaramelException("Karamel is already deploying the cluster");
+    }
 
-  public synchronized void startCluster() throws KaramelException {
-  }
-
-  public synchronized void submitInstallationDag() throws KaramelException {
-  }
-
-  public synchronized void submitPurgeDag() throws KaramelException {
+    deploymentManager = new DeploymentManager(new Settings());
+    deploymentManager.deploy(clusterContext);
+    LOGGER.log(Level.INFO, "Deployment started");
   }
 
   public synchronized void pauseDag() throws KaramelException {
+    if (deploymentManager == null) {
+      throw new KaramelException("No cluster is running at the moment");
+    }
+    deploymentManager.pause();
+    LOGGER.log(Level.INFO, "Deployment paused");
   }
 
   public synchronized void resumeDag() throws KaramelException {
+    if (deploymentManager == null) {
+      throw new KaramelException("No cluster is running at the moment");
+    }
+    deploymentManager.resume();
+    LOGGER.log(Level.INFO, "Deployment resumed");
   }
 
   public synchronized void terminateCluster() throws KaramelException {
+    if (deploymentManager == null) {
+      throw new KaramelException("No cluster is running at the moment");
+    }
+    deploymentManager.terminate();
+    LOGGER.log(Level.INFO, "Deployment terminated");
   }
 }

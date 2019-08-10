@@ -2,6 +2,7 @@ package se.kth.karamel.core.provisioner.jcloud;
 
 import se.kth.karamel.common.clusterdef.Baremetal;
 import se.kth.karamel.common.clusterdef.Cluster;
+import se.kth.karamel.common.clusterdef.EC2;
 import se.kth.karamel.common.clusterdef.GCE;
 import se.kth.karamel.common.clusterdef.Group;
 import se.kth.karamel.common.exception.KaramelException;
@@ -9,6 +10,7 @@ import se.kth.karamel.core.ClusterContext;
 import se.kth.karamel.core.provisioner.Provisioner;
 import se.kth.karamel.core.provisioner.jcloud.amazon.EC2Provisioner;
 import se.kth.karamel.core.provisioner.jcloud.baremetal.BaremetalProvisioner;
+import se.kth.karamel.core.provisioner.jcloud.baremetal.NoopProvisioner;
 import se.kth.karamel.core.provisioner.jcloud.google.GCEProvisioner;
 
 public class JCloudProvisioner implements Provisioner {
@@ -28,8 +30,10 @@ public class JCloudProvisioner implements Provisioner {
       return new BaremetalProvisioner();
     } else if (group.getProvider() instanceof GCE) {
       return new GCEProvisioner();
-    } else {
+    } else if (group.getProvider() instanceof EC2){
       return new EC2Provisioner();
+    } else {
+      return new NoopProvisioner();
     }
   }
 }

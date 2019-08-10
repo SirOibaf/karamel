@@ -56,7 +56,9 @@ public class ExecutionEngine {
    * Pause execution - running recipes will complete
    */
   public void pause() {
-    pause.set(true);
+    synchronized (pause) {
+      pause.set(true);
+    }
   }
 
   /**

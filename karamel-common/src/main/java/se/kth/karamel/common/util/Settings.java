@@ -3,9 +3,11 @@ package se.kth.karamel.common.util;
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
+import se.kth.karamel.common.exception.KaramelException;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -46,7 +48,7 @@ public class Settings {
 
   private Map<String, String> confMap = new HashMap<>();
 
-  public Settings() throws IOException {
+  public Settings() throws KaramelException, IOException {
     // Apply defaults
     for (SettingsKeys settingsKeys : SettingsKeys.values()) {
       confMap.put(settingsKeys.keyName, settingsKeys.defaultValue);
@@ -54,8 +56,17 @@ public class Settings {
 
     // Parse the configuration file in KARAMEL_HOME/conf/karamel.conf
     File confFile = Paths.get(System.getenv(Constants.KARAMEL_HOME),
-        Constants.KARAMEL_CONF_DIRNAME,
+       Constants.KARAMEL_CONF_DIRNAME,
         Constants.KARAMEL_CONF_NAME).toFile();
+    if (!confFile.exists()) {
+      // Try loading it from the resources
+      URL resourceConfFilePath = this.getClass().getResource("/" + Constants.KARAMEL_CONF_NAME);
+      if (resourceConfFilePath == null) {
+        throw new KaramelException("Could not load Karamel configuration file");
+      } else {
+        confFile = new File(resourceConfFilePath.getFile());
+      }
+    }
 
     String confContent = FileUtils.readFileToString(confFile);
 
@@ -76,7 +87,7 @@ public class Settings {
     }
   }
 
-  public Map<String, String> getConfMap() {
+  public Map<String, String> getConfMap(){
     return this.confMap;
   }
 

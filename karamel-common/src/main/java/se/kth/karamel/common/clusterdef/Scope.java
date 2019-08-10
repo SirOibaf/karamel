@@ -11,6 +11,9 @@ import java.util.Map;
 public class Scope {
 
   @Setter @Getter
+  private NoOp noop = null;
+
+  @Setter @Getter
   private Baremetal baremetal = null;
 
   @Setter @Getter
@@ -26,7 +29,9 @@ public class Scope {
   }
 
   public Provider getProvider() {
-    if (baremetal != null) {
+    if (noop != null) {
+      return noop;
+    } else if (baremetal != null) {
       return baremetal;
     } else if (ec2 != null) {
       return ec2;

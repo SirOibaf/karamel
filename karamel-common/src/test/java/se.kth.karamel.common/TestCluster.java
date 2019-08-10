@@ -1,16 +1,12 @@
 package se.kth.karamel.common;
 
 import org.apache.commons.io.IOUtils;
-import org.junit.Before;
 import org.junit.Test;
-import org.yaml.snakeyaml.TypeDescription;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.Constructor;
-import se.kth.karamel.common.clusterdef.Baremetal;
 import se.kth.karamel.common.clusterdef.Cluster;
 import se.kth.karamel.common.clusterdef.Cookbook;
 import se.kth.karamel.common.clusterdef.EC2;
-import se.kth.karamel.common.clusterdef.GCE;
 import se.kth.karamel.common.exception.KaramelException;
 
 import java.io.IOException;
@@ -45,8 +41,8 @@ public class TestCluster {
         cluster.getGroups().stream().filter(g -> g.getName().equals("group1"))
             .findFirst().get().getAttributes().size());
 
-    assertNull(cluster.getGroups().stream().filter(g -> g.getName().equals("group2"))
-            .findFirst().get().getAttributes());
+    assertEquals(0, cluster.getGroups().stream().filter(g -> g.getName().equals("group2"))
+            .findFirst().get().getAttributes().size());
   }
 
   @Test

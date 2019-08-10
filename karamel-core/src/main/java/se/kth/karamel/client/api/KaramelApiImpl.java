@@ -8,6 +8,9 @@ import se.kth.karamel.common.clusterdef.Cluster;
 import se.kth.karamel.common.exception.KaramelException;
 import se.kth.karamel.common.util.Ec2Credentials;
 import se.kth.karamel.common.util.SshKeyPair;
+import se.kth.karamel.core.provisioner.jcloud.amazon.Ec2Context;
+
+import java.io.IOException;
 
 
 /**
@@ -32,23 +35,33 @@ public class KaramelApiImpl implements KaramelApi {
   }
 
   @Override
-  public Ec2Credentials loadEc2CredentialsIfExist() throws KaramelException {
+  public SshKeyPair loadSshKeysIfExist() throws KaramelException {
+    // TODO(Fabio) fix this
     return null;
   }
 
   @Override
-  public boolean updateEc2CredentialsIfValid(Ec2Credentials credentials) throws KaramelException {
-    return true;
+  public void registerSshKeys(SshKeyPair keyPair) throws KaramelException {
+    clusterService.registerSshKeyPair(keyPair);
   }
 
   @Override
-  public String loadGceCredentialsIfExist() throws KaramelException {
-    return null;
+  public void registerSudoPassword(String password) {
+    clusterService.registerSudoAccountPassword(password);
   }
 
   @Override
-  public boolean updateGceCredentialsIfValid(String jsonFilePath) throws KaramelException {
-    return true;
+  public void setEc2CredentialsIfValid(Ec2Credentials credentials) throws KaramelException {
+    clusterService.registerEc2Context(new Ec2Context(credentials));
+  }
+
+  @Override
+  public void startCluster() throws KaramelException {
+    try {
+      clusterService.startCluster();
+    } catch (IOException e) {
+      throw new KaramelException(e);
+    }
   }
 
   @Override
@@ -62,42 +75,7 @@ public class KaramelApiImpl implements KaramelApi {
   }
 
   @Override
-  public void terminateCluster(String clusterName) throws KaramelException {
-    throw new UnsupportedOperationException("Not supported yet.");
-  }
-
-  @Override
-  public void startCluster() throws KaramelException {
-    clusterService.startCluster();
-  }
-
-  @Override
-  public String getInstallationDag(String clusterName) throws KaramelException {
-    throw new UnsupportedOperationException("Not supported yet.");
-  }
-
-  @Override
-  public SshKeyPair loadSshKeysIfExist() throws KaramelException {
-    return null;
-  }
-
-  @Override
-  public SshKeyPair loadSshKeysIfExist(String clusterName) throws KaramelException {
-    return null;
-  }
-
-  @Override
-  public SshKeyPair registerSshKeys(SshKeyPair keypair) throws KaramelException {
-    return null;
-  }
-
-  @Override
-  public SshKeyPair registerSshKeys(String clusterName, SshKeyPair keypair) throws KaramelException {
-    return null;
-  }
-
-  @Override
-  public void registerSudoPassword(String password) {
-    ClusterService.getInstance().registerSudoAccountPassword(password);
+  public void terminateCluster() throws KaramelException {
+    clusterService.terminateCluster();
   }
 }

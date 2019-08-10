@@ -38,9 +38,10 @@ attributes:
 groups:
    - name: group1
      baremetal:
-       ip: 127.0.0.1
-       ip: 127.0.0.2
-       ip: 127.0.0.2
+      ips:
+       - 127.0.0.1
+       - 127.0.0.2
+       - 127.0.0.2
      size: 3
      recipes:
        - kagent
@@ -58,9 +59,10 @@ groups:
        - hops::client
    - name: group2
      baremetal:
-       ip: 127.0.0.1
-       ip: 127.0.0.2
-       ip: 127.0.0.2
+      ips:
+        - 127.0.0.1
+        - 127.0.0.2
+        - 127.0.0.2
      size: 3
      recipes:
        - kagent

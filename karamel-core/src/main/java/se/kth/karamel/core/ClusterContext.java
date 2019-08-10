@@ -11,15 +11,30 @@ import se.kth.karamel.common.exception.KaramelException;
 import se.kth.karamel.common.util.SshKeyPair;
 
 /**
- * Authenticated APIs and privacy-sensitive data, that must not be revealed by storing them in the file-system, is
- * stored here in memory. It is valid just until the system is running otherwise it will disappear.
+ * Store information about a running cluster. Has a cluster definition and API authentication
+ * information can be added
  */
+
 public class ClusterContext {
 
-  private Ec2Context ec2Context;
-  private GceContext gceContext;
+  private Cluster cluster;
+
   private SshKeyPair sshKeyPair;
   private String sudoPassword;
+  private Ec2Context ec2Context;
+  private GceContext gceContext;
+
+  public ClusterContext(Cluster cluster) {
+    this.cluster = cluster;
+  }
+
+  public Cluster getCluster() {
+    return cluster;
+  }
+
+  public void setCluster(Cluster cluster) {
+    this.cluster = cluster;
+  }
 
   public void setSudoPassword(String sudoPassword) {
     this.sudoPassword = sudoPassword;
@@ -45,52 +60,29 @@ public class ClusterContext {
     this.sshKeyPair = sshKeyPair;
   }
 
-  public void mergeContext(ClusterContext commonContext) {
-    if (ec2Context == null) {
-      ec2Context = commonContext.getEc2Context();
-    }
-    if (gceContext == null) {
-      gceContext = commonContext.getGceContext();
-    }
-    if (sshKeyPair == null) {
-      sshKeyPair = commonContext.getSshKeyPair();
-    }
-  }
-
-  public static ClusterContext validateContext(Cluster definition,
-                                               ClusterContext context, ClusterContext commonContext)
-      throws KaramelException {
-    if (context == null) {
-      context = new ClusterContext();
-    }
-    context.mergeContext(commonContext);
-
-    for (Group group : definition.getGroups()) {
-      Provider provider = group.getProvider();
-      if (provider instanceof EC2 && context.getEc2Context() == null) {
-        throw new KaramelException("No valid EC2 credentials registered :-|");
-      } else if (provider instanceof GCE && context.getGceContext() == null) {
-        throw new KaramelException("No valid GCE credentials registered :-|");
-      }
-    }
-
-    if (context.getSshKeyPair() == null) {
-      throw new KaramelException("No ssh keypair chosen :-|");
-    }
-    return context;
-  }
-
-  /**
-   * @return the gceContext
-   */
   public GceContext getGceContext() {
     return gceContext;
   }
 
-  /**
-   * @param gceContext the gceContext to set
-   */
   public void setGceContext(GceContext gceContext) {
     this.gceContext = gceContext;
   }
+
+  public void validateContext() throws KaramelException {
+    // Check that, if one of the groups is using a cloud provider,
+    // the corresponding context has been configured
+    for (Group group : cluster.getGroups()) {
+      Provider provider = group.getProvider();
+      if (provider instanceof EC2 && ec2Context == null) {
+        throw new KaramelException("No valid EC2 credentials registered");
+      } else if (provider instanceof GCE && gceContext == null) {
+        throw new KaramelException("No valid GCE credentials registered");
+      }
+    }
+
+    if (sshKeyPair == null) {
+      throw new KaramelException("No ssh keypair chosen");
+    }
+  }
+
 }

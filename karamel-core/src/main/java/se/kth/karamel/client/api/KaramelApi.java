@@ -34,40 +34,13 @@ public interface KaramelApi {
   SshKeyPair loadSshKeysIfExist() throws KaramelException;
 
   /**
-   * Loads cluster specific keys
-   *
-   * @param clusterName
-   * @return
-   * @throws KaramelException
-   */
-  SshKeyPair loadSshKeysIfExist(String clusterName) throws KaramelException;
-
-  /**
    * Register ssh keys for the current runtime of karamel
    *
    * @param keypair
    * @return
    * @throws KaramelException
    */
-  SshKeyPair registerSshKeys(SshKeyPair keypair) throws KaramelException;
-
-  /**
-   * Register ssh keys for the specified cluster
-   *
-   * @param clusterName
-   * @param keypair
-   * @return
-   * @throws KaramelException
-   */
-  SshKeyPair registerSshKeys(String clusterName, SshKeyPair keypair) throws KaramelException;
-
-  /**
-   * Reads it from default karamel conf file
-   *
-   * @return
-   * @throws KaramelException
-   */
-  Ec2Credentials loadEc2CredentialsIfExist() throws KaramelException;
+  void registerSshKeys(SshKeyPair keypair) throws KaramelException;
 
   /**
    * Validates user's credentials before starting the cluster
@@ -76,7 +49,15 @@ public interface KaramelApi {
    * @return
    * @throws KaramelException
    */
-  boolean updateEc2CredentialsIfValid(Ec2Credentials credentials) throws KaramelException;
+  void setEc2CredentialsIfValid(Ec2Credentials credentials) throws KaramelException;
+
+  /**
+   * Register password for Baremetal sudo account
+   *
+   * @param password
+   * @throws KaramelException
+   */
+  void registerSudoPassword(String password) throws KaramelException;
 
   /**
    * Starts running the cluster by launching machines and installing software
@@ -106,30 +87,7 @@ public interface KaramelApi {
    * It stops sending new ssh command to machines, destroys the automatic allocated machines and disconnects ssh clients
    * from machines. User, however, shouldn't expect that bare-metal machines be destroyed as well.
    *
-   * @param clusterName
    * @throws KaramelException
    */
-  void terminateCluster(String clusterName) throws KaramelException;
-
-  /**
-   * Returns installation flow DAG that each node is a task assigned to a certain machine with the current status of the
-   * task.
-   *
-   * @param clusterName
-   * @return
-   * @throws KaramelException
-   */
-  String getInstallationDag(String clusterName) throws KaramelException;
-
-  /**
-   * Register password for Baremetal sudo account
-   *
-   * @param password
-   * @throws KaramelException
-   */
-  void registerSudoPassword(String password) throws KaramelException;
-
-  String loadGceCredentialsIfExist() throws KaramelException;
-
-  boolean updateGceCredentialsIfValid(String jsonFilePath) throws KaramelException;
+  void terminateCluster() throws KaramelException;
 }

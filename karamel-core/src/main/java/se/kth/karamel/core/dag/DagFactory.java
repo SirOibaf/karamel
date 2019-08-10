@@ -6,6 +6,7 @@ import se.kth.karamel.common.clusterdef.Recipe;
 import se.kth.karamel.common.cookbookmeta.CookbookCache;
 import se.kth.karamel.common.cookbookmeta.KaramelFileDeps;
 import se.kth.karamel.common.cookbookmeta.KaramelizedCookbook;
+import se.kth.karamel.common.exception.KaramelException;
 import se.kth.karamel.common.node.Node;
 import se.kth.karamel.common.util.Constants;
 import se.kth.karamel.common.util.Settings;
@@ -32,13 +33,17 @@ public class DagFactory {
 
   // HashMap for quick task access. Used during the building of the dependency graph.
   // Useful for global dependencies
-  Map<Recipe, List<Task>> recipeToTasksMap = new HashMap<>();
+  private Map<Recipe, List<Task>> recipeToTasksMap = new HashMap<>();
 
   // Useful for local dependencies
-  Map<Recipe, List<Node>> recipeToNodesMap = new HashMap<>();
-  Map<Node, Map<Recipe, Task>> nodeToRecipeMap = new HashMap<>();
+  private Map<Recipe, List<Node>> recipeToNodesMap = new HashMap<>();
+  private Map<Node, Map<Recipe, Task>> nodeToRecipeMap = new HashMap<>();
 
-  public Dag buildDag(Cluster cluster, Settings settings, DataBagsFactory dbFactory) throws IOException {
+  private static final String NODE_SETUP_RECIPE_NAME = "node::setup";
+  private static final String FETCH_COOKBOOKS_RECIPE_NAME = "fetch::cookbooks";
+
+  public Dag buildDag(Cluster cluster, Settings settings, DataBagsFactory dbFactory)
+    throws IOException, KaramelException {
     Dag dag = new Dag();
 
     // 1. Add machine setup tasks. They will be responsible of installing Chefdk,
@@ -59,17 +64,25 @@ public class DagFactory {
 
   private void addNodeSetupTasks(Dag dag, Cluster cluster, Settings settings) {
     cluster.getGroups()
-        .stream().flatMap(g -> g.getProvider().getNodes().stream())
-        .map(node -> new NodeSetupTask(taskIdProgress++, node, settings))
-        .forEach(dag::addTask);
+      .stream().flatMap(g -> g.getProvider().getNodes().stream())
+      .map(node -> new NodeSetupTask(taskIdProgress++, node, settings))
+      .forEach(task -> {
+          dag.addTask(task);
+          addToTaskCache(new Recipe(NODE_SETUP_RECIPE_NAME), task.getNode(), task);
+        });
   }
 
-  private void addFetchCookbookTasks(Dag dag, Cluster cluster, Settings settings) throws IOException {
+  private void addFetchCookbookTasks(Dag dag, Cluster cluster, Settings settings)
+    throws KaramelException, IOException {
     Path localCookbookPath = Paths.get(CookbookCache.getInstance().getLocalCookbookPath());
     cluster.getGroups()
-        .stream().flatMap(g -> g.getProvider().getNodes().stream())
-        .map(node -> new FetchCookbooksTask(taskIdProgress++, node, settings, localCookbookPath))
-        .forEach(dag::addTask);
+      .stream().flatMap(g -> g.getProvider().getNodes().stream())
+      .map(node -> new FetchCookbooksTask(taskIdProgress++, node, settings, localCookbookPath))
+      .forEach(task -> {
+          task.getDependsOn().add(nodeToRecipeMap.get(task.getNode()).get(new Recipe(NODE_SETUP_RECIPE_NAME)));
+          dag.addTask(task);
+          addToTaskCache(new Recipe(FETCH_COOKBOOKS_RECIPE_NAME), task.getNode(), task);
+        });
   }
 
   private void addRecipeTasks(Dag dag, Cluster cluster, Settings settings,
@@ -95,14 +108,15 @@ public class DagFactory {
 
   private void addInstallRecipes(Dag dag, Group group, Settings settings, DataBagsFactory dbFactory) {
     Set<String> uniqueCookbookNames = group.getRecipes().stream().map(Recipe::getCookbook)
-        .map(KaramelizedCookbook::getCookbookName)
-        .collect(Collectors.toSet());
+      .map(KaramelizedCookbook::getCookbookName)
+      .collect(Collectors.toSet());
 
     for (Node node : group.getProvider().getNodes()) {
       for (String cookbookName : uniqueCookbookNames) {
         Recipe installRecipe = new Recipe(cookbookName + Constants.COOKBOOK_DELIMITER + Constants.INSTALL_RECIPE);
         Task runRecipeTask = new RunRecipeTask(taskIdProgress++, node, group, installRecipe, settings, dbFactory);
-
+        // Add dependencies to fetch cookbooks recipe
+        runRecipeTask.getDependsOn().add(nodeToRecipeMap.get(node).get(new Recipe(FETCH_COOKBOOKS_RECIPE_NAME)));
         addToTaskCache(installRecipe, node, runRecipeTask);
 
         dag.addTask(runRecipeTask);
@@ -139,10 +153,27 @@ public class DagFactory {
   private void addDependencies(Cluster cluster) {
     // Collect all the dependencies
     Set<KaramelizedCookbook> kCookbookSet = cluster.getGroups().stream()
-        .flatMap(g -> g.getKaramelizedCookbooks().stream())
-        .collect(Collectors.toSet());
+      .flatMap(g -> g.getKaramelizedCookbooks().stream())
+      .collect(Collectors.toSet());
 
-    // TODO(Fabio): add local dependencies to setup tasks
+    // Add install recipe dependencies. If a recipe runs on a node, it has to run after the install recipe
+    // from the same cookbook. This is to maintain compatibility with the old Karamel
+    // Users can specify more dependencies with install recipes (eg. of other cookbooks) or dependencies
+    // between install recipe themselves. These are added in the for loop below
+    recipeToTasksMap.entrySet().stream()
+      .filter(e ->
+        // Test only the first, all the the entries in this map are of the same type.
+        e.getValue().get(0) instanceof RunRecipeTask &&
+          !e.getKey().getCanonicalName().contains(Constants.INSTALL_RECIPE))
+      .flatMap(e -> e.getValue().stream())
+      .forEach(task -> {
+          RunRecipeTask runTask = (RunRecipeTask) task;
+          String installRecipeName = runTask.getRecipe().getCookbook().getCookbookName()
+            + Constants.COOKBOOK_DELIMITER
+            + Constants.INSTALL_RECIPE;
+          task.getDependsOn().add(nodeToRecipeMap.get(task.getNode()).get(new Recipe(installRecipeName)));
+        });
+
     for (KaramelizedCookbook kCookbook : kCookbookSet) {
       addKCookbookDependencies(kCookbook.getKaramelFile().getDependencies());
     }
@@ -174,7 +205,6 @@ public class DagFactory {
           targetRecipeTask.getDependsOn().add(srcRecipeTask);
         }
       }
-
     }
   }
 

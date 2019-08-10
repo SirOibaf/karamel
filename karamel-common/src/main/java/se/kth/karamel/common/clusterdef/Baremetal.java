@@ -12,7 +12,7 @@ import se.kth.karamel.common.exception.ValidationException;
 public class Baremetal extends Provider {
 
   @Getter @Setter
-  private final List<String> ips = new ArrayList<>();
+  private List<String> ips = new ArrayList<>();
 
   /**
    * We support ip ranges (TODO)

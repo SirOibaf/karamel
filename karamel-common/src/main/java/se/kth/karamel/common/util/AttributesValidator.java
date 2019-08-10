@@ -19,7 +19,7 @@ public class AttributesValidator {
 
     List<KaramelizedCookbook> cookbooks = null;
     try {
-      CookbookCache.getInstance().getKaramelizedCookbooks();
+      cookbooks = CookbookCache.getInstance().getKaramelizedCookbooks();
     } catch (IOException e) {
       throw new KaramelException(e);
     }

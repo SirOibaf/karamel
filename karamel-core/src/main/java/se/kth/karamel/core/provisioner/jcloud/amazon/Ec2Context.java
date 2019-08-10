@@ -57,13 +57,7 @@ public class Ec2Context {
     this.ec2api = computeService.getContext().unwrapApi(EC2Api.class);
     this.securityGroupApi = ec2api.getSecurityGroupApi().get();
     this.keypairApi = (AWSKeyPairApi) ec2api.getKeyPairApi().get();
-
-    //vmBatchSize = Settings.AWS_VM_BATCH_SIZE();
   }
-
-  //public int getVmBatchSize() {
-  //  return vmBatchSize;
-  //}
 
   public Ec2Credentials getCredentials() {
     return credentials;

@@ -12,7 +12,8 @@ cookbooks:
 groups:
   -  name: group1
      baremetal:
-       ip: 127.0.0.1
+       ips:
+         - 127.0.0.1
      size: 1
      recipes:
        - test

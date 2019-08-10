@@ -52,11 +52,11 @@ public class CookbookCache {
 
   private static CookbookCache cookbookCacheInstance = null;
 
-  private CookbookCache() throws IOException {
+  private CookbookCache() throws KaramelException, IOException {
     this.settings = new Settings();
   }
 
-  public static CookbookCache getInstance() throws IOException {
+  public static CookbookCache getInstance() throws KaramelException, IOException {
     if (cookbookCacheInstance == null) {
       cookbookCacheInstance = new CookbookCache();
     }

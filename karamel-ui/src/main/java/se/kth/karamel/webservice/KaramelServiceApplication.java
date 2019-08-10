@@ -31,7 +31,6 @@ import org.eclipse.jetty.server.AbstractNetworkConnector;
 import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlets.CrossOriginFilter;
-import se.kth.karamel.core.ClusterDefinitionService;
 import se.kth.karamel.client.api.KaramelApi;
 import se.kth.karamel.client.api.KaramelApiImpl;
 
@@ -39,10 +38,6 @@ import se.kth.karamel.common.exception.KaramelException;
 import se.kth.karamel.common.util.SshKeyPair;
 import se.kth.karamel.webservice.calls.cluster.ClusterService;
 import se.kth.karamel.webservice.calls.cluster.UploadService;
-import se.kth.karamel.webservice.calls.ec2.LoadEc2Credentials;
-import se.kth.karamel.webservice.calls.ec2.ValidateEc2Credentials;
-import se.kth.karamel.webservice.calls.gce.LoadGceCredentials;
-import se.kth.karamel.webservice.calls.gce.ValidateGceCredentials;
 import se.kth.karamel.webservice.calls.sshkeys.LoadSshKeys;
 import se.kth.karamel.webservice.calls.sshkeys.RegisterSshKeys;
 import se.kth.karamel.webservice.calls.sshkeys.SetSudoPassword;
@@ -149,10 +144,6 @@ public class KaramelServiceApplication extends Application<KaramelServiceConfigu
         //ClusterManager.EXIT_ON_COMPLETION  = true;
         new KaramelServiceApplication().run(modifiedArgs);
 
-        // Try to open and read the yaml file. 
-        // Print error msg if invalid file or invalid YAML.
-        se.kth.karamel.common.clusterdef.Cluster cluster = (new ClusterDefinitionService()).loadYaml("fixme");
-
         if (!noSudoPasswd && !sudoPasswd.isEmpty()) {
           karamelApi.registerSudoPassword(sudoPasswd);
         }
@@ -212,14 +203,6 @@ public class KaramelServiceApplication extends Application<KaramelServiceConfigu
     environment.jersey().register(new LoadSshKeys(karamelApi));
     environment.jersey().register(new RegisterSshKeys(karamelApi));
     environment.jersey().register(new SetSudoPassword(karamelApi));
-
-    //ec2
-    environment.jersey().register(new LoadEc2Credentials(karamelApi));
-    environment.jersey().register(new ValidateEc2Credentials(karamelApi));
-
-    //gce
-    environment.jersey().register(new LoadGceCredentials(karamelApi));
-    environment.jersey().register(new ValidateGceCredentials(karamelApi));
 
     //cluster
     environment.jersey().register(new ClusterService(karamelApi));
