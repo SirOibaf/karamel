@@ -202,7 +202,7 @@ public class DagFactory {
         if (targetRecipeTask != null) {
           // Fetch the local task executing the srcRecipe
           Task srcRecipeTask = nodeToRecipeMap.get(node).get(srcRecipe);
-          targetRecipeTask.getDependsOn().add(srcRecipeTask);
+          srcRecipeTask.getDependsOn().add(targetRecipeTask);
         }
       }
     }
@@ -218,7 +218,7 @@ public class DagFactory {
       List<Task> targetRecipeTasks = recipeToTasksMap.get(targetRecipe);
 
       // Add all the srcRecipeTasks to each targetRecipeTasks
-      targetRecipeTasks.forEach(t -> t.getDependsOn().addAll(srcRecipeTasks));
+      srcRecipeTasks.forEach(t -> t.getDependsOn().addAll(targetRecipeTasks));
     }
   }
 }

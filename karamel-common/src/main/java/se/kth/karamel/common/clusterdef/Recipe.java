@@ -64,12 +64,12 @@ public class Recipe implements Comparable<Recipe>{
 
     Recipe recipe = (Recipe) o;
 
-    return name.equals(recipe.name);
+    return getCanonicalName().equals(recipe.getCanonicalName());
   }
 
   @Override
   public int hashCode() {
-    return name.hashCode();
+    return getCanonicalName().hashCode();
   }
 
   public void validate() throws IOException, KaramelException {

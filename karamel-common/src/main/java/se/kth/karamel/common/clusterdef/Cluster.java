@@ -3,7 +3,6 @@ package se.kth.karamel.common.clusterdef;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import se.kth.karamel.common.cookbookmeta.CookbookCache;
@@ -14,7 +13,7 @@ public class Cluster extends Scope {
 
   private String name;
   private Map<String, Cookbook> cookbooks = new HashMap<>();
-  private List<Group> groups = new ArrayList<>();
+  private ArrayList<Group> groups = new ArrayList<>();
 
   public Cluster() { }
 
@@ -26,11 +25,11 @@ public class Cluster extends Scope {
     this.name = name;
   }
 
-  public List<Group> getGroups() {
+  public ArrayList<Group> getGroups() {
     return groups;
   }
 
-  public void setGroups(List<Group> groups) {
+  public void setGroups(ArrayList<Group> groups) {
     this.groups = groups;
   }
 
