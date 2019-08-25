@@ -21,9 +21,9 @@ public class DataBag extends HashMap<String, Object> {
     for (Map.Entry<String, Object> dataBagEntry : dataBag.entrySet()) {
       Object currentKeyValue = current.get(dataBagEntry.getKey());
 
-      if ((currentKeyValue == null && dataBagEntry.getValue() instanceof Map) ||
-           currentKeyValue != null && !(currentKeyValue instanceof Map)) {
-        // The current databag does not contain the key or the current value is not a map, just insert/overwrite
+      if (currentKeyValue == null || !(dataBagEntry.getValue() instanceof Map)) {
+        // The current databag does not contain the key,
+        // or it contains something but the databag to merge contains a value, then it wins and overwrites it
         current.put(dataBagEntry.getKey(), dataBagEntry.getValue());
       } else {
         // Recusively merge

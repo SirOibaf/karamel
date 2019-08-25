@@ -54,8 +54,6 @@ public class TestDagFactory {
 
   @Before
   public void setup() throws KaramelException, IOException {
-    baseCluster = new Cluster();
-
     Map<String, String> cookbookRecipes = new HashMap<>();
     cookbookRecipes.put(TEST_INSTALL, "Install recipe");
     cookbookRecipes.put(TEST_DEFAULT, "Default recipe");

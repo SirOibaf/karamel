@@ -59,6 +59,12 @@ public class DagFactory {
     // 4. Add dependencies between tasks and recipes
     addDependencies(cluster);
 
+    // 5. Check if the dag has circular dependencies
+    if (dag.hasCycle()) {
+      // TODO(Fabio): Return the cycle to the user
+      throw new KaramelException("The DAG has circular dependencies, please fix them");
+    }
+
     return dag;
   }
 
