@@ -1,6 +1,7 @@
 package se.kth.karamel.core.dag;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import se.kth.karamel.common.clusterdef.Cluster;
 import se.kth.karamel.common.clusterdef.Group;
@@ -28,10 +29,16 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static se.kth.karamel.core.execution.TaskStatus.FAILED;
+import static se.kth.karamel.core.execution.TaskStatus.SCHEDULED;
+import static se.kth.karamel.core.execution.TaskStatus.SKIPPED;
+import static se.kth.karamel.core.execution.TaskStatus.SUCCESS;
 import static se.kth.karamel.core.execution.TaskStatus.WAITING;
 
 public class TestDagFactory {
@@ -312,27 +319,269 @@ public class TestDagFactory {
         if (runRecipeTask.getRecipe().getCanonicalName().contains("another")) {
           // Validate that the another recipe has a single dependency to the install
           assertEquals(1, runRecipeTask.getDependsOn().size());
+          assertTrue(runRecipeTask.getDependsOn().get(0) instanceof RunRecipeTask);
         } else if (runRecipeTask.getRecipe().getCanonicalName().contains("default")) {
           // Each default recipe should depends on the install recipe
           // and on all the another recipes running on the cluster (3 nodes)
           assertEquals(4, runRecipeTask.getDependsOn().size());
+          for (Task dep : runRecipeTask.getDependsOn()) {
+            assertTrue(dep instanceof RunRecipeTask);
+          }
         }
       }
     }
   }
 
   @Test
+  @Ignore
   public void testTransientDependencies() {
     throw new RuntimeException("Still have to implement this");
   }
 
   @Test
-  public void testGetSchedulableTasks() {
-    throw new RuntimeException("Still have to implement this");
+  public void testGetSchedulableTasks() throws KaramelException, IOException {
+    provisionNoopNodes();
+    Dag dag = dagFactory.buildDag(baseCluster, new Settings(), dataBagsFactory);
+    Set<Task> schedulableTaskSet = dag.getSchedulableTasks();
+    // First should be the NodeSetup tasks
+    assertEquals(3, schedulableTaskSet.size());
+    for (Task t : schedulableTaskSet) {
+      assertEquals(0, t.getDependsOn().size());
+      assertTrue(t instanceof NodeSetupTask);
+
+      // Set the status to success for the next iteration
+      t.setTaskStatus(SCHEDULED);
+    }
+
+    Set<Task> newSchedulableTaskSet = dag.getSchedulableTasks();
+    // Should be empty, all tasks are scheduled
+    assertEquals(0, newSchedulableTaskSet.size());
+
+    schedulableTaskSet.forEach(t -> t.setTaskStatus(SUCCESS));
+
+    // Get a new batch of schedulable tasks, this time should be the FetchCookbooks
+    schedulableTaskSet = dag.getSchedulableTasks();
+    assertEquals(3, schedulableTaskSet.size());
+    for (Task t : schedulableTaskSet) {
+      assertTrue(t.getDependsOn().stream().noneMatch(task -> (task.getTaskStatus() != SUCCESS)));
+      t.setTaskStatus(SKIPPED);
+    }
+
+    // Check that also skipped recipes are considered "done"
+    schedulableTaskSet = dag.getSchedulableTasks();
+    assertEquals(3, schedulableTaskSet.size());
+    for (Task t : schedulableTaskSet) {
+      assertTrue(t.getDependsOn().stream().noneMatch(task -> (task.getTaskStatus() != SKIPPED)));
+      t.setTaskStatus(FAILED);
+    }
+
+    newSchedulableTaskSet = dag.getSchedulableTasks();
+    // Should be empty until the failed are resolved
+    assertEquals(0, newSchedulableTaskSet.size());
+
+    schedulableTaskSet.forEach(t -> t.setTaskStatus(SUCCESS));
+
+    newSchedulableTaskSet = dag.getSchedulableTasks();
+    assertEquals(3, newSchedulableTaskSet.size());
   }
 
   @Test
-  public void testCycles() {
-    throw new RuntimeException("Still have to implement this");
+  public void testCyclesGlobal() throws KaramelException, IOException{
+    Map<String, String> cookbookRecipes = new HashMap<>();
+    cookbookRecipes.put("test2::install", "Install recipe");
+    cookbookRecipes.put("test2::default", "Default recipe");
+    cookbookRecipes.put("test2::another", "Another recipe");
+    cookbookRecipes.put("test2::third", "Third recipe");
+
+    MetadataRb testMetadataRb = new MetadataRb();
+    testMetadataRb.setName("test2");
+    testMetadataRb.setRecipes(cookbookRecipes);
+
+    List<KaramelFileDeps> dependencies = new ArrayList<>();
+
+    List<String> localDependencies = new ArrayList<>();
+    List<String> globalDependencies = new ArrayList<>();
+    globalDependencies.add("test2::another");
+    dependencies.add(
+      new KaramelFileDeps("test2::default", localDependencies, globalDependencies));
+
+    localDependencies = new ArrayList<>();
+    globalDependencies = new ArrayList<>();
+    globalDependencies.add("test2::third");
+    dependencies.add(
+      new KaramelFileDeps("test2::another", localDependencies, globalDependencies));
+
+    localDependencies = new ArrayList<>();
+    globalDependencies = new ArrayList<>();
+    globalDependencies.add("test2::default");
+    dependencies.add(
+      new KaramelFileDeps("test2::third", localDependencies, globalDependencies));
+
+    KaramelFile karamelFile = new KaramelFile();
+    karamelFile.setDependencies(dependencies);
+
+    KaramelizedCookbook karamelizedCookbook =
+      new KaramelizedCookbook(testMetadataRb, karamelFile);
+    CookbookCache.getInstance().addToCache("test2", karamelizedCookbook);
+
+    provisionNoopNodes();
+
+    List<Recipe> recipesList = new ArrayList<>();
+    recipesList.add(new Recipe(karamelizedCookbook, "test2::default"));
+    recipesList.add(new Recipe(karamelizedCookbook, "test2::another"));
+    recipesList.add(new Recipe(karamelizedCookbook, "test2::third"));
+    clusterContext.getCluster().getGroups().get(0).setRecipes(recipesList);
+
+    Dag dag = dagFactory.buildDag(baseCluster, new Settings(), dataBagsFactory);
+    assertTrue(dag.hasCycle());
+  }
+
+  @Test
+  public void testCyclesLocal() throws KaramelException, IOException{
+    Map<String, String> cookbookRecipes = new HashMap<>();
+    cookbookRecipes.put("test2::install", "Install recipe");
+    cookbookRecipes.put("test2::default", "Default recipe");
+    cookbookRecipes.put("test2::another", "Another recipe");
+    cookbookRecipes.put("test2::third", "Third recipe");
+
+    MetadataRb testMetadataRb = new MetadataRb();
+    testMetadataRb.setName("test2");
+    testMetadataRb.setRecipes(cookbookRecipes);
+
+    List<KaramelFileDeps> dependencies = new ArrayList<>();
+
+    List<String> localDependencies = new ArrayList<>();
+    localDependencies.add("test2::another");
+    List<String> globalDependencies = new ArrayList<>();
+    dependencies.add(
+      new KaramelFileDeps("test2::default", localDependencies, globalDependencies));
+
+    localDependencies = new ArrayList<>();
+    localDependencies.add("test2::third");
+    globalDependencies = new ArrayList<>();
+    dependencies.add(
+      new KaramelFileDeps("test2::another", localDependencies, globalDependencies));
+
+    localDependencies = new ArrayList<>();
+    localDependencies.add("test2::default");
+    globalDependencies = new ArrayList<>();
+    dependencies.add(
+      new KaramelFileDeps("test2::third", localDependencies, globalDependencies));
+
+    KaramelFile karamelFile = new KaramelFile();
+    karamelFile.setDependencies(dependencies);
+
+    KaramelizedCookbook karamelizedCookbook =
+      new KaramelizedCookbook(testMetadataRb, karamelFile);
+    CookbookCache.getInstance().addToCache("test2", karamelizedCookbook);
+
+    provisionNoopNodes();
+
+    List<Recipe> recipesList = new ArrayList<>();
+    recipesList.add(new Recipe(karamelizedCookbook, "test2::default"));
+    recipesList.add(new Recipe(karamelizedCookbook, "test2::another"));
+    recipesList.add(new Recipe(karamelizedCookbook, "test2::third"));
+    clusterContext.getCluster().getGroups().get(0).setRecipes(recipesList);
+
+    Dag dag = dagFactory.buildDag(baseCluster, new Settings(), dataBagsFactory);
+    assertTrue(dag.hasCycle());
+  }
+
+   @Test
+  public void testCyclesMixed() throws KaramelException, IOException{
+    Map<String, String> cookbookRecipes = new HashMap<>();
+    cookbookRecipes.put("test2::install", "Install recipe");
+    cookbookRecipes.put("test2::default", "Default recipe");
+    cookbookRecipes.put("test2::another", "Another recipe");
+    cookbookRecipes.put("test2::third", "Third recipe");
+
+    MetadataRb testMetadataRb = new MetadataRb();
+    testMetadataRb.setName("test2");
+    testMetadataRb.setRecipes(cookbookRecipes);
+
+    List<KaramelFileDeps> dependencies = new ArrayList<>();
+
+    List<String> localDependencies = new ArrayList<>();
+    List<String> globalDependencies = new ArrayList<>();
+    globalDependencies.add("test2::another");
+    dependencies.add(
+      new KaramelFileDeps("test2::default", localDependencies, globalDependencies));
+
+    localDependencies = new ArrayList<>();
+    localDependencies.add("test2::third");
+    globalDependencies = new ArrayList<>();
+    dependencies.add(
+      new KaramelFileDeps("test2::another", localDependencies, globalDependencies));
+
+    localDependencies = new ArrayList<>();
+    localDependencies.add("test2::default");
+    globalDependencies = new ArrayList<>();
+    globalDependencies.add("test2::default");
+    dependencies.add(
+      new KaramelFileDeps("test2::third", localDependencies, globalDependencies));
+
+    KaramelFile karamelFile = new KaramelFile();
+    karamelFile.setDependencies(dependencies);
+
+    KaramelizedCookbook karamelizedCookbook =
+      new KaramelizedCookbook(testMetadataRb, karamelFile);
+    CookbookCache.getInstance().addToCache("test2", karamelizedCookbook);
+
+    provisionNoopNodes();
+
+    List<Recipe> recipesList = new ArrayList<>();
+    recipesList.add(new Recipe(karamelizedCookbook, "test2::default"));
+    recipesList.add(new Recipe(karamelizedCookbook, "test2::another"));
+    recipesList.add(new Recipe(karamelizedCookbook, "test2::third"));
+    clusterContext.getCluster().getGroups().get(0).setRecipes(recipesList);
+
+    Dag dag = dagFactory.buildDag(baseCluster, new Settings(), dataBagsFactory);
+    assertTrue(dag.hasCycle());
+  }
+
+
+  @Test
+  public void testNoCycles() throws KaramelException, IOException{
+    Map<String, String> cookbookRecipes = new HashMap<>();
+    cookbookRecipes.put("test2::install", "Install recipe");
+    cookbookRecipes.put("test2::default", "Default recipe");
+    cookbookRecipes.put("test2::another", "Another recipe");
+    cookbookRecipes.put("test2::third", "Third recipe");
+
+    MetadataRb testMetadataRb = new MetadataRb();
+    testMetadataRb.setName("test2");
+    testMetadataRb.setRecipes(cookbookRecipes);
+
+    List<KaramelFileDeps> dependencies = new ArrayList<>();
+
+    List<String> localDependencies = new ArrayList<>();
+    List<String> globalDependencies = new ArrayList<>();
+    globalDependencies.add("test2::another");
+    dependencies.add(
+      new KaramelFileDeps("test2::default", localDependencies, globalDependencies));
+
+    localDependencies = new ArrayList<>();
+    localDependencies.add("test2::third");
+    globalDependencies = new ArrayList<>();
+    dependencies.add(
+      new KaramelFileDeps("test2::another", localDependencies, globalDependencies));
+
+    KaramelFile karamelFile = new KaramelFile();
+    karamelFile.setDependencies(dependencies);
+
+    KaramelizedCookbook karamelizedCookbook =
+      new KaramelizedCookbook(testMetadataRb, karamelFile);
+    CookbookCache.getInstance().addToCache("test2", karamelizedCookbook);
+
+    provisionNoopNodes();
+
+    List<Recipe> recipesList = new ArrayList<>();
+    recipesList.add(new Recipe(karamelizedCookbook, "test2::default"));
+    recipesList.add(new Recipe(karamelizedCookbook, "test2::another"));
+    recipesList.add(new Recipe(karamelizedCookbook, "test2::third"));
+    clusterContext.getCluster().getGroups().get(0).setRecipes(recipesList);
+
+    Dag dag = dagFactory.buildDag(baseCluster, new Settings(), dataBagsFactory);
+    assertFalse(dag.hasCycle());
   }
 }

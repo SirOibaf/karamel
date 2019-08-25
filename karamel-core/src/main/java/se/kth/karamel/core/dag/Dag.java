@@ -60,8 +60,8 @@ public class Dag {
     return taskList.stream()
         .filter(task -> task.getTaskStatus() == TaskStatus.WAITING)
         .filter(task -> task.getDependsOn().isEmpty() ||
-            task.getDependsOn().stream().noneMatch(dependency -> (dependency.getTaskStatus() != TaskStatus.SUCCESS ||
-                dependency.getTaskStatus() != TaskStatus.SKIPPED)))
+            task.getDependsOn().stream().allMatch(dependency -> (dependency.getTaskStatus() == TaskStatus.SUCCESS ||
+                dependency.getTaskStatus() == TaskStatus.SKIPPED)))
         .collect(Collectors.toSet());
   }
 }
