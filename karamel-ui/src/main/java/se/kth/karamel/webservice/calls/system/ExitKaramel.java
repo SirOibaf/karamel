@@ -17,9 +17,7 @@ public class ExitKaramel extends AbstractCall {
   public Response exitKaramel() {
     Response response = Response.status(Response.Status.OK).build();
 
-    new Thread() {
-      @Override
-      public void run() {
+    new Thread(() -> {
         try {
           Thread.sleep(2000);
         } catch (InterruptedException ex) {
@@ -28,8 +26,7 @@ public class ExitKaramel extends AbstractCall {
           logger.info("Karamel Shutdown finished.");
           System.exit(0);
         }
-      }
-    }.start();
+      }).start();
 
     return response;
   }

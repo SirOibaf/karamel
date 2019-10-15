@@ -1,5 +1,6 @@
 package se.kth.karamel.common.util;
 
+import com.google.common.annotations.VisibleForTesting;
 import org.apache.commons.io.FileUtils;
 
 import java.io.IOException;
@@ -41,5 +42,10 @@ public class ChefSoloConf {
     soloConf.add("cookbook_path [\"" + remoteCookbookPath.toString() + "\"]");
 
     FileUtils.writeLines(tmpSoloConf.toFile(), soloConf);
+  }
+
+  @VisibleForTesting
+  public static synchronized void resetFlag() {
+    generated = false;
   }
 }

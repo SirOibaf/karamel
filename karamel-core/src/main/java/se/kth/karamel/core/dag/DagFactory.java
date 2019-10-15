@@ -94,16 +94,16 @@ public class DagFactory {
   private void addRecipeTasks(Dag dag, Cluster cluster, Settings settings,
                               DataBagsFactory dbFactory) throws IOException {
     for (Group group : cluster.getGroups()) {
-      addGroupRecipes(dag, group, settings, dbFactory);
+      addGroupRecipes(dag, cluster, group, settings, dbFactory);
     }
   }
 
-  private void addGroupRecipes(Dag dag, Group group, Settings settings, DataBagsFactory dbFactory) {
-    addInstallRecipes(dag, group, settings, dbFactory);
+  private void addGroupRecipes(Dag dag, Cluster cluster, Group group, Settings settings, DataBagsFactory dbFactory) {
+    addInstallRecipes(dag, cluster, group, settings, dbFactory);
 
     for (Node node : group.getProvider().getNodes()) {
       for (Recipe recipe : group.getRecipes()) {
-        Task runRecipeTask = new RunRecipeTask(taskIdProgress++, node, group, recipe, settings, dbFactory);
+        Task runRecipeTask = new RunRecipeTask(taskIdProgress++, node, cluster, group, recipe, settings, dbFactory);
 
         addToTaskCache(recipe, node, runRecipeTask);
 
@@ -112,7 +112,7 @@ public class DagFactory {
     }
   }
 
-  private void addInstallRecipes(Dag dag, Group group, Settings settings, DataBagsFactory dbFactory) {
+  private void addInstallRecipes(Dag dag, Cluster cluster, Group group, Settings settings, DataBagsFactory dbFactory) {
     Set<String> uniqueCookbookNames = group.getRecipes().stream().map(Recipe::getCookbook)
       .map(KaramelizedCookbook::getCookbookName)
       .collect(Collectors.toSet());
@@ -120,7 +120,8 @@ public class DagFactory {
     for (Node node : group.getProvider().getNodes()) {
       for (String cookbookName : uniqueCookbookNames) {
         Recipe installRecipe = new Recipe(cookbookName + Constants.COOKBOOK_DELIMITER + Constants.INSTALL_RECIPE);
-        Task runRecipeTask = new RunRecipeTask(taskIdProgress++, node, group, installRecipe, settings, dbFactory);
+        Task runRecipeTask = new RunRecipeTask(taskIdProgress++, node, cluster,
+          group, installRecipe, settings, dbFactory);
         // Add dependencies to fetch cookbooks recipe
         runRecipeTask.getDependsOn().add(nodeToRecipeMap.get(node).get(new Recipe(FETCH_COOKBOOKS_RECIPE_NAME)));
         addToTaskCache(installRecipe, node, runRecipeTask);

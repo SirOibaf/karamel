@@ -42,7 +42,7 @@ public class Cluster extends Scope {
   }
 
   @Override
-  public void validate() throws KaramelException {
+  public void validate() throws KaramelException, InterruptedException {
     super.validate();
 
     // Validate cookbooks

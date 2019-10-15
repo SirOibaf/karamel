@@ -40,7 +40,7 @@ public class Scope {
     }
   }
 
-  public void validate() throws ValidationException, KaramelException {
+  public void validate() throws ValidationException, KaramelException, InterruptedException {
     // TODO(Fabio): make sure that only one provider is set
     getProvider().validate();
   }

@@ -2,7 +2,6 @@ package se.kth.karamel.webservicemodel;
 
 /**
  * JSON representing the passphrase for the user's ssh private key.
- *
  */
 public class SshKeyJSON {
 

@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package se.kth.karamel.webservice.calls.sshkeys;
 
 import javax.ws.rs.Consumes;
@@ -17,11 +12,7 @@ import se.kth.karamel.common.exception.KaramelException;
 import se.kth.karamel.webservice.calls.AbstractCall;
 import se.kth.karamel.webservicemodel.SshKeyJSON;
 
-/**
- *
- * @author kamal
- */
-@Path("/ssh/registerKey")
+@Path("/ssh/key")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 public class RegisterSshKeys extends AbstractCall {

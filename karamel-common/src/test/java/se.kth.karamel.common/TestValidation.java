@@ -18,6 +18,7 @@ import se.kth.karamel.common.exception.KaramelException;
 import se.kth.karamel.common.exception.NoKaramelizedCookbookException;
 import se.kth.karamel.common.exception.ValidationException;
 
+import java.beans.IntrospectionException;
 import java.io.IOException;
 import java.net.URL;
 import java.util.Arrays;
@@ -71,13 +72,13 @@ public class TestValidation {
   }
 
   @Test
-  public void testValidCluster() throws IOException, KaramelException {
+  public void testValidCluster() throws IOException, KaramelException, InterruptedException {
     Cluster cluster = loadCluster("testValid.yml");
     cluster.validate();
   }
 
   @Test
-  public void testBadRecipe() throws IOException, KaramelException {
+  public void testBadRecipe() throws IOException, KaramelException, InterruptedException {
     Cluster cluster = loadCluster("testValid.yml");
     cluster.getGroups().get(0).getRecipes().add(new se.kth.karamel.common.clusterdef.Recipe("test::bad"));
 
@@ -87,7 +88,7 @@ public class TestValidation {
   }
 
   @Test
-  public void testNoRecipes() throws IOException, KaramelException {
+  public void testNoRecipes() throws IOException, KaramelException, InterruptedException {
     Cluster cluster = loadCluster("testNoRecipes.yml");
 
     thrown.expect(ValidationException.class);
@@ -96,7 +97,7 @@ public class TestValidation {
   }
 
   @Test
-  public void testDuplicatedRecipe() throws IOException, KaramelException {
+  public void testDuplicatedRecipe() throws IOException, KaramelException, InterruptedException {
     Cluster cluster = loadCluster("testDuplicatedRecipes.yml");
 
     thrown.expect(ValidationException.class);
@@ -105,7 +106,7 @@ public class TestValidation {
   }
 
   @Test
-  public void testCookbookNotAvailable() throws IOException, KaramelException {
+  public void testCookbookNotAvailable() throws IOException, KaramelException, InterruptedException {
     Cluster cluster = loadCluster("testNoCookbookAvailable.yml");
 
     thrown.expect(NoKaramelizedCookbookException.class);
@@ -116,7 +117,7 @@ public class TestValidation {
   @Test
   @Ignore
   // TODO(Fabio): fix this test
-  public void testWrongSize() throws IOException, KaramelException {
+  public void testWrongSize() throws IOException, KaramelException, InterruptedException {
     Cluster cluster = loadCluster("testWrongSize.yml");
 
     thrown.expect(ValidationException.class);
@@ -124,14 +125,14 @@ public class TestValidation {
   }
 
   @Test
-  public void testValidAttribute() throws IOException, KaramelException {
+  public void testValidAttribute() throws IOException, KaramelException, InterruptedException {
     Cluster cluster = loadCluster("testValid.yml");
     cluster.getAttributes().put("test", buildAttributeObject("test/attribute", "test"));
     cluster.validate();
   }
 
   @Test
-  public void testMissingAttribute() throws IOException, KaramelException {
+  public void testMissingAttribute() throws IOException, KaramelException, InterruptedException {
     Cluster cluster = loadCluster("testValid.yml");
     cluster.getAttributes().put("test", buildAttributeObject("test/missing", "test"));
 
@@ -141,7 +142,7 @@ public class TestValidation {
   }
 
   @Test
-  public void testWrongType() throws IOException, KaramelException {
+  public void testWrongType() throws IOException, KaramelException, InterruptedException {
     Cluster cluster = loadCluster("testValid.yml");
     cluster.getAttributes().put("test", buildAttributeObject("test/numeric_attribute", "ciao"));
 
@@ -151,7 +152,7 @@ public class TestValidation {
   }
 
   @Test
-  public void testNumericAttributeFloat() throws IOException, KaramelException {
+  public void testNumericAttributeFloat() throws IOException, KaramelException, InterruptedException {
     Cluster cluster = loadCluster("testValid.yml");
     cluster.getAttributes().put("test", buildAttributeObject("test/numeric_attribute", 1.0f));
 
@@ -159,7 +160,7 @@ public class TestValidation {
   }
 
   @Test
-  public void testNumericAttributeInt() throws IOException, KaramelException {
+  public void testNumericAttributeInt() throws IOException, KaramelException, InterruptedException  {
     Cluster cluster = loadCluster("testValid.yml");
     cluster.getAttributes().put("test", buildAttributeObject("test/numeric_attribute", 1));
 
@@ -167,7 +168,7 @@ public class TestValidation {
   }
 
   @Test
-  public void testBooleanAttribute() throws IOException, KaramelException {
+  public void testBooleanAttribute() throws IOException, KaramelException, InterruptedException  {
     Cluster cluster = loadCluster("testValid.yml");
     cluster.getAttributes().put("test", buildAttributeObject("test/boolean_attribute", false));
 
@@ -175,7 +176,7 @@ public class TestValidation {
   }
 
   @Test
-  public void testArrayAttribute() throws IOException, KaramelException {
+  public void testArrayAttribute() throws IOException, KaramelException, InterruptedException  {
     Cluster cluster = loadCluster("testValid.yml");
     Integer[] intArray = new Integer[]{1,2,3};
     cluster.getAttributes().put("test", buildAttributeObject("test/array_attribute",
@@ -185,7 +186,7 @@ public class TestValidation {
   }
 
   @Test
-  public void testValidGroupAttribute() throws IOException, KaramelException {
+  public void testValidGroupAttribute() throws IOException, KaramelException, InterruptedException  {
     Cluster cluster = loadCluster("testValid.yml");
     cluster.getGroups().get(0)
         .getAttributes().put("test", buildAttributeObject("test/attribute", "test"));
@@ -194,7 +195,7 @@ public class TestValidation {
   }
 
   @Test
-  public void testInvalidGroupAttribute() throws IOException, KaramelException {
+  public void testInvalidGroupAttribute() throws IOException, KaramelException, InterruptedException  {
     Cluster cluster = loadCluster("testValid.yml");
     cluster.getGroups().get(0)
         .getAttributes().put("test", buildAttributeObject("test/invalid", "test"));

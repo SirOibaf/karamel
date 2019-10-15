@@ -47,46 +47,4 @@ public class GceContext {
     return credentials;
   }
 
-  public ComputeService getComputeService() {
-    return computeService;
-  }
-
-  public GoogleComputeEngineApi getGceApi() {
-    return gceApi;
-  }
-
-  /**
-   * @return the projectName
-   */
-  public String getProjectName() {
-    return projectName;
-  }
-
-  /**
-   * @param projectName the projectName to set
-   */
-  public void setProjectName(String projectName) {
-    this.projectName = projectName;
-  }
-
-  /**
-   * @return the fireWallApi
-   */
-  public FirewallApi getFireWallApi() {
-    return fireWallApi;
-  }
-
-  /**
-   * @return the networkApi
-   */
-  public NetworkApi getNetworkApi() {
-    return networkApi;
-  }
-
-  /**
-   * @return the routeApi
-   */
-  public RouteApi getRouteApi() {
-    return routeApi;
-  }
 }

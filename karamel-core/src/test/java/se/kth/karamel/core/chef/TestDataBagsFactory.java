@@ -1,13 +1,16 @@
 package se.kth.karamel.core.chef;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import se.kth.karamel.common.clusterdef.Cluster;
 import se.kth.karamel.common.clusterdef.Group;
 import se.kth.karamel.common.clusterdef.NoOp;
 import se.kth.karamel.common.clusterdef.Recipe;
 import se.kth.karamel.common.exception.KaramelException;
+import se.kth.karamel.common.util.Constants;
+import se.kth.karamel.core.ClusterContext;
+import se.kth.karamel.core.provisioner.jcloud.baremetal.NoopProvisioner;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -15,10 +18,12 @@ import java.util.List;
 import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 public class TestDataBagsFactory {
 
+  private ClusterContext clusterContext = null;
   private Group firstGroup;
 
   private Group buildGroup(String name) {
@@ -36,7 +41,7 @@ public class TestDataBagsFactory {
     return group;
   }
 
-  private Cluster buildCluster() {
+  private Cluster buildCluster() throws KaramelException {
     Cluster cluster = new Cluster();
 
     NoOp noopGlobal = new NoOp();
@@ -48,7 +53,17 @@ public class TestDataBagsFactory {
     ArrayList<Group> groups = new ArrayList<>(Arrays.asList(firstGroup));
     cluster.setGroups(groups);
 
+    clusterContext = new ClusterContext(cluster);
+
+    provisionGroup(cluster, firstGroup, 0);
+
     return cluster;
+  }
+
+  private void provisionGroup(Cluster cluster, Group group, int currentNodeId) throws KaramelException {
+    NoopProvisioner noopProvisioner = new NoopProvisioner();
+    noopProvisioner.provisionGroup(clusterContext,
+      cluster, group, currentNodeId);
   }
 
   private void addAttributes(Map<String, Object> attributes,
@@ -63,12 +78,49 @@ public class TestDataBagsFactory {
   }
 
   @Test
-  public void testIPs() throws KaramelException, IOException {
-    throw new RuntimeException("Not implemented yet");
+  public void testIPs() throws KaramelException {
+    Cluster cluster = buildCluster();
+    DataBagsFactory dataBagsFactory = new DataBagsFactory(cluster);
+    DataBag dataBag = dataBagsFactory.getGroupDataBag(firstGroup);
+    Map recipeDataBag = (HashMap)((HashMap)dataBag.get("test")).get("default");
+    assertNotNull(recipeDataBag);
+    List<String> privateIPs = (List)recipeDataBag.get(Constants.PRIVATE_IPS);
+    assertEquals(3, privateIPs.size());
+    assertTrue(privateIPs.contains("127.0.0.1"));
+
+    List<String> publicIPs = (List)recipeDataBag.get(Constants.PUBLIC_IPS);
+    assertEquals(3, publicIPs.size());
+    assertTrue(publicIPs.contains("127.0.0.1"));
   }
 
   @Test
-  public void testGlobalAttrs() throws KaramelException, IOException {
+  public void testIPsMultipleGroups() throws KaramelException {
+    Cluster cluster = buildCluster();
+    Group secondGroup = buildGroup("second");
+    NoOp noopGroup = new NoOp();
+    noopGroup.setIps(Arrays.asList("127.0.0.5", "127.0.0.6", "127.0.0.7"));
+    secondGroup.setNoop(noopGroup);
+    cluster.getGroups().add(secondGroup);
+
+    provisionGroup(cluster, secondGroup, 3);
+
+    DataBagsFactory dataBagsFactory = new DataBagsFactory(cluster);
+    DataBag dataBag = dataBagsFactory.getGroupDataBag(firstGroup);
+    Map recipeDataBag = (HashMap)((HashMap)dataBag.get("test")).get("default");
+    assertNotNull(recipeDataBag);
+    List<String> privateIPs = (List)recipeDataBag.get(Constants.PRIVATE_IPS);
+    assertEquals(6, privateIPs.size());
+    assertTrue(privateIPs.contains("127.0.0.1"));
+    assertTrue(privateIPs.contains("127.0.0.5"));
+
+    List<String> publicIPs = (List)recipeDataBag.get(Constants.PUBLIC_IPS);
+    assertEquals(6, publicIPs.size());
+    assertTrue(publicIPs.contains("127.0.0.1"));
+    assertTrue(publicIPs.contains("127.0.0.5"));
+  }
+
+  @Test
+  public void testGlobalAttrs() throws KaramelException {
     Cluster cluster = buildCluster();
     Map<String, Object> attributes = new HashMap<>();
     addAttributes(attributes, "test/attribute".split("/"), "value", 0);
@@ -81,7 +133,7 @@ public class TestDataBagsFactory {
   }
 
   @Test
-  public void testKeepTypeInt() throws KaramelException, IOException {
+  public void testKeepTypeInt() throws KaramelException {
     Cluster cluster = buildCluster();
     Map<String, Object> attributes = new HashMap<>();
     addAttributes(attributes, "test/attribute".split("/"), 10, 0);
@@ -95,7 +147,7 @@ public class TestDataBagsFactory {
 
 
   @Test
-  public void testKeepTypeList() throws KaramelException, IOException {
+  public void testKeepTypeList() throws KaramelException {
     Cluster cluster = buildCluster();
     Map<String, Object> attributes = new HashMap<>();
     addAttributes(attributes, "test/attribute".split("/"), Arrays.asList(1,2,3), 0);
@@ -108,7 +160,7 @@ public class TestDataBagsFactory {
   }
 
   @Test
-  public void testMultipleAttrs() throws KaramelException, IOException {
+  public void testMultipleAttrs() throws KaramelException {
     Cluster cluster = buildCluster();
     Map<String, Object> attributes = new HashMap<>();
     addAttributes(attributes, "test/attribute".split("/"), Arrays.asList(1,2,3), 0);
@@ -123,7 +175,7 @@ public class TestDataBagsFactory {
   }
 
   @Test
-  public void testMerge() throws KaramelException, IOException {
+  public void testMerge() throws KaramelException {
     Cluster cluster = buildCluster();
     Map<String, Object> attributes = new HashMap<>();
     addAttributes(attributes, "test/attribute".split("/"), Arrays.asList(1,2,3), 0);
@@ -139,7 +191,7 @@ public class TestDataBagsFactory {
   }
 
   @Test
-  public void testGroupAttrs() throws KaramelException, IOException {
+  public void testGroupAttrs() throws KaramelException {
     Cluster cluster = buildCluster();
     Map<String, Object> attributes = new HashMap<>();
     addAttributes(attributes, "test/attribute".split("/"), Arrays.asList(1,2,3), 0);
@@ -156,7 +208,7 @@ public class TestDataBagsFactory {
   }
 
   @Test
-  public void testMultipleGroups() throws KaramelException, IOException {
+  public void testMultipleGroups() throws KaramelException {
     Cluster cluster = buildCluster();
     Map<String, Object> attributes = new HashMap<>();
     addAttributes(attributes, "test/attribute".split("/"), Arrays.asList(1,2,3), 0);
@@ -169,6 +221,8 @@ public class TestDataBagsFactory {
     addAttributes(attributes, "g".split("/"), "second", 0);
     secondGroup.setAttributes(attributes);
     cluster.getGroups().add(secondGroup);
+
+    provisionGroup(cluster, secondGroup, 3);
 
     DataBagsFactory dataBagsFactory = new DataBagsFactory(cluster);
 
@@ -185,7 +239,7 @@ public class TestDataBagsFactory {
   }
 
   @Test
-  public void testGroupOverwrite() throws KaramelException, IOException {
+  public void testGroupOverwrite() throws KaramelException {
     Cluster cluster = buildCluster();
     Map<String, Object> attributes = new HashMap<>();
     addAttributes(attributes, "test/newattr".split("/"), 10, 0);
@@ -205,13 +259,10 @@ public class TestDataBagsFactory {
     assertEquals("Gattr", ((HashMap)dataBag.get("test")).get("gattr"));
   }
 
-  @Test
-  public void testAddRecipe() throws KaramelException, IOException {
-    throw new RuntimeException("Not implemented yet");
-  }
 
   @Test
-  public void testAddResults() throws KaramelException, IOException {
+  @Ignore
+  public void testAddResults() {
     throw new RuntimeException("Not implemented yet");
   }
 }

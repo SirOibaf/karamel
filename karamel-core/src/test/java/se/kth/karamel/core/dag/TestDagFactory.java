@@ -2,7 +2,9 @@ package se.kth.karamel.core.dag;
 
 import org.junit.Before;
 import org.junit.Ignore;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import se.kth.karamel.common.clusterdef.Cluster;
 import se.kth.karamel.common.clusterdef.Group;
 import se.kth.karamel.common.clusterdef.NoOp;
@@ -16,7 +18,6 @@ import se.kth.karamel.common.exception.KaramelException;
 import se.kth.karamel.common.util.Constants;
 import se.kth.karamel.common.util.Settings;
 import se.kth.karamel.core.ClusterContext;
-import se.kth.karamel.core.chef.DataBagsFactory;
 import se.kth.karamel.core.execution.FetchCookbooksTask;
 import se.kth.karamel.core.execution.NodeSetupTask;
 import se.kth.karamel.core.execution.RunRecipeTask;
@@ -46,11 +47,13 @@ public class TestDagFactory {
   private Cluster baseCluster = null;
   private ClusterContext clusterContext = null;
   private DagFactory dagFactory = null;
-  private DataBagsFactory dataBagsFactory = null;
   private KaramelizedCookbook karamelizedCookbook = null;
 
   private final static String TEST_INSTALL = "test::install";
   private final static String TEST_DEFAULT = "test::default";
+
+  @Rule
+  public ExpectedException thrown = ExpectedException.none();
 
   @Before
   public void setup() throws KaramelException, IOException {
@@ -68,7 +71,6 @@ public class TestDagFactory {
 
     baseCluster = buildCluster(karamelizedCookbook);
     clusterContext = new ClusterContext(baseCluster);
-    dataBagsFactory = new DataBagsFactory(baseCluster);
     dagFactory = new DagFactory();
   }
 
@@ -107,7 +109,7 @@ public class TestDagFactory {
   @Test
   public void testSingleCookbookDAG() throws IOException, KaramelException {
     provisionNoopNodes();
-    Dag dag = dagFactory.buildDag(baseCluster, new Settings(), dataBagsFactory);
+    Dag dag = dagFactory.buildDag(baseCluster, new Settings(), null);
     assertNotNull(dag);
     // 3 nodes, 2 recipes (default + install), 1 setup task, 1 fetch cookbook
     assertEquals(12, dag.getTaskList().size());
@@ -165,7 +167,7 @@ public class TestDagFactory {
 
     this.clusterContext.getCluster().getGroups().add(secondGroup);
     provisionNoopNodes();
-    Dag dag = dagFactory.buildDag(baseCluster, new Settings(), dataBagsFactory);
+    Dag dag = dagFactory.buildDag(baseCluster, new Settings(), null);
 
     assertNotNull(dag);
     // 6 nodes, 2 recipes (default + install), 1 setup task, 1 fetch cookbook
@@ -204,7 +206,7 @@ public class TestDagFactory {
     clusterContext.getCluster().getGroups().get(0).getRecipes().add(new Recipe(karamelizedCookbook, "test2"));
 
     provisionNoopNodes();
-    Dag dag = dagFactory.buildDag(baseCluster, new Settings(), dataBagsFactory);
+    Dag dag = dagFactory.buildDag(baseCluster, new Settings(), null);
 
     assertNotNull(dag);
     // 3 nodes, 4 recipes (default + install for both cookbooks), 1 setup task, 1 fetch cookbook
@@ -257,7 +259,7 @@ public class TestDagFactory {
     clusterContext.getCluster().getGroups().get(0).setRecipes(recipesList);
 
     provisionNoopNodes();
-    Dag dag = dagFactory.buildDag(baseCluster, new Settings(), dataBagsFactory);
+    Dag dag = dagFactory.buildDag(baseCluster, new Settings(), null);
 
     assertNotNull(dag);
 
@@ -307,7 +309,7 @@ public class TestDagFactory {
     clusterContext.getCluster().getGroups().get(0).setRecipes(recipesList);
 
     provisionNoopNodes();
-    Dag dag = dagFactory.buildDag(baseCluster, new Settings(), dataBagsFactory);
+    Dag dag = dagFactory.buildDag(baseCluster, new Settings(), null);
 
     assertNotNull(dag);
 
@@ -339,7 +341,7 @@ public class TestDagFactory {
   @Test
   public void testGetSchedulableTasks() throws KaramelException, IOException {
     provisionNoopNodes();
-    Dag dag = dagFactory.buildDag(baseCluster, new Settings(), dataBagsFactory);
+    Dag dag = dagFactory.buildDag(baseCluster, new Settings(), null);
     Set<Task> schedulableTaskSet = dag.getSchedulableTasks();
     // First should be the NodeSetup tasks
     assertEquals(3, schedulableTaskSet.size());
@@ -430,8 +432,8 @@ public class TestDagFactory {
     recipesList.add(new Recipe(karamelizedCookbook, "test2::third"));
     clusterContext.getCluster().getGroups().get(0).setRecipes(recipesList);
 
-    Dag dag = dagFactory.buildDag(baseCluster, new Settings(), dataBagsFactory);
-    assertTrue(dag.hasCycle());
+    thrown.expect(KaramelException.class);
+    dagFactory.buildDag(baseCluster, new Settings(), null);
   }
 
   @Test
@@ -481,8 +483,8 @@ public class TestDagFactory {
     recipesList.add(new Recipe(karamelizedCookbook, "test2::third"));
     clusterContext.getCluster().getGroups().get(0).setRecipes(recipesList);
 
-    Dag dag = dagFactory.buildDag(baseCluster, new Settings(), dataBagsFactory);
-    assertTrue(dag.hasCycle());
+    thrown.expect(KaramelException.class);
+    dagFactory.buildDag(baseCluster, new Settings(), null);
   }
 
    @Test
@@ -533,8 +535,8 @@ public class TestDagFactory {
     recipesList.add(new Recipe(karamelizedCookbook, "test2::third"));
     clusterContext.getCluster().getGroups().get(0).setRecipes(recipesList);
 
-    Dag dag = dagFactory.buildDag(baseCluster, new Settings(), dataBagsFactory);
-    assertTrue(dag.hasCycle());
+    thrown.expect(KaramelException.class);
+    dagFactory.buildDag(baseCluster, new Settings(), null);
   }
 
 
@@ -579,7 +581,7 @@ public class TestDagFactory {
     recipesList.add(new Recipe(karamelizedCookbook, "test2::third"));
     clusterContext.getCluster().getGroups().get(0).setRecipes(recipesList);
 
-    Dag dag = dagFactory.buildDag(baseCluster, new Settings(), dataBagsFactory);
+    Dag dag = dagFactory.buildDag(baseCluster, new Settings(), null);
     assertFalse(dag.hasCycle());
   }
 }

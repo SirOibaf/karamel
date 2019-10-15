@@ -5,6 +5,8 @@ import java.util.Map;
 
 public class DataBag extends HashMap<String, Object> {
 
+  public DataBag() { }
+
   public DataBag(Map<String, Object> initMap) {
     super(initMap);
   }

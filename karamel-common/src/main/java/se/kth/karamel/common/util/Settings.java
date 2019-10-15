@@ -1,5 +1,6 @@
 package se.kth.karamel.common.util;
 
+import com.google.common.annotations.VisibleForTesting;
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
@@ -96,4 +97,13 @@ public class Settings {
   }
 
   public int getInt(SettingsKeys key) { return Integer.valueOf(confMap.get(key.keyName)); }
+
+  public void set(SettingsKeys key, String value) {
+    confMap.put(key.keyName, value);
+  }
+
+  @VisibleForTesting
+  public void set(String key, String value) {
+    confMap.put(key, value);
+  }
 }

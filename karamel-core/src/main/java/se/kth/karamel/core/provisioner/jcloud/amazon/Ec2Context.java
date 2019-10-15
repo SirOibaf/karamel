@@ -63,20 +63,4 @@ public class Ec2Context {
     return credentials;
   }
 
-  public AWSEC2ComputeService getComputeService() {
-    return computeService;
-  }
-
-  public EC2Api getEc2api() {
-    return ec2api;
-  }
-
-  public AWSKeyPairApi getKeypairApi() {
-    return keypairApi;
-  }
-
-  public SecurityGroupApi getSecurityGroupApi() {
-    return securityGroupApi;
-  }
-
 }

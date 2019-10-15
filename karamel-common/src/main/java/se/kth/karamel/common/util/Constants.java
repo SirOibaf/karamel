@@ -32,7 +32,6 @@ public class Constants {
   public static final String GITHUB_BASE_URL = "https://github.com";
 
   // Cookbooks name conventions
-  public static final String ATTR_DELIMITER = "/";
   public static final String COOKBOOK_DELIMITER = "::";
   public static final String INSTALL_RECIPE = "install";
   public static final String DEFAULT_RECIPE = "default";
@@ -42,6 +41,9 @@ public class Constants {
   public static final String DATABAG_NAME_POSTFIX = ".json";
 
   public static final String CHEF_BIN_NAME = "chef-solo";
+
+  public static final String PRIVATE_IPS = "private_ips";
+  public static final String PUBLIC_IPS = "public_ips";
 
   //-----------------------------------------------JCLOUDS--------------------------------------------------------------
   public static final int JCLOUDS_PROPERTY_MAX_RETRIES = 100;
@@ -84,21 +86,4 @@ public class Constants {
   public static final String GCE_DEFAULT_MACHINE_TYPE = "n1-standard-1";
   public static final Long GCE_DEFAULT_DISKSIZE_IN_GB = 15l;
   public static final Boolean GCE_DEFAULT_IS_PRE_EMPTIBLE = false;
-
-  //--------------------------------------OCCI Engine---------------------------------------------------------
-  public static final String OCCI_DEFAULT_USERNAME = "ubuntu";
-  public static final String OCCI_DEFAULT_ENDPOINT = "https://carach5.ics.muni.cz:11443";
-  public static final String OCCI_DEFAULT_IMAGE = "uuid_training_ubuntu_server_12_04_lts_fedcloud_warg_122";
-  public static final String OCCI_DEFAULT_IMAGE_SIZE = "atlas";
-  public static final String OCCI_USER_CERTIFICATE_PATH = "/tmp/x509up_u1000";
-  public static final String OCCI_CERTIFICATE_DIR = "/etc/grid-security/certificates/";
-
-  public static final String SUCCEED_TASKLIST_FILENAME = "succeed_list";
-
-  //------------------------------------------Karamel Machine-----------------------------------------------------------
-  public static final String SSH_PUBKEY_PATH_KEY = "ssh.publickey.path";
-  public static final String SSH_PRIVKEY_PATH_KEY = "ssh.privatekey.path";
-  public static final String YAML_FILE_NAME = "definition.yaml";
-  public static final String SSH_FOLDER_NAME = ".ssh";
-  public static final String STATS_FOLDER_NAME = "stats";
 }

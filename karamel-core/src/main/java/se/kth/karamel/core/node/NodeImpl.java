@@ -102,6 +102,7 @@ public class NodeImpl implements Node {
   public void scpFileDownload(String localFilePath, String targetPath) throws IOException {
     SSHClient sshClient = getSSHClient();
     try {
+      // TODO(Fabio) check if file exists
       sshClient.newSCPFileTransfer().download(targetPath, new FileSystemFile(localFilePath));
       LOGGER.log(Level.DEBUG, "File " + localFilePath + " copied from node: " + hostname);
     } finally {

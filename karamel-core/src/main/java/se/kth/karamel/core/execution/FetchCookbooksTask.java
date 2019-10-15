@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.stream.Stream;
 
 public class FetchCookbooksTask extends Task {
 
@@ -32,16 +33,18 @@ public class FetchCookbooksTask extends Task {
   @Override
   void execute() throws ExecutionException, IOException {
     // We recursively SCP the cookbooks files to the target machine
-    Files.walk(localCookbooksPath).forEach(path -> {
-        try {
-          Path relativePath = localCookbooksPath.relativize(path);
-          node.scpFileUpload(path.toString(),
+    try (Stream<Path> fileStream = Files.walk(localCookbooksPath)) {
+      fileStream.forEach(path -> {
+          try {
+            Path relativePath = localCookbooksPath.relativize(path);
+            node.scpFileUpload(path.toString(),
               Paths.get(node.getWorkDir(), Constants.REMOTE_COOKBOOKS_DIR_NAME,
-                  relativePath.toString()).toString());
-        } catch (IOException e) {
-          throw new ExecutionException(e);
-        }
-      });
+                relativePath.toString()).toString());
+          } catch (IOException e) {
+            throw new ExecutionException(e);
+          }
+        });
+    }
 
     LOGGER.log(Level.INFO, "FetchCookbook completed on node: " + node.getHostname());
   }

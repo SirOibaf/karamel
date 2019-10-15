@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package se.kth.karamel.webservice.calls.sshkeys;
 
 import javax.ws.rs.Consumes;
@@ -17,10 +12,6 @@ import se.kth.karamel.webservice.calls.AbstractCall;
 import se.kth.karamel.webservicemodel.StatusResponseJSON;
 import se.kth.karamel.webservicemodel.SudoPasswordJSON;
 
-/**
- *
- * @author kamal
- */
 @Path("/ssh/setSudoPassword")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)

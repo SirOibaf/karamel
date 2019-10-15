@@ -3,6 +3,7 @@ package se.kth.karamel.core.execution;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import net.schmizz.sshj.connection.channel.direct.Session;
 import org.apache.commons.io.FileUtils;
+import se.kth.karamel.common.clusterdef.Cluster;
 import se.kth.karamel.common.clusterdef.Group;
 import se.kth.karamel.common.clusterdef.Recipe;
 import se.kth.karamel.common.node.Node;
@@ -20,13 +21,15 @@ public class RunRecipeTask extends Task {
   private DataBagsFactory dataBagsFactory;
   private Settings settings;
 
+  private Cluster cluster;
   private Group group;
   private Recipe recipe;
 
-  public RunRecipeTask(int taskId, Node node, Group group, Recipe recipe,
+  public RunRecipeTask(int taskId, Node node, Cluster cluster, Group group, Recipe recipe,
                        Settings settings, DataBagsFactory dataBagsFactory) {
     this.taskId = taskId;
     this.node = node;
+    this.cluster = cluster;
     this.group = group;
     this.recipe = recipe;
     this.settings = settings;
@@ -108,11 +111,19 @@ public class RunRecipeTask extends Task {
   private void fetchRecipeOutput() throws IOException {
     String localResultsPath =
         Paths.get(System.getenv(Constants.KARAMEL_HOME), Constants.KARAMEL_RESULTS_DIRNAME).toString();
-    String remoteResultPath = Paths.get("/tmp",
-        recipe.getCanonicalName().replace("::", "__") + Constants.RECIPE_RESULT_POSFIX).toString();
-    node.scpFileDownload(localResultsPath, remoteResultPath);
+    String fileName = recipe.getCanonicalName().replace("::", "__")
+      + Constants.RECIPE_RESULT_POSFIX;
+    String remoteResultPath = Paths.get("/tmp", fileName).toString();
 
-    // TODO(Fabio): parse output and add it to databag
+    try {
+      node.scpFileDownload(localResultsPath, remoteResultPath);
+
+      String resultContent = FileUtils.readFileToString(Paths.get(localResultsPath, fileName).toFile());
+      DataBag resultDatabag = new ObjectMapper().readValue(resultContent, DataBag.class);
+      dataBagsFactory.updateDataBags(cluster, resultDatabag);
+    } catch (IOException e) {
+      // File is missing, continue
+    }
   }
 
   public Recipe getRecipe() {

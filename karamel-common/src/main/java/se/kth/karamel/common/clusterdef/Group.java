@@ -44,7 +44,7 @@ public class Group extends Scope {
   }
 
   @Override
-  public void validate() throws KaramelException {
+  public void validate() throws KaramelException, InterruptedException {
     super.validate();
 
     if (recipes == null || recipes.isEmpty()) {

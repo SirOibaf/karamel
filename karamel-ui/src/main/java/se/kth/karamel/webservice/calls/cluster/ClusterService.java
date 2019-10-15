@@ -34,7 +34,8 @@ public class ClusterService extends AbstractCall {
   @POST
   @Consumes(MediaType.APPLICATION_JSON)
   @Produces(MediaType.APPLICATION_JSON)
-  public Response action(@NotNull @QueryParam("action") ClusterActions action) throws KaramelException {
+  public Response action(@NotNull @QueryParam("action") ClusterActions action)
+    throws KaramelException, InterruptedException {
     switch (action) {
       case VALIDATE:
         karamelApi.getCluster().validate();

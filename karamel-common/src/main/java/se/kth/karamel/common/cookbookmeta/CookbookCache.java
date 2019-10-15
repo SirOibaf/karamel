@@ -83,7 +83,7 @@ public class CookbookCache {
   }
 
   public List<KaramelizedCookbook> loadKaramelizedCookbooks(Map<String, Cookbook> rootCookbooks)
-      throws KaramelException, IOException {
+      throws KaramelException, IOException, InterruptedException {
 
     File workingDir = Paths.get(settings.get(WORKING_DIR)).toFile();
     if (workingDir.exists()) {
@@ -112,7 +112,8 @@ public class CookbookCache {
     return new ArrayList<>(cookbooks.values());
   }
 
-  private void cloneAndVendorCookbook(Map.Entry<String, Cookbook> cookbook) throws KaramelException {
+  private void cloneAndVendorCookbook(Map.Entry<String, Cookbook> cookbook)
+    throws InterruptedException, KaramelException {
     // Clone the repository
     Path cbTargetDir = Paths.get(settings.get(WORKING_DIR), cookbook.getKey());
 
@@ -142,7 +143,7 @@ public class CookbookCache {
       if (vendorProcess.exitValue() != 0) {
         throw new KaramelException("Fail to vendor the cookbook: " + cookbook.getKey() + " " + vendorOutput.get());
       }
-    } catch (IOException | InterruptedException | ExecutionException e) {
+    } catch (IOException | ExecutionException e) {
       throw new KaramelException(e);
     }
   }
