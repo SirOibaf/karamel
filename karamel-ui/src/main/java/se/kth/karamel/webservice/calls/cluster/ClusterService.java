@@ -4,7 +4,6 @@ import javax.validation.constraints.NotNull;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
@@ -27,8 +26,12 @@ public class ClusterService extends AbstractCall {
   @GET
   @Produces(MediaType.APPLICATION_JSON)
   public Response getCluster() {
-    Cluster cluster = karamelApi.getCluster();
-    return Response.ok().entity(cluster).build();
+    try {
+      Cluster cluster = karamelApi.getCluster();
+      return Response.ok().entity(cluster).build();
+    } catch (KaramelException e) {
+      return buildExceptionResponse(e);
+    }
   }
 
   @POST
@@ -38,23 +41,12 @@ public class ClusterService extends AbstractCall {
     throws KaramelException, InterruptedException {
     switch (action) {
       case VALIDATE:
+        // TODO(Fabio): return validation answer to the user
         karamelApi.getCluster().validate();
         // If the cluster is valid, no exceptions are thrown, so respond OK
         return Response.ok().build();
-      case START:
-        karamelApi.startCluster();
-        return Response.ok().build();
       default:
-        throw new NotImplementedException("Action not implemented yet");
+        throw new NotImplementedException("Unknown action");
     }
   }
-
-  @PUT
-  @Consumes(MediaType.APPLICATION_JSON)
-  @Produces(MediaType.APPLICATION_JSON)
-  public Response startCluster() {
-    // TODO(Fabio): Implement this
-    return Response.ok().build();
-  }
-
 }

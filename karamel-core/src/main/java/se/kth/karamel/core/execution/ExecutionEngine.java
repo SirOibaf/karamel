@@ -24,21 +24,29 @@ public class ExecutionEngine {
   private Settings settings;
   @Getter
   private ArrayBlockingQueue<Task> tasksQueue;
-  private List<AtomicBoolean> nodeBusy;
+  @Getter
+  private AtomicBoolean[] nodeBusy;
 
   private final AtomicBoolean pause;
 
+  @Getter
   private Thread producerThread;
+  @Getter
   private List<Thread> consumerThreads;
+
+  private volatile boolean interrupted = false;
 
   public ExecutionEngine(Settings settings) {
     this.settings = settings;
-    tasksQueue = new ArrayBlockingQueue<>(10); // TODO(Fabio) make this programmable
+    tasksQueue = new ArrayBlockingQueue<>(Math.max(10, 2 * settings.getInt(Settings.SettingsKeys.EXECUTION_THREADS)));
     pause = new AtomicBoolean(false);
   }
 
   public void execute(Dag dag, int totalNodes) {
-    nodeBusy = new ArrayList<>(totalNodes);
+    nodeBusy = new AtomicBoolean[totalNodes];
+    for (int i = 0; i < totalNodes; i++) {
+      nodeBusy[i] = new AtomicBoolean(false);
+    }
 
     producerThread = new Thread(new TaskProducer(dag, tasksQueue));
     producerThread.start();
@@ -75,9 +83,7 @@ public class ExecutionEngine {
    * Kill all threads
    */
   public void terminate() {
-    for (Thread t : consumerThreads) {
-      t.interrupt();
-    }
+    interrupted = true;
   }
 
   /**
@@ -86,7 +92,7 @@ public class ExecutionEngine {
    */
   public void skipTask(Task task) {
     task.setTaskStatus(TaskStatus.SKIPPED);
-    nodeBusy.get(task.getNode().getNodeId()).set(false);
+    nodeBusy[task.getNode().getNodeId()].set(false);
   }
 
 
@@ -111,16 +117,17 @@ public class ExecutionEngine {
 
     @Override
     public void run() {
-      while (!Thread.currentThread().isInterrupted()) {
+      while (!interrupted) {
         try {
           for (Task task : dag.getSchedulableTasks()) {
             // If the node is not busy, i.e. no other recipe is scheduled/running/failed
             // we can enqueue the task
-            if (nodeBusy.get(task.getNode().getNodeId()).compareAndSet(false, true)) {
+            if (nodeBusy[task.getNode().getNodeId()].compareAndSet(false, true)) {
               tasksQueue.put(task);
               task.setTaskStatus(TaskStatus.SCHEDULED);
             }
           }
+          Thread.sleep(1000);
         } catch (InterruptedException e) {
           LOGGER.log(Level.INFO, "Could not enqueue tasks", e);
         }
@@ -140,7 +147,7 @@ public class ExecutionEngine {
 
     @Override
     public void run() {
-      while (!Thread.currentThread().isInterrupted()) {
+      while (!interrupted) {
         try {
 
           // Check if the execution has been suspended
@@ -155,7 +162,8 @@ public class ExecutionEngine {
           try {
             task.execute();
             // Free the node for new tasks
-            nodeBusy.get(task.getNode().getNodeId()).set(false);
+            nodeBusy[task.getNode().getNodeId()].set(false);
+            task.setTaskStatus(TaskStatus.SUCCESS);
           } catch (ExecutionException | IOException e) {
             task.setTaskStatus(TaskStatus.FAILED);
           }

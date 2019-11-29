@@ -2,8 +2,13 @@ package se.kth.karamel.client.api;
 
 import se.kth.karamel.common.clusterdef.Cluster;
 import se.kth.karamel.common.exception.KaramelException;
+import se.kth.karamel.common.node.Node;
 import se.kth.karamel.common.util.Ec2Credentials;
-import se.kth.karamel.common.util.SshKeyPair;
+import se.kth.karamel.common.util.SSHKeyPair;
+import se.kth.karamel.core.execution.Task;
+
+import java.util.List;
+import java.util.Map;
 
 
 /**
@@ -23,7 +28,7 @@ public interface KaramelApi {
   /**
    * Get current cluster definition
    */
-  Cluster getCluster();
+  Cluster getCluster() throws KaramelException;
 
   /**
    * Loads Karamel common keys
@@ -31,7 +36,7 @@ public interface KaramelApi {
    * @return
    * @throws KaramelException
    */
-  SshKeyPair loadSshKeysIfExist() throws KaramelException;
+  List<SSHKeyPair> getAvailableSSHKeys() throws KaramelException;
 
   /**
    * Register ssh keys for the current runtime of karamel
@@ -40,7 +45,7 @@ public interface KaramelApi {
    * @return
    * @throws KaramelException
    */
-  void registerSshKeys(SshKeyPair keypair) throws KaramelException;
+  void registerSshKeys(SSHKeyPair keypair) throws KaramelException;
 
   /**
    * Validates user's credentials before starting the cluster
@@ -70,18 +75,16 @@ public interface KaramelApi {
    * In case user wants to pause the running cluster for inspection reasons. It implies that machines won't receive any
    * new ssh command form the karamel-core. User can either terminate or resume a paused cluster.
    *
-   * @param clusterName
    * @throws KaramelException
    */
-  void pauseCluster(String clusterName) throws KaramelException;
+  void pauseCluster() throws KaramelException;
 
   /**
    * It resumes an already paused cluster, machines will go on and run ssh commands.
    *
-   * @param clusterName
    * @throws KaramelException
    */
-  void resumeCluster(String clusterName) throws KaramelException;
+  void resumeCluster() throws KaramelException;
 
   /**
    * It stops sending new ssh command to machines, destroys the automatic allocated machines and disconnects ssh clients
@@ -90,4 +93,8 @@ public interface KaramelApi {
    * @throws KaramelException
    */
   void terminateCluster() throws KaramelException;
+
+  Map<Node, List<Task>> getClusterDeploymentStatus();
+
+  List<Task> getNodeDeploymentStatus(Node node);
 }

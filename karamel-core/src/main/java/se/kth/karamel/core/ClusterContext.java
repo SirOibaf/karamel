@@ -8,7 +8,7 @@ import se.kth.karamel.common.clusterdef.EC2;
 import se.kth.karamel.common.clusterdef.Provider;
 import se.kth.karamel.common.clusterdef.Group;
 import se.kth.karamel.common.exception.KaramelException;
-import se.kth.karamel.common.util.SshKeyPair;
+import se.kth.karamel.common.util.SSHKeyPair;
 
 /**
  * Store information about a running cluster. Has a cluster definition and API authentication
@@ -19,7 +19,7 @@ public class ClusterContext {
 
   private Cluster cluster;
 
-  private SshKeyPair sshKeyPair;
+  private SSHKeyPair SSHKeyPair;
   private String sudoPassword;
   private Ec2Context ec2Context;
   private GceContext gceContext;
@@ -52,12 +52,12 @@ public class ClusterContext {
     this.ec2Context = ec2Context;
   }
 
-  public SshKeyPair getSshKeyPair() {
-    return sshKeyPair;
+  public SSHKeyPair getSSHKeyPair() {
+    return SSHKeyPair;
   }
 
-  public void setSshKeyPair(SshKeyPair sshKeyPair) {
-    this.sshKeyPair = sshKeyPair;
+  public void setSSHKeyPair(SSHKeyPair SSHKeyPair) {
+    this.SSHKeyPair = SSHKeyPair;
   }
 
   public GceContext getGceContext() {
@@ -80,7 +80,7 @@ public class ClusterContext {
       }
     }
 
-    if (sshKeyPair == null) {
+    if (SSHKeyPair == null) {
       throw new KaramelException("No ssh keypair chosen");
     }
   }

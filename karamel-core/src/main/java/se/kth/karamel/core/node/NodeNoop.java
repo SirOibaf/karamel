@@ -12,6 +12,10 @@ public class NodeNoop extends NodeImpl {
     super(nodeId, hostname, privateIP, publicIP, user, clusterContext);
   }
 
+  public NodeNoop(int nodeId) {
+    super(nodeId, "", "", "", "", null);
+  }
+
   @Override
   public Session.Command execCommand(String command, boolean requiresRoot) throws IOException {
     // Do nothing

@@ -1,6 +1,5 @@
 package se.kth.karamel.core.chef;
 
-import org.junit.Ignore;
 import org.junit.Test;
 import se.kth.karamel.common.clusterdef.Cluster;
 import se.kth.karamel.common.clusterdef.Group;
@@ -261,8 +260,35 @@ public class TestDataBagsFactory {
 
 
   @Test
-  @Ignore
-  public void testAddResults() {
-    throw new RuntimeException("Not implemented yet");
+  public void testAddResults() throws KaramelException {
+    Cluster cluster = buildCluster();
+    Map<String, Object> attributes = new HashMap<>();
+    addAttributes(attributes, "test/attribute".split("/"), Arrays.asList(1,2,3), 0);
+    addAttributes(attributes, "test/newattr".split("/"), 10, 0);
+    addAttributes(attributes, "g".split("/"), "first", 0);
+    cluster.getGroups().get(0).setAttributes(attributes);
+
+    Group secondGroup = buildGroup("second");
+    attributes = new HashMap<>();
+    addAttributes(attributes, "g".split("/"), "second", 0);
+    secondGroup.setAttributes(attributes);
+    cluster.getGroups().add(secondGroup);
+
+    provisionGroup(cluster, secondGroup, 3);
+
+    DataBagsFactory dataBagsFactory = new DataBagsFactory(cluster);
+
+    // Update
+    Map<String, Object> updateMap = new HashMap<>();
+    updateMap.put("g", "update");
+    DataBag updateDataBag = new DataBag(updateMap);
+    dataBagsFactory.updateDataBags(cluster, updateDataBag);
+
+    DataBag dataBag = dataBagsFactory.getGroupDataBag(firstGroup);
+    assertTrue(dataBag.get("g") instanceof String);
+    assertEquals("update", dataBag.get("g"));
+
+    dataBag = dataBagsFactory.getGroupDataBag(secondGroup);
+    assertEquals("update", dataBag.get("g"));
   }
 }

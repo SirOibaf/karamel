@@ -1,5 +1,6 @@
 package se.kth.karamel.core.dag;
 
+import lombok.Getter;
 import se.kth.karamel.common.clusterdef.Cluster;
 import se.kth.karamel.common.clusterdef.Group;
 import se.kth.karamel.common.clusterdef.Recipe;
@@ -37,6 +38,8 @@ public class DagFactory {
 
   // Useful for local dependencies
   private Map<Recipe, List<Node>> recipeToNodesMap = new HashMap<>();
+
+  @Getter
   private Map<Node, Map<Recipe, Task>> nodeToRecipeMap = new HashMap<>();
 
   private static final String NODE_SETUP_RECIPE_NAME = "node::setup";

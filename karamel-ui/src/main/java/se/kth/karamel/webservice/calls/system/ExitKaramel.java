@@ -21,9 +21,9 @@ public class ExitKaramel extends AbstractCall {
         try {
           Thread.sleep(2000);
         } catch (InterruptedException ex) {
-          logger.warn(ex.getMessage());
+          LOGGER.warn(ex.getMessage());
         } finally {
-          logger.info("Karamel Shutdown finished.");
+          LOGGER.info("Karamel Shutdown finished.");
           System.exit(0);
         }
       }).start();

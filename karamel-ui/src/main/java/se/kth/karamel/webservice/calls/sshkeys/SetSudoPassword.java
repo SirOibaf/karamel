@@ -8,11 +8,10 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import se.kth.karamel.client.api.KaramelApi;
 import se.kth.karamel.common.exception.KaramelException;
+import se.kth.karamel.common.util.SudoPassword;
 import se.kth.karamel.webservice.calls.AbstractCall;
-import se.kth.karamel.webservicemodel.StatusResponseJSON;
-import se.kth.karamel.webservicemodel.SudoPasswordJSON;
 
-@Path("/ssh/setSudoPassword")
+@Path("/sudopassword")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 public class SetSudoPassword extends AbstractCall {
@@ -22,16 +21,12 @@ public class SetSudoPassword extends AbstractCall {
   }
 
   @PUT
-  public Response sudoPassword(SudoPasswordJSON sudoPwd) {
-    Response response = null;
-    logger.debug(" Received request to set sudo password....");
+  public Response sudoPassword(SudoPassword sudoPassword) {
     try {
-      karamelApi.registerSudoPassword(sudoPwd.getPassword());
-      response = Response.status(Response.Status.OK).
-          entity(new StatusResponseJSON(StatusResponseJSON.SUCCESS_STRING, "success")).build();
+      karamelApi.registerSudoPassword(sudoPassword.getPassword());
+      return Response.status(Response.Status.OK).build();
     } catch (KaramelException e) {
-      response = buildExceptionResponse(e);
+      return buildExceptionResponse(e);
     }
-    return response;
   }
 }

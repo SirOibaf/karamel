@@ -28,7 +28,7 @@ public class UploadService extends AbstractCall {
   @POST
   @Consumes(MediaType.MULTIPART_FORM_DATA)
   public Response uploadClusterDefinition(
-      @FormDataParam("file0") InputStream uploadedInputStream) {
+      @FormDataParam("file") InputStream uploadedInputStream) {
     Response response = null;
     try {
       String clusterDefinition = IOUtils.toString(uploadedInputStream, Charset.forName("UTF-8"));

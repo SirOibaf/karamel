@@ -3,15 +3,22 @@ package se.kth.karamel.core;
 import lombok.Getter;
 import se.kth.karamel.common.clusterdef.Group;
 import se.kth.karamel.common.exception.KaramelException;
+import se.kth.karamel.common.node.Node;
 import se.kth.karamel.common.util.Settings;
 import se.kth.karamel.core.chef.DataBagsFactory;
 import se.kth.karamel.core.dag.Dag;
 import se.kth.karamel.core.dag.DagFactory;
 import se.kth.karamel.core.execution.ExecutionEngine;
+import se.kth.karamel.core.execution.Task;
 import se.kth.karamel.core.provisioner.Provisioner;
 import se.kth.karamel.core.provisioner.ProvisionerFactory;
 
 import java.io.IOException;
+import java.util.AbstractMap;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 public class DeploymentManager {
 
@@ -21,6 +28,8 @@ public class DeploymentManager {
   private Dag dag;
   @Getter
   private ExecutionEngine executionEngine;
+
+  private DagFactory dagFactory = null;
 
   public DeploymentManager(Settings settings) {
     this.settings = settings;
@@ -45,7 +54,7 @@ public class DeploymentManager {
     }
 
     // Build the DAG
-    DagFactory dagFactory = new DagFactory();
+    dagFactory = new DagFactory();
     try {
       dag = dagFactory.buildDag(clusterContext.getCluster(), settings,
           new DataBagsFactory(clusterContext.getCluster()));
@@ -67,5 +76,15 @@ public class DeploymentManager {
 
   public void terminate() {
     executionEngine.terminate();
+  }
+
+  public Map<Node, List<Task>> getDeploymentStatus() {
+    return dagFactory.getNodeToRecipeMap().entrySet().stream()
+      .map(e -> new AbstractMap.SimpleEntry<Node, List<Task>>(e.getKey(), new ArrayList<>(e.getValue().values())))
+      .collect(Collectors.toMap(AbstractMap.SimpleEntry::getKey, AbstractMap.SimpleEntry::getValue));
+  }
+
+  public List<Task> getNodeDeployment(Node node) {
+    return new ArrayList<>(dagFactory.getNodeToRecipeMap().get(node).values());
   }
 }

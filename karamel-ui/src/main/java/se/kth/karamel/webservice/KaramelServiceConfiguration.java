@@ -8,9 +8,6 @@ import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import org.hibernate.validator.constraints.NotEmpty;
 
-/**
- * Created by babbarshaer on 2014-11-20.
- */
 public class KaramelServiceConfiguration extends Configuration implements AssetsBundleConfiguration {
 
   @Valid

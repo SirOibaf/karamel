@@ -15,7 +15,7 @@
     </appender>
 
     <!-- Specific Project Logging. -->
-    <!--<logger name="chapters.configuration" level="INFO" />-->
+    <!--<LOGGER name="chapters.configuration" level="INFO" />-->
 
     <root level="info">
         <appender-ref ref="FILE" />

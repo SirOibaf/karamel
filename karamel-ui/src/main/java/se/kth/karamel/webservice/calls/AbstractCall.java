@@ -8,7 +8,7 @@ import javax.ws.rs.core.Response;
 
 public abstract class AbstractCall {
 
-  protected static final Logger logger = Logger.getLogger(AbstractCall.class);
+  protected static final Logger LOGGER = Logger.getLogger(AbstractCall.class);
   protected KaramelApi karamelApi;
   
   public AbstractCall(KaramelApi karamelApi) {
@@ -16,7 +16,7 @@ public abstract class AbstractCall {
   }
   
   protected Response buildExceptionResponse(Exception e) {
-    logger.error("", e);
+    LOGGER.error("", e);
     return Response.status(Response.Status.INTERNAL_SERVER_ERROR).
         entity(new StatusResponseJSON(StatusResponseJSON.ERROR_STRING, e.getMessage())).build();
   }

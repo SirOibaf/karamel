@@ -37,6 +37,7 @@ public class Settings {
     // Chef solo configuration
     SOLO_FILE_CACHE_PATH("solo.file_cache_path", "/tmp/chef-solo");
 
+
     public String keyName;
     public String defaultValue;
 
@@ -59,17 +60,17 @@ public class Settings {
     File confFile = Paths.get(System.getenv(Constants.KARAMEL_HOME),
        Constants.KARAMEL_CONF_DIRNAME,
         Constants.KARAMEL_CONF_NAME).toFile();
-    if (!confFile.exists()) {
+    String confContent = "";
+    if (confFile.exists()) {
+      confContent = FileUtils.readFileToString(confFile);
+    } else {
       // Try loading it from the resources
       URL resourceConfFilePath = this.getClass().getResource("/" + Constants.KARAMEL_CONF_NAME);
-      if (resourceConfFilePath == null) {
-        throw new KaramelException("Could not load Karamel configuration file");
-      } else {
+      if (resourceConfFilePath != null) {
         confFile = new File(resourceConfFilePath.getFile());
+        confContent = FileUtils.readFileToString(confFile);
       }
     }
-
-    String confContent = FileUtils.readFileToString(confFile);
 
     Set<String> validConfigurations = Arrays.stream(SettingsKeys.values())
         .map(settingsKeys -> settingsKeys.keyName).collect(Collectors.toSet());
@@ -100,6 +101,10 @@ public class Settings {
 
   public void set(SettingsKeys key, String value) {
     confMap.put(key.keyName, value);
+  }
+
+  public void setInt(SettingsKeys key, int value) {
+    confMap.put(key.keyName, String.valueOf(value));
   }
 
   @VisibleForTesting

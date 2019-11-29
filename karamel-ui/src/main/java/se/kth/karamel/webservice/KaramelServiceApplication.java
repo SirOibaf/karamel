@@ -1,25 +1,12 @@
 package se.kth.karamel.webservice;
 
-import icons.TrayUI;
 import io.dropwizard.Application;
 import io.dropwizard.forms.MultiPartBundle;
-import io.dropwizard.jetty.MutableServletContextHandler;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
-import java.awt.Desktop;
-import java.awt.Image;
-import java.awt.SystemTray;
-import java.io.IOException;
-import java.net.InetAddress;
-import java.net.ServerSocket;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.net.UnknownHostException;
 import java.util.EnumSet;
 import javax.servlet.DispatcherType;
 import javax.servlet.FilterRegistration;
-import javax.swing.ImageIcon;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.GnuParser;
@@ -27,19 +14,15 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
-import org.eclipse.jetty.server.AbstractNetworkConnector;
-import org.eclipse.jetty.server.Connector;
-import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlets.CrossOriginFilter;
 import se.kth.karamel.client.api.KaramelApi;
 import se.kth.karamel.client.api.KaramelApiImpl;
 
 import se.kth.karamel.common.exception.KaramelException;
-import se.kth.karamel.common.util.SshKeyPair;
+import se.kth.karamel.common.util.SSHKeyPair;
 import se.kth.karamel.webservice.calls.cluster.ClusterService;
 import se.kth.karamel.webservice.calls.cluster.UploadService;
-import se.kth.karamel.webservice.calls.sshkeys.LoadSshKeys;
-import se.kth.karamel.webservice.calls.sshkeys.RegisterSshKeys;
+import se.kth.karamel.webservice.calls.sshkeys.SSHKeys;
 import se.kth.karamel.webservice.calls.sshkeys.SetSudoPassword;
 import se.kth.karamel.webservice.calls.system.ExitKaramel;
 import se.kth.karamel.webservice.calls.system.PingServer;
@@ -47,36 +30,18 @@ import se.kth.karamel.webservice.utils.TemplateHealthCheck;
 
 public class KaramelServiceApplication extends Application<KaramelServiceConfiguration> {
 
-  private static final org.apache.log4j.Logger logger = org.apache.log4j.Logger.getLogger(
-    KaramelServiceApplication.class);
-
   private static KaramelApi karamelApi;
-
-  public static TrayUI trayUi;
 
   private TemplateHealthCheck healthCheck;
 
   private static final Options options = new Options();
   private static final CommandLineParser parser = new GnuParser();
 
-  private static final int PORT = 58931;
-  private static ServerSocket s;
   private static boolean cli = false;
   private static boolean headless = false;
   private static boolean noSudoPasswd = false;
 
   static {
-// Ensure a single instance of the app is running
-    try {
-      s = new ServerSocket(PORT, 10, InetAddress.getLocalHost());
-    } catch (UnknownHostException e) {
-      // shouldn't happen for localhost
-    } catch (IOException e) {
-      // port taken, so app is already running
-      logger.info("An instance of Karamel is already running. Exiting...");
-      System.exit(10);
-    }
-
     options.addOption("help", false, "Print help message.");
     options.addOption(OptionBuilder.withArgName("yamlFile")
       .hasArg()
@@ -148,7 +113,7 @@ public class KaramelServiceApplication extends Application<KaramelServiceConfigu
           karamelApi.registerSudoPassword(sudoPasswd);
         }
 
-        SshKeyPair pair = karamelApi.loadSshKeysIfExist();
+        SSHKeyPair pair = karamelApi.getAvailableSSHKeys().get(0);
         karamelApi.registerSshKeys(pair);
         karamelApi.startCluster();
       }
@@ -177,7 +142,6 @@ public class KaramelServiceApplication extends Application<KaramelServiceConfigu
 
   @Override
   public void run(KaramelServiceConfiguration configuration, Environment environment) throws Exception {
-
     healthCheck = new TemplateHealthCheck("%s");
 
     /*
@@ -200,8 +164,7 @@ public class KaramelServiceApplication extends Application<KaramelServiceConfigu
     environment.jersey().register(new UploadService(karamelApi));
 
     //ssh
-    environment.jersey().register(new LoadSshKeys(karamelApi));
-    environment.jersey().register(new RegisterSshKeys(karamelApi));
+    environment.jersey().register(new SSHKeys(karamelApi));
     environment.jersey().register(new SetSudoPassword(karamelApi));
 
     //cluster
@@ -209,82 +172,5 @@ public class KaramelServiceApplication extends Application<KaramelServiceConfigu
 
     environment.jersey().register(new ExitKaramel(karamelApi));
     environment.jersey().register(new PingServer(karamelApi));
-
-    // Wait to make sure jersey/angularJS is running before launching the browser
-    final int webPort = getPort(environment);
-
-    if (!headless) {
-      if (SystemTray.isSupported()) {
-        trayUi = new TrayUI(createImage("if.png", "tray icon"), getPort(environment));
-      }
-
-      new Thread("webpage opening..") {
-        public void run() {
-          try {
-            Thread.sleep(1500);
-            openWebpage(new URL("http://localhost:" + webPort + "/index.html#/"));
-          } catch (InterruptedException | java.net.MalformedURLException e) {
-            // swallow the exception
-          }
-        }
-      }.start();
-
-    }
-  }
-
-  protected static Image createImage(String path, String description) {
-    URL imageURL = TrayUI.class.getResource(path);
-
-    if (imageURL == null) {
-      System.err.println("Resource not found: " + path);
-      return null;
-    } else {
-      return (new ImageIcon(imageURL, description)).getImage();
-    }
-  }
-
-  public int getPort(Environment environment) {
-    int defaultPort = 9090;
-    MutableServletContextHandler h = environment.getApplicationContext();
-    if (h == null) {
-      return defaultPort;
-    }
-    Server s = h.getServer();
-    if (s == null) {
-      return defaultPort;
-    }
-    Connector[] c = s.getConnectors();
-    if (c != null && c.length > 0) {
-      AbstractNetworkConnector anc = (AbstractNetworkConnector) c[0];
-      if (anc != null) {
-        return anc.getLocalPort();
-      }
-    }
-    return defaultPort;
-  }
-
-  public synchronized static void openWebpage(URI uri) {
-    Desktop desktop = Desktop.isDesktopSupported() ? Desktop.getDesktop() : null;
-    if (desktop != null && desktop.isSupported(Desktop.Action.BROWSE)) {
-      try {
-        desktop.browse(uri);
-      } catch (Exception e) {
-        e.printStackTrace();
-      }
-    } else {
-      System.err.println("Browser UI could not be launched using Java's Desktop library. "
-        + "Are you running a window manager?");
-      System.err.println("If you are using Ubuntu, try: sudo apt-get install libgnome");
-      System.err.println("Retrying to launch the browser now using a different method.");
-      BareBonesBrowserLaunch.openURL(uri.toASCIIString());
-    }
-  }
-
-  public static void openWebpage(URL url) {
-    try {
-      openWebpage(url.toURI());
-    } catch (URISyntaxException e) {
-      e.printStackTrace();
-    }
   }
 }

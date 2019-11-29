@@ -115,7 +115,7 @@ public class NodeImpl implements Node {
     SSHClient sshClient = new SSHClient();
     sshClient.loadKnownHosts();
     // TODO(Fabio): Make it configurable and not limited to SSHKey
-    sshClient.loadKeys(clusterContext.getSshKeyPair().getPrivateKeyPath());
+    sshClient.loadKeys(clusterContext.getSSHKeyPair().getPrivateKeyPath());
     sshClient.connect(privateIP);
     sshClient.authPublickey(user);
 

@@ -2,15 +2,18 @@ package se.kth.karamel.core;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
+import java.util.Map;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
+import se.kth.karamel.common.node.Node;
 import se.kth.karamel.common.util.Settings;
+import se.kth.karamel.core.execution.Task;
 import se.kth.karamel.core.provisioner.jcloud.amazon.Ec2Context;
-import se.kth.karamel.core.provisioner.jcloud.google.GceContext;
 import se.kth.karamel.common.exception.KaramelException;
 import se.kth.karamel.common.clusterdef.Cluster;
-import se.kth.karamel.common.util.SshKeyPair;
+import se.kth.karamel.common.util.SSHKeyPair;
 
 /**
  * Keeps repository of running clusters with a unique name for each. Privacy sensitive data such as credentials is
@@ -37,7 +40,10 @@ public class ClusterService {
     clusterContext = new ClusterContext(currentCluster);
   }
 
-  public synchronized Cluster getCurrentCluster() {
+  public synchronized Cluster getCurrentCluster() throws KaramelException{
+    if (clusterContext == null) {
+      throw new KaramelException("Please upload a cluster definition first");
+    }
     return clusterContext.getCluster();
   }
 
@@ -49,15 +55,7 @@ public class ClusterService {
     clusterContext.setEc2Context(ec2Context);
   }
 
-  public synchronized Ec2Context getEc2Context() {
-    return clusterContext.getEc2Context();
-  }
-
-  public synchronized void registerGceContext(GceContext gceContext) {
-    clusterContext.setGceContext(gceContext);
-  }
-
-  public synchronized void registerSshKeyPair(SshKeyPair sshKeyPair) throws KaramelException {
+  public synchronized void registerSSHKeyPair(SSHKeyPair sshKeyPair) throws KaramelException {
     File pubKey = new File(sshKeyPair.getPublicKeyPath());
     if (!pubKey.exists()) {
       throw new KaramelException("Could not find public key: " + sshKeyPair.getPublicKeyPath());
@@ -67,7 +65,7 @@ public class ClusterService {
       throw new KaramelException("Could not find private key: " + sshKeyPair.getPrivateKeyPath());
     }
 
-    clusterContext.setSshKeyPair(sshKeyPair);
+    clusterContext.setSSHKeyPair(sshKeyPair);
   }
 
   public synchronized void startCluster() throws KaramelException, IOException {
@@ -102,5 +100,13 @@ public class ClusterService {
     }
     deploymentManager.terminate();
     LOGGER.log(Level.INFO, "Deployment terminated");
+  }
+
+  public Map<Node, List<Task>> getClusterDeploymentStatus() {
+    return deploymentManager.getDeploymentStatus();
+  }
+
+  public List<Task> getNodeDeploymentStatus(Node node) {
+    return deploymentManager.getNodeDeployment(node);
   }
 }
