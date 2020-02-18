@@ -14,7 +14,8 @@ public abstract class Task {
   @Getter
   protected int taskId;
 
-  @Getter @Setter
+  // TODO(Fabio): Implement locking mechanism for task status manipulation
+  @Getter
   private TaskStatus taskStatus = TaskStatus.WAITING;
 
   @Getter @Setter
@@ -23,14 +24,21 @@ public abstract class Task {
   @Getter @Setter
   private List<Task> dependsOn = new ArrayList<>();
 
+  @Getter
+  protected TaskOutputReader taskOutputReader;
+
   protected Settings settings;
 
   abstract void execute() throws ExecutionException, IOException;
 
+  public synchronized void setTaskStatus(TaskStatus taskStatus) {
+    this.taskStatus = taskStatus;
+  }
+
   @Override
   public boolean equals(Object o) {
     if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (o == null || !(o instanceof Task)) return false;
 
     Task task = (Task) o;
 

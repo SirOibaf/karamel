@@ -10,6 +10,7 @@ import se.kth.karamel.core.dag.Dag;
 import se.kth.karamel.core.dag.DagFactory;
 import se.kth.karamel.core.execution.ExecutionEngine;
 import se.kth.karamel.core.execution.Task;
+import se.kth.karamel.core.execution.TaskStatus;
 import se.kth.karamel.core.provisioner.Provisioner;
 import se.kth.karamel.core.provisioner.ProvisionerFactory;
 
@@ -19,6 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class DeploymentManager {
 
@@ -44,6 +46,7 @@ public class DeploymentManager {
    *  - Executing the DAG
    * @throws KaramelException
    */
+  // TODO(Fabio): this should probably be a separate thread.
   public void deploy(ClusterContext clusterContext) throws KaramelException {
 
     // Provision HW
@@ -66,15 +69,86 @@ public class DeploymentManager {
     executionEngine.execute(dag, numNodes);
   }
 
-  public void pause() {
+  // TODO(Fabio): change the pause dag with the same concept of the below
+  public void pauseDag() {
     executionEngine.pause();
   }
 
-  public void resume() {
+  public void pause(Task task) {
+    setTasksStatus(filterTask(task), TaskStatus.PAUSED);
+  }
+
+  public void pause(Node node) {
+    setTasksStatus(filterNode(node), TaskStatus.PAUSED);
+  }
+
+  public void pause(Group group) {
+    setTasksStatus(filterGroup(group), TaskStatus.PAUSED);
+  }
+
+  public void resume(Task task) {
+    setTasksStatus(filterTask(task), TaskStatus.WAITING);
+  }
+
+  public void resume(Node node) {
+    setTasksStatus(filterNode(node), TaskStatus.WAITING);
+  }
+
+  public void resume(Group group) {
+    setTasksStatus(filterGroup(group), TaskStatus.WAITING);
+  }
+
+  // TODO(Fabio): here we should make sure we unlock the thread
+  public void skip(Task task) {
+    setTasksStatus(filterTask(task), TaskStatus.SKIPPED);
+  }
+
+  public void skip(Node node) {
+    setTasksStatus(filterNode(node), TaskStatus.SKIPPED);
+  }
+
+  public void skip(Group group) {
+    setTasksStatus(filterGroup(group), TaskStatus.SKIPPED);
+  }
+
+  // TODO(Fabio): here we should make sure we unlock the thread
+  public void retry(Task task) {
+    setTasksStatus(filterTask(task), TaskStatus.WAITING);
+  }
+
+  public void retry(Node node) {
+    setTasksStatus(filterNode(node), TaskStatus.WAITING);
+  }
+
+  public void retry(Group group) {
+    setTasksStatus(filterGroup(group), TaskStatus.WAITING);
+  }
+
+  public Stream<Task> filterTask(Task task) {
+    return dag.getTaskList().stream().filter(t -> t.equals(task));
+  }
+
+  public Stream<Task> filterNode(Node node) {
+    return dagFactory.getNodeToRecipeMap().get(node).values().stream()
+      .filter(task -> task.getTaskStatus() == TaskStatus.WAITING);
+  }
+
+  public Stream<Task> filterGroup(Group group) {
+    return dagFactory.getNodeToRecipeMap().entrySet().stream()
+      .filter(e -> e.getKey().getGroup().equals(group))
+      .flatMap(e -> e.getValue().values().stream())
+      .filter(task -> task.getTaskStatus() == TaskStatus.WAITING);
+  }
+
+  private void setTasksStatus(Stream<Task> tasks, TaskStatus taskStatus) {
+    tasks.forEach(task -> task.setTaskStatus(taskStatus));
+  }
+
+  public void resumeDag() {
     executionEngine.resume();
   }
 
-  public void terminate() {
+  public void terminateDag() {
     executionEngine.terminate();
   }
 

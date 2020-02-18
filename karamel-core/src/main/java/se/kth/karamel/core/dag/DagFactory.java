@@ -192,8 +192,16 @@ public class DagFactory {
   private void addKCookbookDependencies(List<KaramelFileDeps> dependencies) {
     for (KaramelFileDeps dependency : dependencies) {
       Recipe recipe = new Recipe(dependency.getRecipe());
-      addLocalDependencies(recipe, dependency.getLocal());
-      addGlobalDependencies(recipe, dependency.getGlobal());
+
+      // Karamelfile can contain dependency for a recipe not listed in the cluster definition.
+      if (recipeToTasksMap.containsKey(recipe)) {
+        if (dependency.getLocal() != null) {
+          addLocalDependencies(recipe, dependency.getLocal());
+        }
+        if (dependency.getGlobal() != null) {
+          addGlobalDependencies(recipe, dependency.getGlobal());
+        }
+      }
     }
   }
 
@@ -227,8 +235,10 @@ public class DagFactory {
       // Fetch the target recipe tasks
       List<Task> targetRecipeTasks = recipeToTasksMap.get(targetRecipe);
 
-      // Add all the srcRecipeTasks to each targetRecipeTasks
-      srcRecipeTasks.forEach(t -> t.getDependsOn().addAll(targetRecipeTasks));
+      if (targetRecipeTasks != null) {
+        // Add all the srcRecipeTasks to each targetRecipeTasks
+        srcRecipeTasks.forEach(t -> t.getDependsOn().addAll(targetRecipeTasks));
+      }
     }
   }
 }

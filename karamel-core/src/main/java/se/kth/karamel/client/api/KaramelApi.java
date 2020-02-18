@@ -71,30 +71,23 @@ public interface KaramelApi {
    */
   void startCluster() throws KaramelException;
 
-  /**
-   * In case user wants to pause the running cluster for inspection reasons. It implies that machines won't receive any
-   * new ssh command form the karamel-core. User can either terminate or resume a paused cluster.
-   *
-   * @throws KaramelException
-   */
-  void pauseCluster() throws KaramelException;
-
-  /**
-   * It resumes an already paused cluster, machines will go on and run ssh commands.
-   *
-   * @throws KaramelException
-   */
-  void resumeCluster() throws KaramelException;
-
-  /**
-   * It stops sending new ssh command to machines, destroys the automatic allocated machines and disconnects ssh clients
-   * from machines. User, however, shouldn't expect that bare-metal machines be destroyed as well.
-   *
-   * @throws KaramelException
-   */
   void terminateCluster() throws KaramelException;
 
+  void pause(Integer task, Integer nodeId, String group) throws KaramelException;
+
+  void resume(Integer task, Integer nodeId, String group) throws KaramelException;
+
+  void retry(Integer task, Integer nodeId, String group) throws KaramelException;
+
+  void skip(Integer task, Integer nodeId, String group) throws KaramelException;
+
+  /**
+   * A list of tasks grouped by group (name only) and nodes
+   * @return
+   */
   Map<Node, List<Task>> getClusterDeploymentStatus();
 
   List<Task> getNodeDeploymentStatus(Node node);
+
+  String getLogs(int task) throws KaramelException;
 }

@@ -25,6 +25,9 @@ public class Group extends Scope {
   @Getter @Setter
   private List<Recipe> recipes = new ArrayList<>();
 
+  public Group(String name) {
+    this.name = name;
+  }
 
   public Group() { }
 

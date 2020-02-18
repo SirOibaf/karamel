@@ -16,6 +16,9 @@ import se.kth.karamel.common.clusterdef.Cluster;
 import se.kth.karamel.common.exception.KaramelException;
 import se.kth.karamel.webservice.calls.AbstractCall;
 
+import java.net.URI;
+import java.net.URISyntaxException;
+
 @Path("/cluster")
 public class ClusterService extends AbstractCall {
 
@@ -38,12 +41,19 @@ public class ClusterService extends AbstractCall {
   @Consumes(MediaType.APPLICATION_JSON)
   @Produces(MediaType.APPLICATION_JSON)
   public Response action(@NotNull @QueryParam("action") ClusterActions action)
-    throws KaramelException, InterruptedException {
+    throws KaramelException, URISyntaxException, InterruptedException {
     switch (action) {
       case VALIDATE:
         // TODO(Fabio): return validation answer to the user
         karamelApi.getCluster().validate();
         // If the cluster is valid, no exceptions are thrown, so respond OK
+        return Response.ok().build();
+      case START:
+        karamelApi.startCluster();
+        // TODO(Fabio): return endpoint to check the status
+        return Response.created(new URI("")).build();
+      case TERMINATE:
+        karamelApi.terminateCluster();
         return Response.ok().build();
       default:
         throw new NotImplementedException("Unknown action");

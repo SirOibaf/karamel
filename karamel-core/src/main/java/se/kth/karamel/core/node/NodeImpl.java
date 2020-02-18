@@ -6,12 +6,14 @@ import net.schmizz.sshj.connection.channel.direct.Session;
 import net.schmizz.sshj.xfer.FileSystemFile;
 import org.apache.log4j.Logger;
 import org.apache.log4j.Level;
+import se.kth.karamel.common.clusterdef.Group;
 import se.kth.karamel.common.node.Node;
 import se.kth.karamel.common.util.Constants;
 import se.kth.karamel.core.ClusterContext;
 
 import java.io.IOException;
 import java.nio.file.Paths;
+import java.security.KeyPair;
 
 public class NodeImpl implements Node {
 
@@ -32,15 +34,23 @@ public class NodeImpl implements Node {
   @Getter
   private String user;
 
+  @Getter
+  private Group group;
+
   private ClusterContext clusterContext;
 
+  public NodeImpl(int nodeId) {
+    this.nodeId = nodeId;
+  }
+
   public NodeImpl(int nodeId, String hostname, String privateIP, String publicIP,
-                  String user, ClusterContext clusterContext) {
+                  String user, Group group, ClusterContext clusterContext) {
     this.nodeId = nodeId;
     this.hostname = hostname;
     this.privateIP = privateIP;
     this.publicIP = publicIP;
     this.user = user;
+    this.group = group;
     this.clusterContext = clusterContext;
     this.workDir = Paths.get("/home", user, Constants.REMOTE_WORKING_DIR_NAME).toString();
   }
@@ -54,9 +64,10 @@ public class NodeImpl implements Node {
    */
   @Override
   public Session.Command execCommand(String command, boolean requiresRoot) throws IOException {
-    SSHClient sshClient = getSSHClient();
+    SSHClient sshClient = null;
     Session session = null;
     try {
+      sshClient = getSSHClient();
       session = sshClient.startSession();
       // Allocate the default PTY otherwise SUDO will complain
       session.allocateDefaultPTY();
@@ -78,11 +89,17 @@ public class NodeImpl implements Node {
       LOGGER.log(Level.DEBUG, "Command " + command + " executed on node: " + hostname);
 
       return cmd;
+    } catch (IOException e) {
+      LOGGER.log(Level.ERROR, "Could not execute command: " + command + " on node: " + hostname, e);
+      // Re throw the exception upstream
+      throw e;
     } finally {
       if (session != null) {
         session.close();
       }
-      sshClient.disconnect();
+      if (sshClient != null) {
+        sshClient.disconnect();
+      }
     }
   }
 
@@ -116,7 +133,8 @@ public class NodeImpl implements Node {
     sshClient.loadKnownHosts();
     // TODO(Fabio): Make it configurable and not limited to SSHKey
     sshClient.loadKeys(clusterContext.getSSHKeyPair().getPrivateKeyPath());
-    sshClient.connect(privateIP);
+    // TODO(Fabio): port here is set only for testing change it before releasing
+    sshClient.connect(privateIP, 10022);
     sshClient.authPublickey(user);
 
     return sshClient;

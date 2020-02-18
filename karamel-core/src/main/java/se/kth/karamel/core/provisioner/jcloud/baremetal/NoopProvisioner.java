@@ -27,7 +27,7 @@ public class NoopProvisioner implements Provisioner  {
       group.getProvider().merge(cluster.getProvider());
       for (String IP : group.getNoop().getIps()) {
         nodes.add(new NodeNoop(currentNodeId, IP, IP, IP, group.getNoop().getUsername(),
-            clusterContext));
+            group, clusterContext));
         currentNodeId++;
       }
     } catch (Exception e) {

@@ -333,6 +333,110 @@ public class TestDagFactory {
   }
 
   @Test
+  // Make sure we don't throw a null pointer exception when trying to add a dependency for a
+  // recipe that does not exists
+  public void testAddDependencyForMissingRecipe() throws KaramelException, IOException {
+    Map<String, String> cookbookRecipes = new HashMap<>();
+    cookbookRecipes.put("test2::install", "Install recipe");
+    cookbookRecipes.put("test2::default", "Default recipe");
+
+    MetadataRb testMetadataRb = new MetadataRb();
+    testMetadataRb.setName("test2");
+    testMetadataRb.setRecipes(cookbookRecipes);
+
+    List<String> localDependencies = new ArrayList<>();
+    List<String> globalDependencies = new ArrayList<>();
+    globalDependencies.add("test2::default");
+    KaramelFileDeps dependency =
+      new KaramelFileDeps("test2::missing", localDependencies, globalDependencies);
+
+    KaramelFile karamelFile = new KaramelFile();
+    karamelFile.setDependencies(Arrays.asList(dependency));
+
+    KaramelizedCookbook karamelizedCookbook =
+      new KaramelizedCookbook(testMetadataRb, karamelFile);
+    CookbookCache.getInstance().addToCache("test2", karamelizedCookbook);
+
+    // Overwrite recipe list
+    List<Recipe> recipesList = new ArrayList<>();
+    recipesList.add(new Recipe(karamelizedCookbook, "test2::default"));
+    clusterContext.getCluster().getGroups().get(0).setRecipes(recipesList);
+
+    provisionNoopNodes();
+    Dag dag = dagFactory.buildDag(baseCluster, new Settings(), null);
+
+    assertNotNull(dag);
+  }
+
+  @Test
+  // Make sure we don't throw a null pointer exception if we have a null list of global
+  // and or local dependencies
+  public void testNullDependencies() throws KaramelException, IOException {
+    Map<String, String> cookbookRecipes = new HashMap<>();
+    cookbookRecipes.put("test2::install", "Install recipe");
+    cookbookRecipes.put("test2::default", "Default recipe");
+
+    MetadataRb testMetadataRb = new MetadataRb();
+    testMetadataRb.setName("test2");
+    testMetadataRb.setRecipes(cookbookRecipes);
+
+    KaramelFileDeps dependency =
+      new KaramelFileDeps("test2::default", null, null);
+
+    KaramelFile karamelFile = new KaramelFile();
+    karamelFile.setDependencies(Arrays.asList(dependency));
+
+    KaramelizedCookbook karamelizedCookbook =
+      new KaramelizedCookbook(testMetadataRb, karamelFile);
+    CookbookCache.getInstance().addToCache("test2", karamelizedCookbook);
+
+    // Overwrite recipe list
+    List<Recipe> recipesList = new ArrayList<>();
+    recipesList.add(new Recipe(karamelizedCookbook, "test2::default"));
+    clusterContext.getCluster().getGroups().get(0).setRecipes(recipesList);
+
+    provisionNoopNodes();
+    Dag dag = dagFactory.buildDag(baseCluster, new Settings(), null);
+
+    assertNotNull(dag);
+  }
+
+  @Test
+  // Make sure we don't throw a null pointer exception if we have a null list of global
+  // and or local dependencies
+  public void testNullTarget() throws KaramelException, IOException {
+    Map<String, String> cookbookRecipes = new HashMap<>();
+    cookbookRecipes.put("test2::install", "Install recipe");
+    cookbookRecipes.put("test2::default", "Default recipe");
+
+    MetadataRb testMetadataRb = new MetadataRb();
+    testMetadataRb.setName("test2");
+    testMetadataRb.setRecipes(cookbookRecipes);
+
+    List<String> dependencies = new ArrayList<>();
+    dependencies.add("test2::missing");
+    KaramelFileDeps dependency =
+      new KaramelFileDeps("test2::default", dependencies, dependencies);
+
+    KaramelFile karamelFile = new KaramelFile();
+    karamelFile.setDependencies(Arrays.asList(dependency));
+
+    KaramelizedCookbook karamelizedCookbook =
+      new KaramelizedCookbook(testMetadataRb, karamelFile);
+    CookbookCache.getInstance().addToCache("test2", karamelizedCookbook);
+
+    // Overwrite recipe list
+    List<Recipe> recipesList = new ArrayList<>();
+    recipesList.add(new Recipe(karamelizedCookbook, "test2::default"));
+    clusterContext.getCluster().getGroups().get(0).setRecipes(recipesList);
+
+    provisionNoopNodes();
+    Dag dag = dagFactory.buildDag(baseCluster, new Settings(), null);
+
+    assertNotNull(dag);
+  }
+
+  @Test
   @Ignore
   public void testTransientDependencies() {
     throw new RuntimeException("Still have to implement this");

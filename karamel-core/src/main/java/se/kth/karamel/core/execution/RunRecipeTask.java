@@ -25,6 +25,10 @@ public class RunRecipeTask extends Task {
   private Group group;
   private Recipe recipe;
 
+  public RunRecipeTask(int taskId) {
+    this.taskId = taskId;
+  }
+
   public RunRecipeTask(int taskId, Node node, Cluster cluster, Group group, Recipe recipe,
                        Settings settings, DataBagsFactory dataBagsFactory) {
     this.taskId = taskId;
@@ -103,6 +107,11 @@ public class RunRecipeTask extends Task {
         " 2>&1 | tee " + recipe.getCanonicalName() + ".log";
 
     Session.Command cmd = node.execCommand(soloCommand, true);
+
+    // Start the thread to read the output
+    taskOutputReader = new TaskOutputReader(cmd.getInputStream());
+    taskOutputReader.run();
+
     if (cmd.getExitStatus() != 0) {
       throw new ExecutionException("Error executing recipe " + recipe.getCanonicalName());
     }

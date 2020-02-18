@@ -91,16 +91,17 @@ public class ExecutionEngine {
    * @param task
    */
   public void skipTask(Task task) {
+    // TODO(Fabio): Check the task status
     task.setTaskStatus(TaskStatus.SKIPPED);
     nodeBusy[task.getNode().getNodeId()].set(false);
   }
-
 
   /**
    * Put a task back in the queue for the execution
    * @param task
    */
   public void retryTask(Task task) throws InterruptedException {
+    // TODO(Fabio) check the task status
     tasksQueue.put(task);
     task.setTaskStatus(TaskStatus.SCHEDULED);
   }
@@ -158,6 +159,11 @@ public class ExecutionEngine {
           }
 
           Task task = tasksQueue.take();
+          if (task.getTaskStatus() == TaskStatus.PAUSED || task.getTaskStatus() == TaskStatus.SKIPPED) {
+            // A task might have been paused/skipped while being in the queue. if so, just don't execute
+            continue;
+          }
+
           task.setTaskStatus(TaskStatus.RUNNING);
           try {
             task.execute();

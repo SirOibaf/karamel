@@ -1,6 +1,7 @@
 package se.kth.karamel.common.node;
 
 import net.schmizz.sshj.connection.channel.direct.Session;
+import se.kth.karamel.common.clusterdef.Group;
 
 import java.io.IOException;
 
@@ -17,5 +18,5 @@ public interface Node {
   String getHostname();
   String getPrivateIP();
   String getPublicIP();
-
+  Group getGroup();
 }

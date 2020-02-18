@@ -16,7 +16,9 @@ public class DataBag extends HashMap<String, Object> {
    * @param dataBag
    */
   public synchronized void merge(Map<String, Object> dataBag) {
-    mapInternal(this, dataBag);
+    if (dataBag != null) {
+      mapInternal(this, dataBag);
+    }
   }
 
   private void mapInternal(Map<String, Object> current, Map<String, Object> dataBag) {

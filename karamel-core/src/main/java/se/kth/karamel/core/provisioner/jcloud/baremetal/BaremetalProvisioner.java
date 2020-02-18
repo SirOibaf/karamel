@@ -25,7 +25,7 @@ public class BaremetalProvisioner implements Provisioner {
     try {
       group.getProvider().merge(cluster.getProvider());
       for (String IP : group.getBaremetal().getIps()) {
-        nodes.add(new NodeImpl(currentNodeId, IP, IP, IP, group.getBaremetal().getUsername(), clusterContext));
+        nodes.add(new NodeImpl(currentNodeId, IP, IP, IP, group.getBaremetal().getUsername(), group, clusterContext));
         currentNodeId++;
       }
     } catch (Exception e) {

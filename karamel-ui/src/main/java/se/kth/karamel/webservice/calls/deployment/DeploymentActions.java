@@ -1,8 +1,9 @@
 package se.kth.karamel.webservice.calls.deployment;
 
 public enum DeploymentActions {
-  START("start"),
-  STOP("stop"),
+  RESUME("resume"),
+  RETRY("retry"),
+  SKIP("skip"),
   PAUSE("pause");
 
   private String value = null;

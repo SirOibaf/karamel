@@ -22,6 +22,8 @@ import se.kth.karamel.common.exception.KaramelException;
 import se.kth.karamel.common.util.SSHKeyPair;
 import se.kth.karamel.webservice.calls.cluster.ClusterService;
 import se.kth.karamel.webservice.calls.cluster.UploadService;
+import se.kth.karamel.webservice.calls.deployment.DeploymentService;
+import se.kth.karamel.webservice.calls.deployment.LogService;
 import se.kth.karamel.webservice.calls.sshkeys.SSHKeys;
 import se.kth.karamel.webservice.calls.sshkeys.SetSudoPassword;
 import se.kth.karamel.webservice.calls.system.ExitKaramel;
@@ -169,6 +171,8 @@ public class KaramelServiceApplication extends Application<KaramelServiceConfigu
 
     //cluster
     environment.jersey().register(new ClusterService(karamelApi));
+    environment.jersey().register(new DeploymentService(karamelApi));
+    environment.jersey().register(new LogService(karamelApi));
 
     environment.jersey().register(new ExitKaramel(karamelApi));
     environment.jersey().register(new PingServer(karamelApi));

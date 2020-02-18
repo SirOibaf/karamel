@@ -9,18 +9,18 @@ public class SSHKeyPair {
   private String privateKeyPath;
 
   @Getter @Setter
-  private String publicKeyPath;
-
-  @Getter @Setter
   private String passphrase;
 
   public SSHKeyPair() {
 
   }
 
-  public SSHKeyPair(String privateKeyPath, String publicKeyPath, String passphrase) {
+  public SSHKeyPair(String privateKeyPath) {
     this.privateKeyPath = privateKeyPath;
-    this.publicKeyPath = publicKeyPath;
+  }
+
+  public SSHKeyPair(String privateKeyPath, String passphrase) {
+    this.privateKeyPath = privateKeyPath;
     this.passphrase = passphrase;
   }
 }

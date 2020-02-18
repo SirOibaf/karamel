@@ -1,7 +1,9 @@
 package se.kth.karamel.webservice.calls.cluster;
 
 public enum ClusterActions {
-  VALIDATE("validate");
+  VALIDATE("validate"),
+  START("start"),
+  TERMINATE("terminate");
 
   private String value = null;
 

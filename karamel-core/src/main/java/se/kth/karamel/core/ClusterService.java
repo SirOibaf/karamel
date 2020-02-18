@@ -7,6 +7,7 @@ import java.util.Map;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
+import se.kth.karamel.common.clusterdef.Group;
 import se.kth.karamel.common.node.Node;
 import se.kth.karamel.common.util.Settings;
 import se.kth.karamel.core.execution.Task;
@@ -56,10 +57,6 @@ public class ClusterService {
   }
 
   public synchronized void registerSSHKeyPair(SSHKeyPair sshKeyPair) throws KaramelException {
-    File pubKey = new File(sshKeyPair.getPublicKeyPath());
-    if (!pubKey.exists()) {
-      throw new KaramelException("Could not find public key: " + sshKeyPair.getPublicKeyPath());
-    }
     File privKey = new File(sshKeyPair.getPrivateKeyPath());
     if (!privKey.exists()) {
       throw new KaramelException("Could not find private key: " + sshKeyPair.getPrivateKeyPath());
@@ -82,24 +79,121 @@ public class ClusterService {
     if (deploymentManager == null) {
       throw new KaramelException("No cluster is running at the moment");
     }
-    deploymentManager.pause();
+    deploymentManager.pauseDag();
     LOGGER.log(Level.INFO, "Deployment paused");
+  }
+
+  // TODO(Fabio): validate if task/node/group is available
+  public synchronized void pauseTask(Task task) throws KaramelException {
+    if (deploymentManager == null) {
+      throw new KaramelException("No cluster is running at the moment");
+    }
+    deploymentManager.pause(task);
+    LOGGER.log(Level.INFO, String.format("NodeId %s Deployment paused", task.getTaskId()));
+  }
+
+  public synchronized void pauseNode(Node node) throws KaramelException {
+    if (deploymentManager == null) {
+      throw new KaramelException("No cluster is running at the moment");
+    }
+    deploymentManager.pause(node);
+    LOGGER.log(Level.INFO, String.format("NodeId %s Deployment paused", node.getNodeId()));
+  }
+
+  public synchronized void pauseGroup(Group group) throws KaramelException {
+    if (deploymentManager == null) {
+      throw new KaramelException("No cluster is running at the moment");
+    }
+    deploymentManager.pause(group);
+    LOGGER.log(Level.INFO, String.format("Group %s Deployment paused", group.getName()));
   }
 
   public synchronized void resumeDag() throws KaramelException {
     if (deploymentManager == null) {
       throw new KaramelException("No cluster is running at the moment");
     }
-    deploymentManager.resume();
+    deploymentManager.resumeDag();
     LOGGER.log(Level.INFO, "Deployment resumed");
+  }
+
+  public synchronized void resumeTask(Task task) throws KaramelException {
+    if (deploymentManager == null) {
+      throw new KaramelException("No cluster is running at the moment");
+    }
+    deploymentManager.resume(task);
+    LOGGER.log(Level.INFO, String.format("NodeId %s Deployment resumed", task.getTaskId()));
+  }
+
+  public synchronized void resumeNode(Node node) throws KaramelException {
+    if (deploymentManager == null) {
+      throw new KaramelException("No cluster is running at the moment");
+    }
+    deploymentManager.resume(node);
+    LOGGER.log(Level.INFO, String.format("NodeId %s Deployment resumed", node.getNodeId()));
+  }
+
+  public synchronized void resumeGroup(Group group) throws KaramelException {
+    if (deploymentManager == null) {
+      throw new KaramelException("No cluster is running at the moment");
+    }
+    deploymentManager.resume(group);
+    LOGGER.log(Level.INFO, String.format("Group %s Deployment resumed", group.getName()));
   }
 
   public synchronized void terminateCluster() throws KaramelException {
     if (deploymentManager == null) {
       throw new KaramelException("No cluster is running at the moment");
     }
-    deploymentManager.terminate();
+    deploymentManager.terminateDag();
     LOGGER.log(Level.INFO, "Deployment terminated");
+  }
+
+  public synchronized void skipTask(Task task) throws KaramelException {
+    if (deploymentManager == null) {
+      throw new KaramelException("No cluster is running at the moment");
+    }
+    deploymentManager.skip(task);
+    LOGGER.log(Level.INFO, String.format("NodeId %s Deployment skipped", task.getTaskId()));
+  }
+
+  public synchronized void skipNode(Node node) throws KaramelException {
+    if (deploymentManager == null) {
+      throw new KaramelException("No cluster is running at the moment");
+    }
+    deploymentManager.skip(node);
+    LOGGER.log(Level.INFO, String.format("NodeId %s Deployment skipped", node.getNodeId()));
+  }
+
+  public synchronized void skipGroup(Group group) throws KaramelException {
+    if (deploymentManager == null) {
+      throw new KaramelException("No cluster is running at the moment");
+    }
+    deploymentManager.skip(group);
+    LOGGER.log(Level.INFO, String.format("Group %s Deployment skipped", group.getName()));
+  }
+
+  public synchronized void retryTask(Task task) throws KaramelException {
+    if (deploymentManager == null) {
+      throw new KaramelException("No cluster is running at the moment");
+    }
+    deploymentManager.retry(task);
+    LOGGER.log(Level.INFO, String.format("NodeId %s Deployment retried", task.getTaskId()));
+  }
+
+  public synchronized void retryNode(Node node) throws KaramelException {
+    if (deploymentManager == null) {
+      throw new KaramelException("No cluster is running at the moment");
+    }
+    deploymentManager.retry(node);
+    LOGGER.log(Level.INFO, String.format("NodeId %s Deployment retried", node.getNodeId()));
+  }
+
+  public synchronized void retryGroup(Group group) throws KaramelException {
+    if (deploymentManager == null) {
+      throw new KaramelException("No cluster is running at the moment");
+    }
+    deploymentManager.retry(group);
+    LOGGER.log(Level.INFO, String.format("Group %s Deployment retried", group.getName()));
   }
 
   public Map<Node, List<Task>> getClusterDeploymentStatus() {
@@ -108,5 +202,15 @@ public class ClusterService {
 
   public List<Task> getNodeDeploymentStatus(Node node) {
     return deploymentManager.getNodeDeployment(node);
+  }
+
+  public Task getTask(int taskId) throws KaramelException {
+    if (deploymentManager == null) {
+      throw new KaramelException("No cluster is running at the moment");
+    }
+    return deploymentManager.getDag().getTaskList().stream()
+      .filter(task -> task.getTaskId() == taskId)
+      .findFirst()
+      .orElseThrow(() -> new KaramelException("Cannot find task with id: " + taskId));
   }
 }

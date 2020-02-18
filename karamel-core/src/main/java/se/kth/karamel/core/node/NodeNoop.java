@@ -1,6 +1,7 @@
 package se.kth.karamel.core.node;
 
 import net.schmizz.sshj.connection.channel.direct.Session;
+import se.kth.karamel.common.clusterdef.Group;
 import se.kth.karamel.core.ClusterContext;
 
 import java.io.IOException;
@@ -8,12 +9,12 @@ import java.io.IOException;
 public class NodeNoop extends NodeImpl {
 
   public NodeNoop(int nodeId, String hostname, String privateIP, String publicIP,
-                  String user, ClusterContext clusterContext) {
-    super(nodeId, hostname, privateIP, publicIP, user, clusterContext);
+                  String user, Group group, ClusterContext clusterContext) {
+    super(nodeId, hostname, privateIP, publicIP, user, group, clusterContext);
   }
 
   public NodeNoop(int nodeId) {
-    super(nodeId, "", "", "", "", null);
+    super(nodeId, "", "", "", "", null, null);
   }
 
   @Override
