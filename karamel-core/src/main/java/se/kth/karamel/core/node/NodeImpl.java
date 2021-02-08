@@ -13,7 +13,6 @@ import se.kth.karamel.core.ClusterContext;
 
 import java.io.IOException;
 import java.nio.file.Paths;
-import java.security.KeyPair;
 
 public class NodeImpl implements Node {
 
